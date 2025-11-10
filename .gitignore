@@ -1,0 +1,36 @@
+# Monorepo
+node_modules/
+dist/
+.turbo
+build
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Next.js
+.next/
+out/
+*.pem
+
+# Backend
+src/**/*.log
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+
+# Build
+*.tsbuildinfo

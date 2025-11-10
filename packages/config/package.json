@@ -1,0 +1,14 @@
+{
+  "name": "@engagement-nexus/config",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "clean": "rm -rf dist"
+  }
+}
