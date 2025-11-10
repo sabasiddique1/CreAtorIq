@@ -59,7 +59,7 @@ export default function LandingPage() {
       {/* Features Section */}
       <section className="py-20 px-4 bg-slate-900/50">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-white mb-12 text-center">Why Engagement Nexus?</h2>
+          <h2 className="text-3xl font-bold text-white mb-12 text-center">Why CreatorIQ?</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-6">
               <BarChart3 className="w-12 h-12 text-blue-400 mb-4" />
