@@ -117,7 +117,7 @@ export default function RegisterPage() {
     <main className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Join Engagement Nexus</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Join CreatorIQ</h1>
           <p className="text-slate-400">Create your account to get started</p>
         </div>
 
