@@ -6,7 +6,13 @@ import { Button } from "../../../components/ui/button"
 import { Input } from "../../../components/ui/input"
 import { graphqlQuery } from "../../../lib/graphql"
 import { toast } from "../../../hooks/use-toast"
-import { Search, Trash2, CheckCircle, XCircle, FileText, Calendar } from "lucide-react"
+import { Search, Trash2, CheckCircle, XCircle, FileText, Calendar, Star } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../../components/ui/tooltip"
 
 interface ContentItem {
   _id: string
@@ -204,15 +210,25 @@ export default function ContentModerationPage() {
                       <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-xs rounded">
                         {item.type}
                       </span>
-                      <span
-                        className={`px-2 py-0.5 text-xs rounded ${
-                          item.status === "published"
-                            ? "bg-emerald-500/20 text-emerald-400"
-                            : "bg-slate-500/20 text-slate-400"
-                        }`}
-                      >
-                        {item.status}
-                      </span>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span
+                              className={`px-2 py-0.5 text-xs rounded flex items-center gap-1 ${
+                                item.status === "published"
+                                  ? "bg-emerald-500/20 text-emerald-400"
+                                  : "bg-slate-500/20 text-slate-400"
+                              }`}
+                            >
+                              {item.status === "published" && <Star className="w-3 h-3 fill-current" />}
+                              {item.status}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{item.status === "published" ? "Published" : item.status}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                       {item.isPremium && (
                         <span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded">
                           Premium

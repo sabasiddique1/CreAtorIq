@@ -1,12 +1,20 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "../../../components/ui/button"
 import { Card } from "../../../components/ui/card"
-import { Upload, Copy, MessageSquare, Calendar } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../../../components/ui/dialog"
+import { Upload, Copy, MessageSquare, Calendar, Lightbulb, Video, BookOpen, MessageCircle, Target, X } from "lucide-react"
 import { useAuthStore } from "../../../hooks/use-auth-store"
 import { graphqlQuery } from "../../../lib/graphql"
+import { useToast } from "../../../hooks/use-toast"
 
 interface CommentBatch {
   _id: string
@@ -19,21 +27,36 @@ interface CommentBatch {
   importedAt: string
 }
 
+interface IdeaSuggestion {
+  _id: string
+  title: string
+  description: string
+  ideaType: string
+  tierTarget: string
+  outline: string[]
+  status: string
+}
+
 export default function AudiencePage() {
   const { user } = useAuthStore()
+  const { toast } = useToast()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [importMode, setImportMode] = useState<"paste" | "csv" | null>(null)
   const [pastedComments, setPastedComments] = useState("")
+  const [parsedComments, setParsedComments] = useState<Array<{ text: string; author: string }>>([])
   const [importing, setImporting] = useState(false)
   const [batches, setBatches] = useState<CommentBatch[]>([])
   const [loading, setLoading] = useState(true)
   const [analyzing, setAnalyzing] = useState<string | null>(null)
+  const [generatedIdeas, setGeneratedIdeas] = useState<IdeaSuggestion[]>([])
+  const [showIdeasModal, setShowIdeasModal] = useState(false)
+  const [generatingIdeas, setGeneratingIdeas] = useState(false)
 
   const fetchBatches = async () => {
     if (!user) return
 
     setLoading(true)
     try {
-      // Get creator profile first
       const profileResult = await graphqlQuery(`
         query {
           myCreatorProfile {
@@ -43,7 +66,6 @@ export default function AudiencePage() {
       `)
 
       if (profileResult?.myCreatorProfile) {
-        // Fetch comment batches directly
         const batchesResult = await graphqlQuery(
           `
           query {
@@ -79,36 +101,162 @@ export default function AudiencePage() {
     }
   }, [user])
 
-  const handleImport = async (e?: React.MouseEvent) => {
-    console.log("=== handleImport FUNCTION CALLED ===")
-    e?.preventDefault()
-    e?.stopPropagation()
-    
-    console.log("handleImport called", { 
-      pastedComments: pastedComments.substring(0, 50), 
-      pastedCommentsTrimmed: pastedComments.trim().length,
-      user: !!user 
-    })
-    
-    if (!pastedComments.trim()) {
-      alert("Please paste some comments first")
-      return
+  // Parse comments when pastedComments changes
+  useEffect(() => {
+    if (pastedComments.trim()) {
+      try {
+        const parsed = JSON.parse(pastedComments)
+        const comments = Array.isArray(parsed) ? parsed : [parsed]
+        setParsedComments(comments.map((c: any) => ({
+          text: c.text || c,
+          author: c.author || "Anonymous"
+        })))
+      } catch {
+        const comments = pastedComments
+          .split("\n")
+          .filter((line) => line.trim())
+          .map((text) => ({
+            text: text.trim(),
+            author: "Anonymous"
+          }))
+        setParsedComments(comments)
+      }
+    } else {
+      setParsedComments([])
     }
-    
-    if (!user) {
-      alert("Please log in first")
+  }, [pastedComments])
+
+  const handleCSVUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    if (!file.name.endsWith('.csv')) {
+      toast({
+        title: "Invalid file",
+        description: "Please upload a CSV file",
+        variant: "destructive",
+      })
       return
     }
 
     setImporting(true)
     try {
-      // Parse comments (one per line or JSON array)
+      const text = await file.text()
+      const lines = text.split('\n').filter(line => line.trim())
+      
+      // Parse CSV (simple parser - assumes first column is comment text)
+      const comments = lines.map((line, index) => {
+        // Skip header row if present
+        if (index === 0 && (line.toLowerCase().includes('comment') || line.toLowerCase().includes('text'))) {
+          return null
+        }
+        const parts = line.split(',').map(p => p.trim().replace(/^"|"$/g, ''))
+        return {
+          text: parts[0] || line.trim(),
+          author: parts[1] || "Anonymous",
+          timestamp: parts[2] ? new Date(parts[2]).toISOString() : new Date().toISOString(),
+        }
+      }).filter(Boolean) as Array<{ text: string; author: string; timestamp: string }>
+
+      if (comments.length === 0) {
+        toast({
+          title: "No comments found",
+          description: "CSV file appears to be empty or invalid",
+          variant: "destructive",
+        })
+        return
+      }
+
+      const profileResult = await graphqlQuery(`
+        query {
+          myCreatorProfile {
+            _id
+          }
+        }
+      `)
+
+      if (!profileResult?.myCreatorProfile) {
+        toast({
+          title: "Profile not found",
+          description: "Please complete onboarding first.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      const importResult = await graphqlQuery(
+        `
+        mutation ImportCommentBatch(
+          $creatorId: ID!
+          $source: String!
+          $rawComments: [JSON!]!
+        ) {
+          importCommentBatch(
+            creatorId: $creatorId
+            source: $source
+            rawComments: $rawComments
+          ) {
+            _id
+            importedAt
+          }
+        }
+      `,
+        {
+          creatorId: profileResult.myCreatorProfile._id,
+          source: "CSV_UPLOAD",
+          rawComments: comments,
+        }
+      )
+
+      if (importResult?.importCommentBatch) {
+        await fetchBatches()
+        setImportMode(null)
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ''
+        }
+        toast({
+          title: "Success",
+          description: `Successfully imported ${comments.length} comments from CSV!`,
+        })
+      }
+    } catch (error: any) {
+      console.error("Error importing CSV:", error)
+      toast({
+        title: "Import failed",
+        description: error.message || "Unknown error",
+        variant: "destructive",
+      })
+    } finally {
+      setImporting(false)
+    }
+  }
+
+  const handleImport = async () => {
+    if (!pastedComments.trim()) {
+      toast({
+        title: "No comments",
+        description: "Please paste some comments first",
+        variant: "destructive",
+      })
+      return
+    }
+    
+    if (!user) {
+      toast({
+        title: "Not logged in",
+        description: "Please log in first",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setImporting(true)
+    try {
       let comments: any[] = []
       try {
         const parsed = JSON.parse(pastedComments)
         comments = Array.isArray(parsed) ? parsed : [parsed]
       } catch {
-        // If not JSON, treat as one comment per line
         comments = pastedComments
           .split("\n")
           .filter((line) => line.trim())
@@ -120,11 +268,14 @@ export default function AudiencePage() {
       }
 
       if (comments.length === 0) {
-        alert("No valid comments found. Please paste some comments.")
+        toast({
+          title: "Invalid comments",
+          description: "No valid comments found. Please paste some comments.",
+          variant: "destructive",
+        })
         return
       }
 
-      // Get creator profile first
       const profileResult = await graphqlQuery(`
         query {
           myCreatorProfile {
@@ -134,17 +285,14 @@ export default function AudiencePage() {
       `)
 
       if (!profileResult?.myCreatorProfile) {
-        alert("Creator profile not found. Please complete onboarding first.")
+        toast({
+          title: "Profile not found",
+          description: "Please complete onboarding first.",
+          variant: "destructive",
+        })
         return
       }
 
-      console.log("Calling importCommentBatch mutation", {
-        creatorId: profileResult.myCreatorProfile._id,
-        source: "MANUAL_PASTE",
-        commentsCount: comments.length,
-      })
-
-      // Import the comment batch
       const importResult = await graphqlQuery(
         `
         mutation ImportCommentBatch(
@@ -169,18 +317,23 @@ export default function AudiencePage() {
         }
       )
 
-      console.log("Import result:", importResult)
-
       if (importResult?.importCommentBatch) {
-        // Refresh batches list
         await fetchBatches()
         setPastedComments("")
+        setParsedComments([])
         setImportMode(null)
-        alert(`Successfully imported ${comments.length} comments!`)
+        toast({
+          title: "Success",
+          description: `Successfully imported ${comments.length} comments!`,
+        })
       }
     } catch (error: any) {
       console.error("Error importing comments:", error)
-      alert(`Error importing comments: ${error.message || "Unknown error"}`)
+      toast({
+        title: "Import failed",
+        description: error.message || "Unknown error",
+        variant: "destructive",
+      })
     } finally {
       setImporting(false)
     }
@@ -206,15 +359,110 @@ export default function AudiencePage() {
       )
 
       if (result?.analyzeCommentBatch) {
-        alert("Comments analyzed successfully! You can now generate ideas on the Ideas page.")
-        // Optionally refresh batches to show analysis status
-        await fetchBatches()
+        const snapshotId = result.analyzeCommentBatch._id
+        toast({
+          title: "Analysis complete",
+          description: "Comments analyzed successfully! Generating ideas...",
+        })
+        
+        await handleGenerateIdeas(snapshotId)
       }
     } catch (error: any) {
       console.error("Error analyzing comments:", error)
-      alert(`Error analyzing comments: ${error.message || "Unknown error"}`)
+      toast({
+        title: "Analysis failed",
+        description: error.message || "Unknown error",
+        variant: "destructive",
+      })
     } finally {
       setAnalyzing(null)
+    }
+  }
+
+  const handleGenerateIdeas = async (snapshotId: string) => {
+    if (!user) return
+
+    setGeneratingIdeas(true)
+    try {
+      const result = await graphqlQuery(
+        `
+        mutation {
+          generateIdeas(snapshotId: "${snapshotId}", tierTarget: null) {
+            _id
+            title
+            description
+            ideaType
+            tierTarget
+            outline
+            status
+          }
+        }
+      `
+      )
+
+      if (result?.generateIdeas && result.generateIdeas.length > 0) {
+        setGeneratedIdeas(result.generateIdeas)
+        setShowIdeasModal(true)
+        toast({
+          title: "Ideas generated",
+          description: `Successfully generated ${result.generateIdeas.length} content ideas!`,
+        })
+      } else {
+        toast({
+          title: "No ideas generated",
+          description: "This might be due to missing API key or insufficient data.",
+          variant: "destructive",
+        })
+      }
+    } catch (error: any) {
+      console.error("Error generating ideas:", error)
+      toast({
+        title: "Generation failed",
+        description: error.message || "Unknown error",
+        variant: "destructive",
+      })
+    } finally {
+      setGeneratingIdeas(false)
+    }
+  }
+
+  const getIdeaTypeIcon = (type: string) => {
+    switch (type) {
+      case "video":
+        return <Video className="w-4 h-4" />
+      case "mini-course":
+        return <BookOpen className="w-4 h-4" />
+      case "live_qa":
+        return <MessageCircle className="w-4 h-4" />
+      case "community_challenge":
+        return <Target className="w-4 h-4" />
+      default:
+        return <Lightbulb className="w-4 h-4" />
+    }
+  }
+
+  const getIdeaTypeLabel = (type: string) => {
+    switch (type) {
+      case "video":
+        return "Video"
+      case "mini-course":
+        return "Mini Course"
+      case "live_qa":
+        return "Live Q&A"
+      case "community_challenge":
+        return "Community Challenge"
+      default:
+        return type
+    }
+  }
+
+  const removeComment = (index: number) => {
+    const newComments = parsedComments.filter((_, i) => i !== index)
+    if (newComments.length === 0) {
+      setPastedComments("")
+      setParsedComments([])
+    } else {
+      setPastedComments(newComments.map(c => c.text).join("\n"))
     }
   }
 
@@ -242,7 +490,12 @@ export default function AudiencePage() {
           </button>
 
           <button
-            onClick={() => setImportMode(importMode === "csv" ? null : "csv")}
+            onClick={() => {
+              setImportMode(importMode === "csv" ? null : "csv")
+              if (importMode !== "csv" && fileInputRef.current) {
+                fileInputRef.current.click()
+              }
+            }}
             className="flex items-center gap-3 p-4 border-2 border-slate-600 rounded-lg hover:border-purple-400 transition text-left"
           >
             <Upload className="w-5 h-5 text-purple-400" />
@@ -251,6 +504,13 @@ export default function AudiencePage() {
               <p className="text-sm text-slate-400">Import from file</p>
             </div>
           </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv"
+            onChange={handleCSVUpload}
+            className="hidden"
+          />
         </div>
 
         {importMode === "paste" && (
@@ -258,73 +518,50 @@ export default function AudiencePage() {
             <div>
               <textarea
                 value={pastedComments}
-                onChange={(e) => {
-                  console.log("Textarea changed, length:", e.target.value.length)
-                  setPastedComments(e.target.value)
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && e.ctrlKey) {
-                    e.preventDefault()
-                    console.log("Ctrl+Enter pressed, triggering import")
-                    const button = e.currentTarget.closest('div')?.querySelector('button[type="button"]') as HTMLButtonElement
-                    if (button && !button.disabled) {
-                      button.click()
-                    }
-                  }
-                }}
-                placeholder="Paste comments here, one per line or as JSON array... (Ctrl+Enter to import)"
+                onChange={(e) => setPastedComments(e.target.value)}
+                placeholder="Paste comments here, one per line or as JSON array..."
                 className="w-full h-32 bg-slate-900 border border-slate-600 rounded text-white p-3 focus:border-blue-400 focus:outline-none"
               />
-              <p className="text-xs text-slate-400 mt-1">
-                Characters: {pastedComments.length} | Trimmed: {pastedComments.trim().length} | 
-                Button disabled: {importing || !pastedComments.trim() ? "Yes" : "No"} | 
-                User: {user ? "Logged in" : "Not logged in"}
-              </p>
             </div>
+            
+            {/* Show parsed comments as tags */}
+            {parsedComments.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm text-slate-400">
+                  {parsedComments.length} comment{parsedComments.length !== 1 ? 's' : ''} ready to import:
+                </p>
+                <div className="flex flex-wrap gap-2 p-3 bg-slate-900/50 rounded-lg border border-slate-700 max-h-48 overflow-y-auto">
+                  {parsedComments.map((comment, index) => (
+                    <div
+                      key={index}
+                      className="group relative inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600/20 border border-blue-600/30 rounded-lg text-sm text-blue-300"
+                    >
+                      <span className="max-w-xs truncate">{comment.text}</span>
+                      <button
+                        onClick={() => removeComment(index)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3.5 h-3.5 hover:text-red-400" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={(e) => {
-                  console.log("=== BUTTON CLICKED ===")
-                  e.preventDefault()
-                  e.stopPropagation()
-                  
-                  const trimmed = pastedComments.trim()
-                  console.log("Button clicked", { 
-                    pastedComments: pastedComments.substring(0, 50), 
-                    pastedCommentsLength: pastedComments.length,
-                    pastedCommentsTrimmed: trimmed.length,
-                    importing, 
-                    user: !!user,
-                    isDisabled: importing || !trimmed
-                  })
-                  
-                  if (importing) {
-                    console.log("Already importing, ignoring click")
-                    return
-                  }
-                  
-                  if (!trimmed) {
-                    console.log("No comments pasted, showing alert")
-                    alert("Please paste some comments first")
-                    return
-                  }
-                  
-                  console.log("Calling handleImport...")
-                  handleImport(e).catch((err) => {
-                    console.error("Error in handleImport:", err)
-                    alert(`Error: ${err.message || "Unknown error"}`)
-                  })
-                }}
+              <Button
+                onClick={handleImport}
                 disabled={importing || !pastedComments.trim()}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                title={!pastedComments.trim() ? "Please paste some comments first" : importing ? "Importing..." : "Click to import comments"}
+                variant="outline"
+                className="border-blue-600/50 text-blue-300 hover:bg-blue-600/10"
               >
                 {importing ? "Importing..." : "Import Comments"}
-              </button>
+              </Button>
               <Button
                 onClick={() => {
                   setPastedComments("")
+                  setParsedComments([])
                   setImportMode(null)
                 }}
                 variant="outline"
@@ -333,6 +570,31 @@ export default function AudiencePage() {
                 Cancel
               </Button>
             </div>
+          </div>
+        )}
+
+        {importMode === "csv" && (
+          <div className="space-y-4">
+            <div className="p-4 bg-slate-900/50 border border-slate-700 rounded-lg">
+              <p className="text-sm text-slate-400 mb-2">
+                Click the "Upload CSV" button above to select a CSV file.
+              </p>
+              <p className="text-xs text-slate-500">
+                CSV format: First column should contain comment text, optional second column for author name.
+              </p>
+            </div>
+            <Button
+              onClick={() => {
+                setImportMode(null)
+                if (fileInputRef.current) {
+                  fileInputRef.current.value = ''
+                }
+              }}
+              variant="outline"
+              className="border-slate-600 text-slate-300"
+            >
+              Cancel
+            </Button>
           </div>
         )}
       </Card>
@@ -362,11 +624,12 @@ export default function AudiencePage() {
                   </div>
                   <Button
                     onClick={() => handleAnalyze(batch._id)}
-                    disabled={analyzing === batch._id}
-                    className="bg-purple-600 hover:bg-purple-700 text-sm"
+                    disabled={analyzing === batch._id || generatingIdeas}
+                    variant="outline"
+                    className="border-purple-600/50 text-purple-300 hover:bg-purple-600/10"
                     size="sm"
                   >
-                    {analyzing === batch._id ? "Analyzing..." : "Analyze for Ideas"}
+                    {analyzing === batch._id ? "Analyzing..." : generatingIdeas ? "Generating..." : "Analyze for Ideas"}
                   </Button>
                 </div>
               </div>
@@ -376,6 +639,76 @@ export default function AudiencePage() {
           <p className="text-slate-400">No comment batches yet. Import your first batch above.</p>
         )}
       </Card>
+
+      {/* Generated Ideas Modal */}
+      <Dialog open={showIdeasModal} onOpenChange={setShowIdeasModal}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-slate-900 border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="text-white">Generated Content Ideas</DialogTitle>
+            <DialogDescription className="text-slate-400">
+              {generatedIdeas.length} AI-generated ideas based on your audience analysis
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            {generatedIdeas.map((idea) => (
+              <Card key={idea._id} className="bg-slate-800/50 border-slate-700 p-4">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-purple-600/20 rounded-lg text-purple-400">
+                    {getIdeaTypeIcon(idea.ideaType)}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <h3 className="text-lg font-semibold text-white mb-1">{idea.title}</h3>
+                        <div className="flex items-center gap-2 text-sm text-slate-400 mb-2">
+                          <span className="px-2 py-1 bg-slate-700/50 rounded">
+                            {getIdeaTypeLabel(idea.ideaType)}
+                          </span>
+                          {idea.tierTarget && idea.tierTarget !== "all" && (
+                            <span className="px-2 py-1 bg-blue-700/30 rounded text-blue-300">
+                              Tier {idea.tierTarget}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-slate-300 mb-3">{idea.description}</p>
+                    {idea.outline && idea.outline.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium text-slate-400 mb-2">Content Outline:</p>
+                        <ul className="list-disc list-inside space-y-1 text-sm text-slate-300">
+                          {idea.outline.map((point, idx) => (
+                            <li key={idx}>{point}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+          <div className="flex justify-end gap-3 mt-6">
+            <Button
+              onClick={() => setShowIdeasModal(false)}
+              variant="outline"
+              className="border-slate-600 text-slate-300"
+            >
+              Close
+            </Button>
+            <Button
+              onClick={() => {
+                setShowIdeasModal(false)
+                window.location.href = "/creator/ideas"
+              }}
+              variant="outline"
+              className="border-purple-600/50 text-purple-300 hover:bg-purple-600/10"
+            >
+              View All Ideas
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
