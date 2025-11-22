@@ -93,11 +93,11 @@ export default function CreatorLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex">
+    <div className="h-screen bg-slate-950 flex overflow-hidden">
       {/* Sidebar */}
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-50
+          fixed lg:static h-screen left-0 z-50
           bg-slate-900 border-r border-slate-800
           transition-all duration-300 ease-in-out
           ${sidebarCollapsed ? "w-16" : "w-64"}
@@ -265,7 +265,7 @@ export default function CreatorLayout({
       )}
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-0 min-h-screen">
+      <main className="flex-1 lg:ml-0 h-screen flex flex-col overflow-hidden">
         {/* Mobile Header */}
         <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-slate-900 border-b border-slate-800 p-4 flex items-center justify-between">
           <button
@@ -313,7 +313,7 @@ export default function CreatorLayout({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className={`pt-16 lg:pt-0 transition-all duration-300`}>
+        <div className={`pt-16 lg:pt-0 transition-all duration-300 flex-1 overflow-y-auto`}>
           <div className="p-4 sm:p-6 lg:p-8">{children}</div>
         </div>
       </main>
