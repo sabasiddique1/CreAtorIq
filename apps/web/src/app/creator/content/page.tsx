@@ -111,7 +111,7 @@ export default function ContentPage() {
           <h1 className="text-3xl font-bold text-white mb-2">Content Management</h1>
           <p className="text-slate-400">Manage and organize your premium content.</p>
         </div>
-        <Button onClick={() => setShowNewForm(!showNewForm)} className="bg-blue-600 hover:bg-blue-700 gap-2">
+        <Button onClick={() => setShowNewForm(!showNewForm)} className="bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90 gap-2">
           <Plus className="w-4 h-4" /> New Content
         </Button>
       </div>
@@ -170,7 +170,7 @@ export default function ContentPage() {
               <Button
                 onClick={handleCreateContent}
                 disabled={!newContent.title}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90"
               >
                 Create Content
               </Button>

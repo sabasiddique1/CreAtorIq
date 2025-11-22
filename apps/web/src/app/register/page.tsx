@@ -98,7 +98,7 @@ function RegisterForm() {
 
       {error && <div className="text-red-400 text-sm">{error}</div>}
 
-      <Button type="submit" disabled={isLoading} className="w-full bg-blue-600 hover:bg-blue-700">
+      <Button type="submit" disabled={isLoading} className="w-full bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90">
         {isLoading ? "Creating account..." : "Create Account"}
       </Button>
 

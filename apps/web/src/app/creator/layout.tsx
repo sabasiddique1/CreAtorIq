@@ -161,7 +161,7 @@ export default function CreatorLayout({
                     flex items-center gap-3 px-3 py-2.5 rounded-lg
                     transition-colors
                     ${isActive
-                      ? "bg-blue-600 text-white"
+                      ? "bg-[lab(33_35.57_-75.79)] text-white"
                       : "text-slate-300 hover:bg-slate-800 hover:text-white"
                     }
                   `}
@@ -181,7 +181,7 @@ export default function CreatorLayout({
                   <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-800 transition-colors">
                     <Avatar className="w-8 h-8">
                       <AvatarImage src="" alt={user.name} />
-                      <AvatarFallback className="bg-blue-600 text-white text-xs">
+                      <AvatarFallback className="bg-[lab(33_35.57_-75.79)] text-white text-xs">
                         {getUserInitials()}
                       </AvatarFallback>
                     </Avatar>
@@ -221,7 +221,7 @@ export default function CreatorLayout({
                   <button className="w-full flex items-center justify-center">
                     <Avatar className="w-8 h-8">
                       <AvatarImage src="" alt={user.name} />
-                      <AvatarFallback className="bg-blue-600 text-white text-xs">
+                      <AvatarFallback className="bg-[lab(33_35.57_-75.79)] text-white text-xs">
                         {getUserInitials()}
                       </AvatarFallback>
                     </Avatar>
@@ -282,7 +282,7 @@ export default function CreatorLayout({
               <button>
                 <Avatar className="w-8 h-8">
                   <AvatarImage src="" alt={user.name} />
-                  <AvatarFallback className="bg-blue-600 text-white text-xs">
+                  <AvatarFallback className="bg-[lab(33_35.57_-75.79)] text-white text-xs">
                     {getUserInitials()}
                   </AvatarFallback>
                 </Avatar>

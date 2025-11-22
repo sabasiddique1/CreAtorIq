@@ -534,7 +534,7 @@ export default function AudiencePage() {
                   {parsedComments.map((comment, index) => (
                     <div
                       key={index}
-                      className="group relative inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600/20 border border-blue-600/30 rounded-lg text-sm text-blue-300"
+                      className="group relative inline-flex items-center gap-2 px-3 py-1.5 bg-[lab(33_35.57_-75.79)]/20 border border-[lab(33_35.57_-75.79)]/30 rounded-lg text-sm text-[lab(33_35.57_-75.79)]"
                     >
                       <span className="max-w-xs truncate">{comment.text}</span>
                       <button
@@ -554,7 +554,7 @@ export default function AudiencePage() {
                 onClick={handleImport}
                 disabled={importing || !pastedComments.trim()}
                 variant="outline"
-                className="border-blue-600/50 text-blue-300 hover:bg-blue-600/10"
+                className="border-[lab(33_35.57_-75.79)]/50 text-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/10"
               >
                 {importing ? "Importing..." : "Import Comments"}
               </Button>
@@ -626,7 +626,7 @@ export default function AudiencePage() {
                     onClick={() => handleAnalyze(batch._id)}
                     disabled={analyzing === batch._id || generatingIdeas}
                     variant="outline"
-                    className="border-purple-600/50 text-purple-300 hover:bg-purple-600/10"
+                    className="border-purple-600/50 text-purple-300 hover:text-purple-300 hover:bg-purple-600/10"
                     size="sm"
                   >
                     {analyzing === batch._id ? "Analyzing..." : generatingIdeas ? "Generating..." : "Analyze for Ideas"}

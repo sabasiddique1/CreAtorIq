@@ -18,7 +18,7 @@ export default function LandingPage() {
               </Button>
             </Link>
             <Link href="/register">
-              <Button className="bg-blue-600 hover:bg-blue-700">Get Started</Button>
+              <Button className="bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90">Get Started</Button>
             </Link>
           </div>
         </div>
@@ -39,7 +39,7 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/register">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 gap-2">
+              <Button size="lg" className="bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90 gap-2">
                 Start as Creator <ArrowRight className="w-5 h-5" />
               </Button>
             </Link>
@@ -91,7 +91,7 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-white mb-6">Ready to grow your community smarter?</h2>
           <Link href="/register">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+            <Button size="lg" className="bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90">
               Create Your Account
             </Button>
           </Link>

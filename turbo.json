@@ -1,9 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "version": "2",
   "tasks": {
     "build": {
-      "description": "Build the application",
       "cache": false,
       "inputs": ["src/**", "tsconfig.json", "package.json"],
       "outputs": ["dist/**", ".next/**"]

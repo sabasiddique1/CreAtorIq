@@ -87,7 +87,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       transition-colors
                       ${
                         isActive
-                          ? "bg-blue-600 text-white"
+                          ? "bg-[lab(33_35.57_-75.79)] text-white"
                           : "text-slate-300 hover:bg-slate-800 hover:text-white"
                       }
                     `}

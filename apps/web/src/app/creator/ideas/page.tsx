@@ -391,7 +391,7 @@ export default function IdeasPage() {
                             }
                           }}
                           variant="outline"
-                          className="border-purple-600/50 text-purple-300 hover:bg-purple-600/10"
+                          className="border-purple-600/50 text-purple-300 hover:text-purple-300 hover:bg-purple-600/10"
                           size="sm"
                         >
                           View Ideas ({snapshotIdeas.length})
@@ -401,7 +401,7 @@ export default function IdeasPage() {
                         onClick={() => handleGenerateIdeas(snapshot._id)}
                         disabled={generating === snapshot._id}
                         variant="outline"
-                        className="border-purple-600/50 text-purple-300 hover:bg-purple-600/10"
+                        className="border-purple-600/50 text-purple-300 hover:text-purple-300 hover:bg-purple-600/10"
                         size="sm"
                       >
                         {generating === snapshot._id ? "Generating..." : "Generate Ideas"}

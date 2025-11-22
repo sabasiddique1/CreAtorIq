@@ -349,7 +349,7 @@ export default function UserManagementPage() {
                 </select>
               </div>
               <div className="flex gap-3">
-                <Button onClick={handleSaveEdit} className="flex-1 bg-blue-600 hover:bg-blue-700">
+                <Button onClick={handleSaveEdit} className="flex-1 bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90">
                   Save
                 </Button>
                 <Button

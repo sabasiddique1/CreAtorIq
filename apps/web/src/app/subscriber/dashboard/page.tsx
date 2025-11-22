@@ -310,7 +310,7 @@ export default function SubscriberDashboard() {
                 </div>
 
                 <Button
-                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  className="w-full bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90"
                   onClick={() => handleViewContent(item)}
                 >
                   <ExternalLink className="w-4 h-4 mr-2" />
@@ -407,7 +407,7 @@ export default function SubscriberDashboard() {
 
             <div className="flex gap-3">
               <Button 
-                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                className="flex-1 bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90"
                 onClick={() => handleAccessContent(selectedContent)}
                 disabled={!selectedContent.contentUrl}
               >

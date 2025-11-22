@@ -186,7 +186,7 @@ export default function SettingsPage() {
           <Button 
             onClick={handleSave} 
             disabled={loading || fetching}
-            className="bg-blue-600 hover:bg-blue-700 w-full disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90 w-full disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Saving..." : "Save Changes"}
           </Button>
