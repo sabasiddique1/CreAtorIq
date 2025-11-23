@@ -123,7 +123,7 @@ export default function OnboardingPage() {
             <Button
               onClick={handleNext}
               disabled={loading || !formData.displayName || !formData.niche}
-              className="flex-1 bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90"
+              className="flex-1 bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90 hover:text-white text-white"
             >
               {loading ? "Setting up..." : step === 3 ? "Complete Setup" : "Next"}
             </Button>

@@ -9,6 +9,7 @@ import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { useAuthStore } from "../../hooks/use-auth-store"
 import { ROLES } from "@engagement-nexus/config"
+import { BrandText } from "../../components/brand-text"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -38,7 +39,9 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-          <p className="text-slate-400">Log in to your CreatorIQ account</p>
+          <p className="text-slate-400">
+            Log in to your <BrandText size="md" className="inline" /> account
+          </p>
         </div>
 
         <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-8">
@@ -69,7 +72,7 @@ export default function LoginPage() {
 
             {error && <div className="text-red-400 text-sm">{error}</div>}
 
-            <Button type="submit" disabled={isLoading} className="w-full bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90">
+            <Button type="submit" disabled={isLoading} className="w-full bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90 hover:text-white text-white">
               {isLoading ? "Logging in..." : "Log In"}
             </Button>
 

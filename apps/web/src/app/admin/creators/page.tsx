@@ -7,6 +7,16 @@ import { Input } from "../../../components/ui/input"
 import { graphqlQuery } from "../../../lib/graphql"
 import { toast } from "../../../hooks/use-toast"
 import { Search, Trash2, User, Calendar, Video } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../../../components/ui/alert-dialog"
 
 interface Creator {
   _id: string
@@ -22,6 +32,8 @@ export default function CreatorsManagementPage() {
   const [filteredCreators, setFilteredCreators] = useState<Creator[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [creatorToDelete, setCreatorToDelete] = useState<string | null>(null)
 
   useEffect(() => {
     fetchCreators()
@@ -74,10 +86,13 @@ export default function CreatorsManagementPage() {
     }
   }
 
-  const handleDelete = async (creatorId: string) => {
-    if (!confirm("Are you sure you want to delete this creator profile? This will also remove all associated content.")) {
-      return
-    }
+  const handleDeleteClick = (creatorId: string) => {
+    setCreatorToDelete(creatorId)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDelete = async () => {
+    if (!creatorToDelete) return
 
     try {
       await graphqlQuery(
@@ -86,13 +101,15 @@ export default function CreatorsManagementPage() {
           deleteCreatorProfile(id: $id)
         }
       `,
-        { id: creatorId }
+        { id: creatorToDelete }
       )
 
       toast({
         title: "Success",
         description: "Creator profile deleted successfully",
       })
+      setDeleteDialogOpen(false)
+      setCreatorToDelete(null)
       await fetchCreators()
     } catch (error: any) {
       toast({
@@ -162,7 +179,7 @@ export default function CreatorsManagementPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleDelete(creator._id)}
+                    onClick={() => handleDeleteClick(creator._id)}
                     className="border-red-600 text-red-400 hover:bg-red-600/20"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -192,6 +209,29 @@ export default function CreatorsManagementPage() {
           )}
         </div>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Creator Profile</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this creator profile? This will also remove all associated content.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-slate-600 text-slate-300">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

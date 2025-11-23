@@ -8,7 +8,7 @@ const activityEventSchema = new Schema<ActivityEventDocument>(
     creatorId: {
       type: Schema.Types.ObjectId,
       ref: "CreatorProfile",
-      required: true,
+      default: null,
     },
     userId: {
       type: Schema.Types.ObjectId,
@@ -17,7 +17,23 @@ const activityEventSchema = new Schema<ActivityEventDocument>(
     },
     eventType: {
       type: String,
-      enum: ["SUBSCRIBER_JOINED", "CONTENT_PUBLISHED", "BATCH_ANALYZED", "IDEAS_GENERATED"],
+      enum: [
+        "USER_LOGIN",
+        "USER_REGISTER",
+        "USER_LOGOUT",
+        "CREATOR_PROFILE_CREATED",
+        "CREATOR_PROFILE_UPDATED",
+        "SUBSCRIBER_JOINED",
+        "SUBSCRIBER_LEFT",
+        "CONTENT_CREATED",
+        "CONTENT_PUBLISHED",
+        "CONTENT_UPDATED",
+        "CONTENT_DELETED",
+        "BATCH_ANALYZED",
+        "IDEAS_GENERATED",
+        "COMMENT_BATCH_IMPORTED",
+        "SENTIMENT_ANALYZED",
+      ],
       required: true,
     },
     metadata: {
@@ -31,6 +47,9 @@ const activityEventSchema = new Schema<ActivityEventDocument>(
 )
 
 activityEventSchema.index({ creatorId: 1 })
+activityEventSchema.index({ userId: 1 })
+activityEventSchema.index({ eventType: 1 })
 activityEventSchema.index({ createdAt: -1 })
+activityEventSchema.index({ creatorId: 1, createdAt: -1 })
 
 export const ActivityEventModel = mongoose.model<ActivityEventDocument>("ActivityEvent", activityEventSchema)

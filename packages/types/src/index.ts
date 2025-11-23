@@ -106,9 +106,24 @@ export interface IdeaSuggestion {
 
 export interface ActivityEvent {
   _id: string
-  creatorId: string
+  creatorId?: string
   userId?: string
-  eventType: "SUBSCRIBER_JOINED" | "CONTENT_PUBLISHED" | "BATCH_ANALYZED" | "IDEAS_GENERATED"
+  eventType:
+    | "USER_LOGIN"
+    | "USER_REGISTER"
+    | "USER_LOGOUT"
+    | "CREATOR_PROFILE_CREATED"
+    | "CREATOR_PROFILE_UPDATED"
+    | "SUBSCRIBER_JOINED"
+    | "SUBSCRIBER_LEFT"
+    | "CONTENT_CREATED"
+    | "CONTENT_PUBLISHED"
+    | "CONTENT_UPDATED"
+    | "CONTENT_DELETED"
+    | "BATCH_ANALYZED"
+    | "IDEAS_GENERATED"
+    | "COMMENT_BATCH_IMPORTED"
+    | "SENTIMENT_ANALYZED"
   metadata: Record<string, any>
   createdAt: Date
 }

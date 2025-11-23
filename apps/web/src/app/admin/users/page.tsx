@@ -1,13 +1,23 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Card } from "../../../components/ui/card"
 import { Button } from "../../../components/ui/button"
 import { Input } from "../../../components/ui/input"
 import { graphqlQuery } from "../../../lib/graphql"
 import { toast } from "../../../hooks/use-toast"
-import { Search, Edit, Trash2, Shield, Mail, Calendar } from "lucide-react"
+import { Search, Edit, Trash2, Shield, Mail, Calendar, Plus, Minus } from "lucide-react"
 import { ROLES } from "@engagement-nexus/config"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../../../components/ui/alert-dialog"
 
 interface User {
   _id: string
@@ -26,6 +36,9 @@ export default function UserManagementPage() {
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [editName, setEditName] = useState("")
   const [editRole, setEditRole] = useState("")
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [userToDelete, setUserToDelete] = useState<string | null>(null)
 
   useEffect(() => {
     fetchUsers()
@@ -121,10 +134,13 @@ export default function UserManagementPage() {
     }
   }
 
-  const handleDelete = async (userId: string) => {
-    if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
-      return
-    }
+  const handleDeleteClick = (userId: string) => {
+    setUserToDelete(userId)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDelete = async () => {
+    if (!userToDelete) return
 
     try {
       await graphqlQuery(
@@ -133,13 +149,15 @@ export default function UserManagementPage() {
           deleteUser(id: $id)
         }
       `,
-        { id: userId }
+        { id: userToDelete }
       )
 
       toast({
         title: "Success",
         description: "User deleted successfully",
       })
+      setDeleteDialogOpen(false)
+      setUserToDelete(null)
       await fetchUsers()
     } catch (error: any) {
       toast({
@@ -190,6 +208,16 @@ export default function UserManagementPage() {
       default:
         return "bg-blue-500/20 text-blue-400"
     }
+  }
+
+  const toggleRow = (userId: string) => {
+    const newExpanded = new Set(expandedRows)
+    if (newExpanded.has(userId)) {
+      newExpanded.delete(userId)
+    } else {
+      newExpanded.add(userId)
+    }
+    setExpandedRows(newExpanded)
   }
 
   if (loading) {
@@ -249,66 +277,153 @@ export default function UserManagementPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-700">
+                <th className="text-left py-3 px-4 text-slate-400 font-medium hidden sm:table-cell"></th>
                 <th className="text-left py-3 px-4 text-slate-400 font-medium">Name</th>
                 <th className="text-left py-3 px-4 text-slate-400 font-medium">Email</th>
-                <th className="text-left py-3 px-4 text-slate-400 font-medium">Role</th>
-                <th className="text-left py-3 px-4 text-slate-400 font-medium">Joined</th>
-                <th className="text-right py-3 px-4 text-slate-400 font-medium">Actions</th>
+                <th className="text-left py-3 px-4 text-slate-400 font-medium hidden md:table-cell">Role</th>
+                <th className="text-left py-3 px-4 text-slate-400 font-medium hidden lg:table-cell">Joined</th>
+                <th className="text-right py-3 px-4 text-slate-400 font-medium hidden lg:table-cell">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((user) => (
-                <tr key={user._id} className="border-b border-slate-700/50 hover:bg-slate-800/30">
-                  <td className="py-3 px-4">
-                    <p className="text-white font-medium">{user.name}</p>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-slate-400" />
-                      <span className="text-slate-300">{user.email}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <select
-                      value={user.role}
-                      onChange={(e) => handleRoleChange(user._id, e.target.value)}
-                      className={`px-2 py-1 rounded text-xs font-medium border-0 ${getRoleColor(user.role)}`}
-                    >
-                      <option value="ADMIN">Admin</option>
-                      <option value="CREATOR">Creator</option>
-                      <option value="SUBSCRIBER_T1">Sub T1</option>
-                      <option value="SUBSCRIBER_T2">Sub T2</option>
-                      <option value="SUBSCRIBER_T3">Sub T3</option>
-                    </select>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-2 text-slate-400 text-sm">
-                      <Calendar className="w-4 h-4" />
-                      {new Date(user.createdAt).toLocaleDateString()}
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEdit(user)}
-                        className="text-blue-400 hover:text-blue-300"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(user._id)}
-                        className="text-red-400 hover:text-red-300"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {filteredUsers.map((user) => {
+                const isExpanded = expandedRows.has(user._id)
+                return (
+                  <React.Fragment key={user._id}>
+                    <tr className="border-b border-slate-700/50 hover:bg-slate-800/30">
+                      <td className="py-3 px-4 hidden sm:table-cell">
+                        <button
+                          onClick={() => toggleRow(user._id)}
+                          className="text-slate-400 hover:text-white transition-colors"
+                          aria-label={isExpanded ? "Collapse row" : "Expand row"}
+                        >
+                          {isExpanded ? (
+                            <Minus className="w-4 h-4" />
+                          ) : (
+                            <Plus className="w-4 h-4" />
+                          )}
+                        </button>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => toggleRow(user._id)}
+                            className="sm:hidden text-slate-400 hover:text-white transition-colors"
+                            aria-label={isExpanded ? "Collapse row" : "Expand row"}
+                          >
+                            {isExpanded ? (
+                              <Minus className="w-4 h-4" />
+                            ) : (
+                              <Plus className="w-4 h-4" />
+                            )}
+                          </button>
+                          <p className="text-white font-medium">{user.name}</p>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-4 h-4 text-slate-400 hidden sm:inline" />
+                          <span className="text-slate-300 truncate max-w-[150px] sm:max-w-none">{user.email}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 hidden md:table-cell">
+                        <select
+                          value={user.role}
+                          onChange={(e) => handleRoleChange(user._id, e.target.value)}
+                          className={`px-2 py-1 rounded text-xs font-medium border-0 ${getRoleColor(user.role)}`}
+                        >
+                          <option value="ADMIN">Admin</option>
+                          <option value="CREATOR">Creator</option>
+                          <option value="SUBSCRIBER_T1">Sub T1</option>
+                          <option value="SUBSCRIBER_T2">Sub T2</option>
+                          <option value="SUBSCRIBER_T3">Sub T3</option>
+                        </select>
+                      </td>
+                      <td className="py-3 px-4 hidden lg:table-cell">
+                        <div className="flex items-center gap-2 text-slate-400 text-sm">
+                          <Calendar className="w-4 h-4" />
+                          {new Date(user.createdAt).toLocaleDateString()}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 hidden lg:table-cell">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEdit(user)}
+                            className="text-blue-400 hover:text-blue-300"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteClick(user._id)}
+                            className="text-red-400 hover:text-red-300"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                    {/* Expandable content for mobile/tablet */}
+                    {isExpanded && (
+                      <tr className="border-b border-slate-700/50 bg-slate-800/20">
+                        <td colSpan={6} className="py-4 px-4">
+                          <div className="space-y-3 sm:px-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <p className="text-xs text-slate-500 mb-1">Role</p>
+                                <select
+                                  value={user.role}
+                                  onChange={(e) => handleRoleChange(user._id, e.target.value)}
+                                  className={`w-full px-3 py-2 rounded text-sm font-medium border-0 ${getRoleColor(user.role)}`}
+                                >
+                                  <option value="ADMIN">Admin</option>
+                                  <option value="CREATOR">Creator</option>
+                                  <option value="SUBSCRIBER_T1">Subscriber T1</option>
+                                  <option value="SUBSCRIBER_T2">Subscriber T2</option>
+                                  <option value="SUBSCRIBER_T3">Subscriber T3</option>
+                                </select>
+                              </div>
+                              <div>
+                                <p className="text-xs text-slate-500 mb-1">Joined</p>
+                                <div className="flex items-center gap-2 text-slate-300 text-sm">
+                                  <Calendar className="w-4 h-4" />
+                                  {new Date(user.createdAt).toLocaleDateString()}
+                                </div>
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-xs text-slate-500 mb-2">Actions</p>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleEdit(user)}
+                                  className="border-blue-600/50 text-blue-400 hover:bg-blue-600/10"
+                                >
+                                  <Edit className="w-4 h-4 mr-2" />
+                                  Edit
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleDeleteClick(user._id)}
+                                  className="border-red-600/50 text-red-400 hover:bg-red-600/10"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Delete
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                )
+              })}
             </tbody>
           </table>
 
@@ -349,7 +464,7 @@ export default function UserManagementPage() {
                 </select>
               </div>
               <div className="flex gap-3">
-                <Button onClick={handleSaveEdit} className="flex-1 bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90">
+                <Button onClick={handleSaveEdit} className="flex-1 bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90 hover:text-white text-white">
                   Save
                 </Button>
                 <Button

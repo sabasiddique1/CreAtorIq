@@ -9,7 +9,7 @@
     "start": "node dist/server.js",
     "lint": "eslint src/",
     "type-check": "tsc --noEmit",
-    "seed": "node --loader tsx/cjs scripts/seed-data.ts"
+    "seed": "node --loader tsx/cjs src/scripts/seed-data.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^2.0.30",
