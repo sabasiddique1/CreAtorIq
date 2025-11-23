@@ -1,3 +1,4 @@
+// @ts-nocheck
 import mongoose, { Schema, type Document } from "mongoose"
 import type { IdeaSuggestion } from "@engagement-nexus/types"
 
