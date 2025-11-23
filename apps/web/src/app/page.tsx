@@ -136,7 +136,7 @@ export default function LandingPage() {
                   <div className={`w-20 h-20 bg-slate-900 border-2 ${step.borderColor} rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg ${step.shadowColor}`}>
                     <Icon className={`w-10 h-10 ${step.iconColor}`} />
                   </div>
-                  <div className={`absolute -top-3 left-1/2 transform -translate-x-1/2 w-8 h-8 ${step.badgeColor} rounded-full flex items-center justify-center text-sm font-bold text-white shadow-lg`}>
+                  <div className={`absolute -top-3 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-slate-800/80 backdrop-blur-sm border border-slate-700/50 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-lg`}>
                     {step.number}
                   </div>
                   <h3 className="text-lg font-semibold text-white mb-2 mt-2">{step.title}</h3>
