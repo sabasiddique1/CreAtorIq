@@ -180,8 +180,8 @@ export default function LandingPage() {
                     className={`bg-gradient-to-br ${stat.gradient} border ${stat.border} p-6`}
                   >
                     <Icon className={`w-8 h-8 ${stat.iconColor} mb-3`} />
-                    <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
-                    <p className="text-slate-300 text-sm">{stat.label}</p>
+                    <div className="text-3xl font-bold text-slate-600 mb-1">{stat.value}</div>
+                    <p className="text-slate-600 text-sm">{stat.label}</p>
                   </Card>
                 )
               })}
