@@ -5,37 +5,13 @@ import { useRouter } from "next/navigation"
 import { useAuthStore } from "../../../hooks/use-auth-store"
 import { Card } from "../../../components/ui/card"
 import { Button } from "../../../components/ui/button"
+import { Tooltip, TooltipTrigger, TooltipContent } from "../../../components/ui/tooltip"
 import { graphqlQuery } from "../../../lib/graphql"
-import { Lock, Star, LogOut, Video, BookOpen, FileText, Calendar, ExternalLink, Play, GraduationCap, Newspaper, Radio } from "lucide-react"
+import { Lock, Star, LogOut, Calendar, ExternalLink, Play, GraduationCap, Newspaper, Radio } from "lucide-react"
 import { toast } from "../../../hooks/use-toast"
-
-interface ContentItem {
-  _id: string
-  title: string
-  type: string
-  status: string
-  isPremium: boolean
-  requiredTier?: string
-  description?: string
-  contentUrl?: string
-  contentBody?: string
-  createdAt: string
-  creator?: {
-    displayName: string
-    niche: string
-  }
-}
-
-interface SubscriberProfile {
-  _id: string
-  creatorId: string
-  tier: string
-  creator: {
-    _id: string
-    displayName: string
-    niche: string
-  }
-}
+import { Logo } from "../../../components/logo"
+import type { ContentItem, SubscriberProfile } from "../../../types"
+import { TIER_COLORS, TIER_HIERARCHY, CONTENT_TYPE_ICONS } from "../../../constants"
 
 export default function SubscriberDashboard() {
   const router = useRouter()
@@ -121,13 +97,7 @@ export default function SubscriberDashboard() {
               // T3 can access T1, T2, T3
               // T2 can access T1, T2
               // T1 can only access T1
-              const tierHierarchy: { [key: string]: string[] } = {
-                T1: ["T1"],
-                T2: ["T1", "T2"],
-                T3: ["T1", "T2", "T3"],
-              }
-
-              const accessibleTiers = tierHierarchy[userTier] || []
+              const accessibleTiers = TIER_HIERARCHY[userTier] || []
 
               return contentResult.contentItems
                 .filter((item: ContentItem) => {
@@ -196,27 +166,14 @@ export default function SubscriberDashboard() {
   }
 
   const getContentIcon = (type: string) => {
-    switch (type) {
-      case "video":
-        return <Video className="w-5 h-5" />
-      case "course":
-        return <BookOpen className="w-5 h-5" />
-      case "post":
-        return <FileText className="w-5 h-5" />
-      default:
-        return <FileText className="w-5 h-5" />
-    }
+    const Icon = CONTENT_TYPE_ICONS[type] || CONTENT_TYPE_ICONS.default
+    return <Icon className="w-5 h-5 text-[lab(65_43.46_12.07)]" />
   }
 
   const getTierBadge = (tier?: string) => {
     if (!tier) return null
-    const colors: { [key: string]: string } = {
-      T1: "bg-blue-500/20 text-blue-400",
-      T2: "bg-purple-500/20 text-purple-400",
-      T3: "bg-yellow-500/20 text-yellow-400",
-    }
     return (
-      <span className={`px-2 py-0.5 text-xs rounded ${colors[tier] || "bg-slate-500/20 text-slate-400"}`}>
+      <span className={`px-2 py-0.5 text-xs rounded ${TIER_COLORS[tier as keyof typeof TIER_COLORS] || "bg-slate-500/20 text-slate-400"}`}>
         {tier} Only
       </span>
     )
@@ -233,11 +190,11 @@ export default function SubscriberDashboard() {
   const userTier = user.role.replace("SUBSCRIBER_", "")
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900">
+    <main className="h-screen bg-gradient-to-b from-slate-950 to-slate-900 flex flex-col overflow-hidden">
       {/* Header */}
-      <header className="bg-slate-800/50 border-b border-slate-700 sticky top-0 z-40">
+      <header className="bg-slate-800/50 border-b border-slate-700 z-40 shrink-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-          <div className="text-xl font-bold text-blue-400">CreatorIQ</div>
+          <Logo showText={true} size="md" className="text-blue-400" />
           <div className="flex items-center gap-4">
             <div className="text-sm">
               <p className="text-slate-400">Subscriber Tier</p>
@@ -257,7 +214,7 @@ export default function SubscriberDashboard() {
       </header>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex-1 overflow-y-auto max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Premium Content Library</h1>
           <p className="text-slate-400">
@@ -274,43 +231,54 @@ export default function SubscriberDashboard() {
             {contentItems.map((item) => (
               <Card
                 key={item._id}
-                className="bg-slate-800/50 border-slate-700 p-6 hover:border-blue-500 transition"
+                className="bg-slate-800/50 border-slate-700 p-6 hover:border-blue-500 transition flex flex-col h-full"
               >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      {getContentIcon(item.type)}
-                      <h3 className="text-lg font-semibold text-white">{item.title}</h3>
+                <div className="flex-1 flex flex-col">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2 min-w-0">
+                        {getContentIcon(item.type)}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <h3 className="text-lg font-semibold text-white truncate flex-1 min-w-0">
+                              {item.title}
+                            </h3>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-slate-800 text-white border-slate-700 max-w-xs z-50">
+                            <p className="whitespace-normal break-words">{item.title}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <p className="text-sm text-slate-400 mb-2">
+                        by {item.creator?.displayName || "Unknown Creator"}
+                      </p>
+                      {item.creator?.niche && (
+                        <p className="text-xs text-slate-500 mb-2">{item.creator.niche}</p>
+                      )}
                     </div>
-                    <p className="text-sm text-slate-400 mb-2">
-                      by {item.creator?.displayName || "Unknown Creator"}
-                    </p>
-                    {item.creator?.niche && (
-                      <p className="text-xs text-slate-500 mb-2">{item.creator.niche}</p>
-                    )}
+                    {item.isPremium && <Star className="w-5 h-5 text-yellow-400 flex-shrink-0" />}
                   </div>
-                  {item.isPremium && <Star className="w-5 h-5 text-yellow-400 flex-shrink-0" />}
-                </div>
 
-                {item.description && (
-                  <p className="text-slate-300 text-sm mb-4 line-clamp-2">{item.description}</p>
-                )}
+                  {item.description && (
+                    <p className="text-slate-300 text-sm mb-4 line-clamp-2">{item.description}</p>
+                  )}
 
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 bg-slate-700 text-slate-300 text-xs rounded capitalize">
-                      {item.type}
-                    </span>
-                    {item.isPremium && getTierBadge(item.requiredTier)}
-                  </div>
-                  <div className="flex items-center gap-1 text-slate-500 text-xs">
-                    <Calendar className="w-3 h-3" />
-                    {new Date(item.createdAt).toLocaleDateString()}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 bg-slate-700 text-slate-300 text-xs rounded capitalize">
+                        {item.type}
+                      </span>
+                      {item.isPremium && getTierBadge(item.requiredTier)}
+                    </div>
+                    <div className="flex items-center gap-1 text-slate-500 text-xs">
+                      <Calendar className="w-3 h-3" />
+                      {new Date(item.createdAt).toLocaleDateString()}
+                    </div>
                   </div>
                 </div>
 
                 <Button
-                  className="w-full bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90"
+                  className="w-full bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90 hover:text-white text-white mt-auto"
                   onClick={() => handleViewContent(item)}
                 >
                   <ExternalLink className="w-4 h-4 mr-2" />
@@ -407,7 +375,7 @@ export default function SubscriberDashboard() {
 
             <div className="flex gap-3">
               <Button 
-                className="flex-1 bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90"
+                className="flex-1 bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90 hover:text-white text-white"
                 onClick={() => handleAccessContent(selectedContent)}
                 disabled={!selectedContent.contentUrl}
               >

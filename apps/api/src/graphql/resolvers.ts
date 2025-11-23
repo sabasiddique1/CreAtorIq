@@ -1,6 +1,7 @@
-import { AuthService } from "../services/auth.service.ts"
-import { RbacService } from "../services/rbac.service.ts"
-import { AiService } from "../services/ai.service.ts"
+import { AuthService } from "../services/auth.service.js"
+import { RbacService } from "../services/rbac.service.js"
+import { AiService } from "../services/ai.service.js"
+import { ActivityService } from "../services/activity.service.js"
 import {
   UserModel,
   CreatorProfileModel,
@@ -10,9 +11,10 @@ import {
   CommentBatchModel,
   SentimentSnapshotModel,
   IdeaSuggestionModel,
-} from "../db/index.ts"
-import { ValidationError, NotFoundError } from "../middleware/error-handler.ts"
-import type { JwtPayload } from "../utils/jwt.ts"
+  ActivityEventModel,
+} from "../db/index.js"
+import { ValidationError, NotFoundError } from "../middleware/error-handler.js"
+import type { JwtPayload } from "../utils/jwt.js"
 
 export interface GraphQLContext {
   user?: JwtPayload
@@ -159,6 +161,43 @@ export const resolvers = {
       return CreatorProfileModel.find({}).sort({ createdAt: -1 })
     },
 
+    allActivities: async (_: any, { filters }: { filters?: any }, context: GraphQLContext) => {
+      if (!context.user || context.user.role !== "ADMIN") {
+        throw new Error("Unauthorized: Admin access required")
+      }
+      const activities = await ActivityService.getActivities(filters)
+      // Map populated fields and ensure IDs are strings
+      return activities.map((activity: any) => {
+        const activityObj = activity.toObject()
+        return {
+          _id: activityObj._id.toString(),
+          creatorId: activityObj.creatorId ? (typeof activityObj.creatorId === 'object' ? activityObj.creatorId._id.toString() : activityObj.creatorId.toString()) : null,
+          userId: activityObj.userId ? (typeof activityObj.userId === 'object' ? activityObj.userId._id.toString() : activityObj.userId.toString()) : null,
+          eventType: activityObj.eventType,
+          metadata: activityObj.metadata || {},
+          createdAt: activityObj.createdAt,
+          user: activity.userId && typeof activity.userId === 'object' ? {
+            _id: activity.userId._id.toString(),
+            name: activity.userId.name,
+            email: activity.userId.email,
+            role: activity.userId.role,
+          } : null,
+          creator: activity.creatorId && typeof activity.creatorId === 'object' ? {
+            _id: activity.creatorId._id.toString(),
+            displayName: activity.creatorId.displayName,
+            niche: activity.creatorId.niche,
+          } : null,
+        }
+      })
+    },
+
+    activityStats: async (_: any, { startDate, endDate }: { startDate?: Date; endDate?: Date }, context: GraphQLContext) => {
+      if (!context.user || context.user.role !== "ADMIN") {
+        throw new Error("Unauthorized: Admin access required")
+      }
+      return ActivityService.getActivityStats(startDate, endDate)
+    },
+
     platformStats: async (_: any, __: any, context: GraphQLContext) => {
       if (!context.user || context.user.role !== "ADMIN") {
         throw new Error("Unauthorized: Admin access required")
@@ -223,6 +262,12 @@ export const resolvers = {
   Mutation: {
     register: async (_: any, { email, password, name, role }: any, context: GraphQLContext) => {
       const result = await AuthService.register(email, password, name, role)
+      // Log activity
+      await ActivityService.logActivity({
+        eventType: "USER_REGISTER",
+        userId: result.user._id.toString(),
+        metadata: { email, role: role || "SUBSCRIBER_T1" },
+      })
       // Set cookies
       if (context.res) {
         context.res.cookie("accessToken", result.accessToken, {
@@ -243,6 +288,12 @@ export const resolvers = {
 
     login: async (_: any, { email, password }: any, context: GraphQLContext) => {
       const result = await AuthService.login(email, password)
+      // Log activity
+      await ActivityService.logActivity({
+        eventType: "USER_LOGIN",
+        userId: result.user._id.toString(),
+        metadata: { email, role: result.user.role },
+      })
       // Set cookies
       if (context.res) {
         context.res.cookie("accessToken", result.accessToken, {
@@ -275,13 +326,21 @@ export const resolvers = {
         throw new ValidationError("Creator profile already exists")
       }
 
-      return CreatorProfileModel.create({
+      const profile = await CreatorProfileModel.create({
         userId: context.user.userId,
         displayName,
         bio,
         primaryPlatform,
         niche,
       })
+      // Log activity
+      await ActivityService.logActivity({
+        eventType: "CREATOR_PROFILE_CREATED",
+        userId: context.user.userId,
+        creatorId: profile._id.toString(),
+        metadata: { displayName, niche, primaryPlatform },
+      })
+      return profile
     },
 
     updateCreatorProfile: async (_: any, { id, ...updates }: any, context: GraphQLContext) => {
@@ -333,7 +392,7 @@ export const resolvers = {
       }
 
       await RbacService.requireCreatorOwner(context.user.userId, creatorId)
-      return ContentItemModel.create({
+      const item = await ContentItemModel.create({
         creatorId,
         title,
         type,
@@ -344,6 +403,14 @@ export const resolvers = {
         contentBody: contentBody || "",
         status: "draft",
       })
+      // Log activity
+      await ActivityService.logActivity({
+        eventType: "CONTENT_CREATED",
+        userId: context.user.userId,
+        creatorId,
+        metadata: { contentId: item._id.toString(), title, type, isPremium },
+      })
+      return item
     },
 
     updateContentItem: async (_: any, { id, ...updates }: any, context: GraphQLContext) => {
@@ -367,7 +434,15 @@ export const resolvers = {
       if (!item) throw new NotFoundError("Content item not found")
 
       await RbacService.requireCreatorOwner(context.user.userId, item.creatorId.toString())
-      return ContentItemModel.findByIdAndUpdate(id, { status: "published" }, { new: true })
+      const published = await ContentItemModel.findByIdAndUpdate(id, { status: "published" }, { new: true })
+      // Log activity
+      await ActivityService.logActivity({
+        eventType: "CONTENT_PUBLISHED",
+        userId: context.user.userId,
+        creatorId: item.creatorId.toString(),
+        metadata: { contentId: id, title: item.title },
+      })
+      return published
     },
 
     deleteContentItem: async (_: any, { id }: any, context: GraphQLContext) => {
@@ -383,6 +458,13 @@ export const resolvers = {
         await RbacService.requireCreatorOwner(context.user.userId, item.creatorId.toString())
       }
       await ContentItemModel.findByIdAndDelete(id)
+      // Log activity
+      await ActivityService.logActivity({
+        eventType: "CONTENT_DELETED",
+        userId: context.user.userId,
+        creatorId: item.creatorId.toString(),
+        metadata: { contentId: id, title: item.title },
+      })
       return true
     },
 
@@ -397,13 +479,21 @@ export const resolvers = {
 
       await RbacService.requireCreatorOwner(context.user.userId, creatorId)
 
-      return CommentBatchModel.create({
+      const batch = await CommentBatchModel.create({
         creatorId,
         source,
         rawComments,
         linkedContentItemId,
         importedAt: new Date(),
       })
+      // Log activity
+      await ActivityService.logActivity({
+        eventType: "COMMENT_BATCH_IMPORTED",
+        userId: context.user.userId,
+        creatorId,
+        metadata: { batchId: batch._id.toString(), commentCount: rawComments.length, source },
+      })
+      return batch
     },
 
     analyzeCommentBatch: async (_: any, { batchId }: any, context: GraphQLContext) => {
@@ -434,6 +524,13 @@ export const resolvers = {
         neutralCount: sentimentResult.neutralCount,
         topKeywords: sentimentResult.topKeywords,
         topRequests: sentimentResult.topRequests,
+      })
+      // Log activity
+      await ActivityService.logActivity({
+        eventType: "SENTIMENT_ANALYZED",
+        userId: context.user.userId,
+        creatorId: batch.creatorId.toString(),
+        metadata: { snapshotId: snapshot._id.toString(), batchId, sentimentScore: sentimentResult.overallScore },
       })
 
       return snapshot
@@ -483,6 +580,13 @@ export const resolvers = {
             }),
           ),
         )
+        // Log activity
+        await ActivityService.logActivity({
+          eventType: "IDEAS_GENERATED",
+          userId: context.user.userId,
+          creatorId: snapshot.creatorId.toString(),
+          metadata: { snapshotId, ideaCount: savedIdeas.length, tierTarget: tierTarget || "all" },
+        })
 
         return savedIdeas
       } catch (error: any) {

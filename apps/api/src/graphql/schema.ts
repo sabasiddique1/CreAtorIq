@@ -108,11 +108,34 @@ export const typeDefs = gql`
 
   type ActivityEvent {
     _id: ID!
-    creatorId: ID!
+    creatorId: ID
+    creator: CreatorProfile
     userId: ID
+    user: User
     eventType: String!
     metadata: JSON!
     createdAt: Date!
+  }
+
+  type ActivityStats {
+    byEventType: [EventTypeCount!]!
+    timeline: [TimelinePoint!]!
+  }
+
+  type EventTypeCount {
+    _id: String!
+    count: Int!
+  }
+
+  type TimelinePoint {
+    _id: TimelineDate!
+    count: Int!
+  }
+
+  type TimelineDate {
+    year: Int!
+    month: Int!
+    day: Int!
   }
 
   type CreatorOverview {
@@ -151,6 +174,8 @@ export const typeDefs = gql`
     allCreators: [CreatorProfile!]!
     platformStats: PlatformStats!
     allContentItems: [ContentItem!]!
+    allActivities(filters: ActivityFilterInput): [ActivityEvent!]!
+    activityStats(startDate: Date, endDate: Date): ActivityStats!
   }
 
   type Mutation {
@@ -193,6 +218,15 @@ export const typeDefs = gql`
 
   input SubscriberFilterInput {
     tier: String
+  }
+
+  input ActivityFilterInput {
+    userId: ID
+    creatorId: ID
+    eventType: String
+    startDate: Date
+    endDate: Date
+    limit: Int
   }
 
   type AuthPayload {

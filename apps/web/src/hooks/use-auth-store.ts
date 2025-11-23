@@ -1,13 +1,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { loginUser, registerUser, getCurrentUser } from "../lib/auth"
-
-interface User {
-  _id: string
-  email: string
-  name: string
-  role: string
-}
+import type { User } from "../types"
 
 interface AuthStore {
   user: User | null

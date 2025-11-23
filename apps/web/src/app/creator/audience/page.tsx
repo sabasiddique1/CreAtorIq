@@ -11,10 +11,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../../components/ui/dialog"
-import { Upload, Copy, MessageSquare, Calendar, Lightbulb, Video, BookOpen, MessageCircle, Target, X } from "lucide-react"
+import { Upload, Copy, MessageSquare, Calendar, X } from "lucide-react"
 import { useAuthStore } from "../../../hooks/use-auth-store"
 import { graphqlQuery } from "../../../lib/graphql"
 import { useToast } from "../../../hooks/use-toast"
+import { IDEA_TYPE_ICONS, IDEA_TYPE_LABELS } from "../../../constants"
 
 interface CommentBatch {
   _id: string
@@ -427,33 +428,12 @@ export default function AudiencePage() {
   }
 
   const getIdeaTypeIcon = (type: string) => {
-    switch (type) {
-      case "video":
-        return <Video className="w-4 h-4" />
-      case "mini-course":
-        return <BookOpen className="w-4 h-4" />
-      case "live_qa":
-        return <MessageCircle className="w-4 h-4" />
-      case "community_challenge":
-        return <Target className="w-4 h-4" />
-      default:
-        return <Lightbulb className="w-4 h-4" />
-    }
+    const Icon = IDEA_TYPE_ICONS[type] || IDEA_TYPE_ICONS.default
+    return <Icon className="w-4 h-4" />
   }
 
   const getIdeaTypeLabel = (type: string) => {
-    switch (type) {
-      case "video":
-        return "Video"
-      case "mini-course":
-        return "Mini Course"
-      case "live_qa":
-        return "Live Q&A"
-      case "community_challenge":
-        return "Community Challenge"
-      default:
-        return type
-    }
+    return IDEA_TYPE_LABELS[type] || type
   }
 
   const removeComment = (index: number) => {

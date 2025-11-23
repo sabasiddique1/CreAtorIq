@@ -12,47 +12,12 @@ import {
   DialogTitle,
 } from "../../../components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../components/ui/tabs"
-import { Sparkles, Lightbulb, TrendingUp, Users, Video, BookOpen, MessageCircle, Target, Calendar, MessageSquare, ChevronDown, ChevronUp } from "lucide-react"
+import { Sparkles, TrendingUp, Users, Calendar, MessageSquare, ChevronDown, ChevronUp } from "lucide-react"
 import { useAuthStore } from "../../../hooks/use-auth-store"
 import { graphqlQuery } from "../../../lib/graphql"
 import { useToast } from "../../../hooks/use-toast"
-
-interface SentimentSnapshot {
-  _id: string
-  commentBatchId: string
-  overallSentimentScore: number
-  positiveCount: number
-  negativeCount: number
-  neutralCount: number
-  topKeywords: string[]
-  topRequests: string[]
-  createdAt: string
-}
-
-interface CommentBatch {
-  _id: string
-  source: string
-  rawComments: Array<{ text: string }>
-  importedAt: string
-}
-
-interface IdeaSuggestion {
-  _id: string
-  title: string
-  description: string
-  ideaType: string
-  tierTarget: string
-  outline: string[]
-  status: string
-  sourceSnapshotId: string
-  createdAt: string
-}
-
-interface SnapshotWithIdeas {
-  snapshot: SentimentSnapshot
-  batch: CommentBatch | null
-  ideas: IdeaSuggestion[]
-}
+import type { SentimentSnapshot, CommentBatch, IdeaSuggestion, SnapshotWithIdeas } from "../../../types"
+import { IDEA_TYPE_ICONS, IDEA_TYPE_LABELS, IDEA_STATUS_LABELS, IDEA_STATUS_COLORS } from "../../../constants"
 
 export default function IdeasPage() {
   const { user } = useAuthStore()
@@ -109,7 +74,7 @@ export default function IdeasPage() {
         if (snapshotsResult?.sentimentSnapshots) {
           setSnapshots(snapshotsResult.sentimentSnapshots)
           
-          const batchIds = [...new Set(snapshotsResult.sentimentSnapshots.map((s: SentimentSnapshot) => s.commentBatchId))]
+          const batchIds = [...new Set(snapshotsResult.sentimentSnapshots.map((s: SentimentSnapshot) => s.commentBatchId))] as string[]
           const batchesMap: Record<string, CommentBatch> = {}
           
           for (const batchId of batchIds) {
@@ -125,7 +90,7 @@ export default function IdeasPage() {
                 }
               `)
               if (batchResult?.commentBatch) {
-                batchesMap[batchId] = batchResult.commentBatch
+                batchesMap[batchId] = batchResult.commentBatch as CommentBatch
               }
             } catch (error) {
               console.error(`Error fetching batch ${batchId}:`, error)
@@ -213,59 +178,20 @@ export default function IdeasPage() {
   }
 
   const getIdeaTypeIcon = (type: string) => {
-    switch (type) {
-      case "video":
-        return <Video className="w-5 h-5" />
-      case "mini-course":
-        return <BookOpen className="w-5 h-5" />
-      case "live_qa":
-        return <MessageCircle className="w-5 h-5" />
-      case "community_challenge":
-        return <Target className="w-5 h-5" />
-      default:
-        return <Lightbulb className="w-5 h-5" />
-    }
+    const Icon = IDEA_TYPE_ICONS[type] || IDEA_TYPE_ICONS.default
+    return <Icon className="w-5 h-5" />
   }
 
   const getIdeaTypeLabel = (type: string) => {
-    switch (type) {
-      case "video":
-        return "Video"
-      case "mini-course":
-        return "Mini Course"
-      case "live_qa":
-        return "Live Q&A"
-      case "community_challenge":
-        return "Community Challenge"
-      default:
-        return type
-    }
+    return IDEA_TYPE_LABELS[type] || type
   }
 
   const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "new":
-        return "New"
-      case "saved":
-        return "Saved"
-      case "implemented":
-        return "Implemented"
-      default:
-        return status
-    }
+    return IDEA_STATUS_LABELS[status] || status
   }
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case "new":
-        return "bg-blue-700/30 text-blue-300 border-blue-700/50"
-      case "saved":
-        return "bg-yellow-700/30 text-yellow-300 border-yellow-700/50"
-      case "implemented":
-        return "bg-green-700/30 text-green-300 border-green-700/50"
-      default:
-        return "bg-slate-700/30 text-slate-300 border-slate-700/50"
-    }
+    return IDEA_STATUS_COLORS[status] || "bg-slate-700/30 text-slate-300 border-slate-700/50"
   }
 
   const organizeBySnapshot = (): SnapshotWithIdeas[] => {
@@ -275,7 +201,7 @@ export default function IdeasPage() {
       const snapshotIdeas = ideas.filter((idea) => idea.sourceSnapshotId === snapshot._id)
       organized.push({
         snapshot,
-        batch: batches[snapshot.commentBatchId] || null,
+        batch: (batches as Record<string, CommentBatch>)[snapshot.commentBatchId] || null,
         ideas: snapshotIdeas,
       })
     })

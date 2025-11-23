@@ -2,9 +2,10 @@
 
 import { useEffect, useState, Suspense } from "react"
 import { Card } from '../../components/ui/card'
-import { Users, BarChart3, FileText, MessageSquare, Lightbulb, TrendingUp, Calendar, Mail } from "lucide-react"
+import { Users, TrendingUp, Calendar, Mail } from "lucide-react"
 import { graphqlQuery } from '../../lib/graphql'
 import Link from "next/link"
+import { ADMIN_STATS } from '../../constants'
 
 interface PlatformStats {
   totalUsers: number
@@ -129,65 +130,21 @@ function AdminDashboardContent() {
 
       {/* Stats Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <Card className="bg-slate-800/50 border-slate-700 p-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-slate-400 text-sm mb-1">Total Users</p>
-              <p className="text-3xl font-bold text-white">{stats?.totalUsers || 0}</p>
-            </div>
-            <Users className="w-10 h-10 text-blue-400 opacity-50" />
-          </div>
-        </Card>
-
-        <Card className="bg-slate-800/50 border-slate-700 p-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-slate-400 text-sm mb-1">Creators</p>
-              <p className="text-3xl font-bold text-white">{stats?.totalCreators || 0}</p>
-            </div>
-            <BarChart3 className="w-10 h-10 text-purple-400 opacity-50" />
-          </div>
-        </Card>
-
-        <Card className="bg-slate-800/50 border-slate-700 p-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-slate-400 text-sm mb-1">Subscribers</p>
-              <p className="text-3xl font-bold text-white">{stats?.totalSubscribers || 0}</p>
-            </div>
-            <Users className="w-10 h-10 text-emerald-400 opacity-50" />
-          </div>
-        </Card>
-
-        <Card className="bg-slate-800/50 border-slate-700 p-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-slate-400 text-sm mb-1">Content Items</p>
-              <p className="text-3xl font-bold text-white">{stats?.totalContentItems || 0}</p>
-            </div>
-            <FileText className="w-10 h-10 text-yellow-400 opacity-50" />
-          </div>
-        </Card>
-
-        <Card className="bg-slate-800/50 border-slate-700 p-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-slate-400 text-sm mb-1">Comment Batches</p>
-              <p className="text-3xl font-bold text-white">{stats?.totalCommentBatches || 0}</p>
-            </div>
-            <MessageSquare className="w-10 h-10 text-cyan-400 opacity-50" />
-          </div>
-        </Card>
-
-        <Card className="bg-slate-800/50 border-slate-700 p-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-slate-400 text-sm mb-1">Sentiment Snapshots</p>
-              <p className="text-3xl font-bold text-white">{stats?.totalSentimentSnapshots || 0}</p>
-            </div>
-            <Lightbulb className="w-10 h-10 text-orange-400 opacity-50" />
-          </div>
-        </Card>
+        {ADMIN_STATS.map((stat) => {
+          const Icon = stat.icon
+          const value = stats?.[stat.key as keyof PlatformStats] as number || 0
+          return (
+            <Card key={stat.key} className="bg-slate-800/50 border-slate-700 p-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-slate-400 text-sm mb-1">{stat.label}</p>
+                  <p className="text-3xl font-bold text-white">{value}</p>
+                </div>
+                <Icon className={`w-10 h-10 ${stat.iconColor} opacity-50`} />
+              </div>
+            </Card>
+          )
+        })}
       </div>
 
       {/* Users by Role */}

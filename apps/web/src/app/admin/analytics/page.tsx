@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import { Card } from "../../../components/ui/card"
 import { graphqlQuery } from "../../../lib/graphql"
-import { TrendingUp, Users, FileText, MessageSquare, Lightbulb } from "lucide-react"
+import { ANALYTICS_METRICS } from "../../../constants"
+import { TrendingUp, Users } from "lucide-react"
 
 interface PlatformStats {
   totalUsers: number
@@ -76,54 +77,39 @@ export default function AnalyticsPage() {
         <Card className="bg-slate-800/50 border-slate-700 p-6">
           <h2 className="text-xl font-semibold text-white mb-4">Growth Metrics</h2>
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-slate-900/50 rounded">
-              <div className="flex items-center gap-3">
-                <Users className="w-5 h-5 text-blue-400" />
-                <span className="text-slate-300">Total Users</span>
-              </div>
-              <span className="text-white font-semibold text-lg">{stats?.totalUsers || 0}</span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-slate-900/50 rounded">
-              <div className="flex items-center gap-3">
-                <TrendingUp className="w-5 h-5 text-purple-400" />
-                <span className="text-slate-300">Active Creators</span>
-              </div>
-              <span className="text-white font-semibold text-lg">{stats?.totalCreators || 0}</span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-slate-900/50 rounded">
-              <div className="flex items-center gap-3">
-                <Users className="w-5 h-5 text-emerald-400" />
-                <span className="text-slate-300">Total Subscribers</span>
-              </div>
-              <span className="text-white font-semibold text-lg">{stats?.totalSubscribers || 0}</span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-slate-900/50 rounded">
-              <div className="flex items-center gap-3">
-                <FileText className="w-5 h-5 text-yellow-400" />
-                <span className="text-slate-300">Content Items</span>
-              </div>
-              <span className="text-white font-semibold text-lg">{stats?.totalContentItems || 0}</span>
-            </div>
+            {ANALYTICS_METRICS.slice(0, 4).map((metric) => {
+              const Icon = metric.icon
+              const value = stats?.[metric.key as keyof PlatformStats] as number || 0
+              return (
+                <div key={metric.key} className="flex items-center justify-between p-3 bg-slate-900/50 rounded">
+                  <div className="flex items-center gap-3">
+                    <Icon className={`w-5 h-5 ${metric.iconColor}`} />
+                    <span className="text-slate-300">{metric.label}</span>
+                  </div>
+                  <span className="text-white font-semibold text-lg">{value}</span>
+                </div>
+              )
+            })}
           </div>
         </Card>
 
         <Card className="bg-slate-800/50 border-slate-700 p-6">
           <h2 className="text-xl font-semibold text-white mb-4">Engagement Metrics</h2>
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-slate-900/50 rounded">
-              <div className="flex items-center gap-3">
-                <MessageSquare className="w-5 h-5 text-cyan-400" />
-                <span className="text-slate-300">Comment Batches</span>
-              </div>
-              <span className="text-white font-semibold text-lg">{stats?.totalCommentBatches || 0}</span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-slate-900/50 rounded">
-              <div className="flex items-center gap-3">
-                <Lightbulb className="w-5 h-5 text-orange-400" />
-                <span className="text-slate-300">Sentiment Analyses</span>
-              </div>
-              <span className="text-white font-semibold text-lg">{stats?.totalSentimentSnapshots || 0}</span>
-            </div>
+            {ANALYTICS_METRICS.slice(4).map((metric) => {
+              const Icon = metric.icon
+              const value = stats?.[metric.key as keyof PlatformStats] as number || 0
+              const label = metric.key === "totalSentimentSnapshots" ? "Sentiment Analyses" : metric.label
+              return (
+                <div key={metric.key} className="flex items-center justify-between p-3 bg-slate-900/50 rounded">
+                  <div className="flex items-center gap-3">
+                    <Icon className={`w-5 h-5 ${metric.iconColor}`} />
+                    <span className="text-slate-300">{label}</span>
+                  </div>
+                  <span className="text-white font-semibold text-lg">{value}</span>
+                </div>
+              )
+            })}
             <div className="flex items-center justify-between p-3 bg-slate-900/50 rounded">
               <div className="flex items-center gap-3">
                 <TrendingUp className="w-5 h-5 text-blue-400" />

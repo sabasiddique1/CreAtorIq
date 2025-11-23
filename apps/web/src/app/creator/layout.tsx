@@ -28,6 +28,8 @@ import {
 } from "../../components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar"
 import { Input } from "../../components/ui/input"
+import { Logo } from "../../components/logo"
+import { CommandPalette } from "../../components/creator/command-palette"
 
 const navItems = [
   { href: "/creator/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -47,6 +49,27 @@ export default function CreatorLayout({
   const [authChecked, setAuthChecked] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
+
+  // On mobile, when menu opens, ensure sidebar is expanded
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      // On mobile, always show expanded sidebar
+      setSidebarCollapsed(false)
+    }
+  }, [mobileMenuOpen])
+
+  // Keyboard shortcut for command palette (Cmd+K or Ctrl+K)
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault()
+        setCommandPaletteOpen((open) => !open)
+      }
+    }
+    document.addEventListener("keydown", down)
+    return () => document.removeEventListener("keydown", down)
+  }, [])
 
   useEffect(() => {
     const initAuth = async () => {
@@ -100,31 +123,33 @@ export default function CreatorLayout({
           fixed lg:static h-screen left-0 z-50
           bg-slate-900 border-r border-slate-800
           transition-all duration-300 ease-in-out
-          ${sidebarCollapsed ? "w-16" : "w-64"}
+          ${mobileMenuOpen ? "w-64" : sidebarCollapsed && !mobileMenuOpen ? "w-16 lg:w-16" : "w-64"}
           ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
         <div className="h-full flex flex-col">
           {/* Header */}
           <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-            {!sidebarCollapsed && (
-              <Link href="/creator/dashboard" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">CI</span>
-                </div>
-                <span className="text-xl font-bold text-white">CreatorIQ</span>
+            {(!sidebarCollapsed || mobileMenuOpen) && (
+              <Link href="/creator/dashboard">
+                <Logo showText={true} size="md" />
               </Link>
             )}
-            {sidebarCollapsed && (
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center mx-auto">
-                <span className="text-white font-bold text-sm">CI</span>
+            {sidebarCollapsed && !mobileMenuOpen && (
+              <div className="flex justify-center w-full">
+                <Logo size="md" />
               </div>
             )}
             <button
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              onClick={() => {
+                // Only allow collapse on desktop (lg screens)
+                if (window.innerWidth >= 1024) {
+                  setSidebarCollapsed(!sidebarCollapsed)
+                }
+              }}
               className="hidden lg:flex items-center justify-center w-8 h-8 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition"
             >
-              <ChevronLeft className={`w-4 h-4 transition-transform ${sidebarCollapsed ? "rotate-180" : ""}`} />
+              <ChevronLeft className={`w-4 h-4 transition-transform ${sidebarCollapsed && !mobileMenuOpen ? "rotate-180" : ""}`} />
             </button>
             <button
               onClick={() => setMobileMenuOpen(false)}
@@ -134,18 +159,6 @@ export default function CreatorLayout({
             </button>
           </div>
 
-          {/* Search */}
-          {!sidebarCollapsed && (
-            <div className="p-4 border-b border-slate-800">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <Input
-                  placeholder="Search..."
-                  className="pl-9 bg-slate-800 border-slate-700 text-white text-sm h-9"
-                />
-              </div>
-            </div>
-          )}
 
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
@@ -158,8 +171,11 @@ export default function CreatorLayout({
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-lg
-                    transition-colors
+                    flex items-center rounded-lg transition-colors
+                    ${(sidebarCollapsed && !mobileMenuOpen)
+                      ? "justify-center px-2 py-2.5" 
+                      : "gap-3 px-3 py-2.5"
+                    }
                     ${isActive
                       ? "bg-[lab(33_35.57_-75.79)] text-white"
                       : "text-slate-300 hover:bg-slate-800 hover:text-white"
@@ -167,7 +183,7 @@ export default function CreatorLayout({
                   `}
                 >
                   <Icon className="w-5 h-5 shrink-0" />
-                  {!sidebarCollapsed && <span className="font-medium text-sm">{item.label}</span>}
+                  {(!sidebarCollapsed || mobileMenuOpen) && <span className="font-medium text-sm">{item.label}</span>}
                 </Link>
               )
             })}
@@ -175,7 +191,7 @@ export default function CreatorLayout({
 
           {/* User Profile */}
           <div className="p-4 border-t border-slate-800">
-            {!sidebarCollapsed ? (
+            {(!sidebarCollapsed || mobileMenuOpen) ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-800 transition-colors">
@@ -266,17 +282,44 @@ export default function CreatorLayout({
 
       {/* Main Content */}
       <main className="flex-1 lg:ml-0 h-screen flex flex-col overflow-hidden">
+        {/* Desktop Header */}
+        <div className="hidden lg:flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/50">
+          <div className="flex-1 max-w-2xl">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
+              <Input
+                onClick={() => setCommandPaletteOpen(true)}
+                placeholder="Search pages, actions..."
+                readOnly
+                className="pl-9 pr-20 bg-slate-800 border-slate-700 text-white text-sm h-9 cursor-pointer hover:border-slate-600 transition-colors"
+              />
+              <kbd className="absolute right-3 top-1/2 transform -translate-y-1/2 hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border border-slate-700 bg-slate-900 px-1.5 font-mono text-[10px] font-medium text-slate-400">
+                <span className="text-xs">⌘</span>K
+              </kbd>
+            </div>
+          </div>
+        </div>
+
         {/* Mobile Header */}
-        <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-slate-900 border-b border-slate-800 p-4 flex items-center justify-between">
+        <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-slate-900 border-b border-slate-800 p-4 flex items-center gap-3">
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="text-slate-300 hover:text-white"
+            className="text-slate-300 hover:text-white shrink-0"
           >
             <Menu className="w-6 h-6" />
           </button>
-          <Link href="/creator/dashboard" className="text-xl font-bold text-blue-400">
-            CreatorIQ
+          <Link href="/creator/dashboard" className="shrink-0">
+            <Logo showText={true} size="sm" textGradient={true} />
           </Link>
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
+            <Input
+              onClick={() => setCommandPaletteOpen(true)}
+              placeholder="Search..."
+              readOnly
+              className="pl-9 bg-slate-800 border-slate-700 text-white text-sm h-9 cursor-pointer hover:border-slate-600 transition-colors"
+            />
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button>
@@ -317,6 +360,9 @@ export default function CreatorLayout({
           <div className="p-4 sm:p-6 lg:p-8">{children}</div>
         </div>
       </main>
+
+      {/* Command Palette */}
+      <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
     </div>
   )
 }

@@ -10,7 +10,10 @@ export async function graphqlQuery(query: string, variables?: Record<string, any
 
   const data = await response.json()
   if (data.errors) {
-    throw new Error(data.errors[0].message)
+    const errorMessage = data.errors[0]?.message || "GraphQL error"
+    const error = new Error(errorMessage)
+    ;(error as any).graphqlErrors = data.errors
+    throw error
   }
   return data.data
 }

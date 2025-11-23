@@ -77,9 +77,7 @@ Return ONLY valid JSON array, no other text.`
 
         // Use Google Gemini
         const result = await generateText({
-        model: google("gemini-2.0-flash", {
-          apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-        }),
+          model: google("gemini-2.0-flash"),
           prompt,
         })
         const text = result.text
@@ -92,7 +90,7 @@ Return ONLY valid JSON array, no other text.`
           analyses.push(
             ...chunk.map((c) => ({
               text: c.text,
-              sentiment: "neutral",
+              sentiment: "neutral" as const,
               score: 0,
               keywords: [],
             })),
@@ -104,7 +102,7 @@ Return ONLY valid JSON array, no other text.`
         analyses.push(
           ...chunk.map((c) => ({
             text: c.text,
-            sentiment: "neutral",
+            sentiment: "neutral" as const,
             score: 0,
             keywords: [],
           })),
@@ -166,9 +164,7 @@ Return ONLY valid JSON array, no other text.`
 
       // Use Google Gemini
       const result = await generateText({
-        model: google("gemini-2.0-flash", {
-          apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-        }),
+        model: google("gemini-2.0-flash"),
         prompt,
       })
       const text = result.text
@@ -237,9 +233,7 @@ Return a JSON array of 3 ideas. Return ONLY JSON, no other text.`
       
       // Use Google Gemini (free tier available)
       const result = await generateText({
-        model: google("gemini-2.0-flash", {
-          apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-        }),
+        model: google("gemini-2.0-flash"),
         prompt,
       })
       const text = result.text
@@ -306,9 +300,7 @@ Include 4-5 modules. Return ONLY JSON, no other text.`
 
         // Use Google Gemini
         const { text } = await generateText({
-        model: google("gemini-2.0-flash", {
-          apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-        }),
+          model: google("gemini-2.0-flash"),
           prompt,
         })
 

@@ -1,8 +1,8 @@
-import { UserModel } from "../db/index.ts"
-import { hashPassword, comparePassword } from "../utils/password.ts"
-import { generateAccessToken, generateRefreshToken } from "../utils/jwt.ts"
+import { UserModel } from "../db/index.js"
+import { hashPassword, comparePassword } from "../utils/password.js"
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js"
 import type { User, UserRole } from "@engagement-nexus/types"
-import { ValidationError, UnauthorizedError } from "../middleware/error-handler.ts"
+import { ValidationError, UnauthorizedError } from "../middleware/error-handler.js"
 
 export class AuthService {
   static async register(

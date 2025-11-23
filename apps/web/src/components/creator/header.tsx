@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "../ui/button"
 import { useAuthStore } from "../../hooks/use-auth-store"
 import { LogOut, Settings } from "lucide-react"
+import { BrandText } from "../brand-text"
 
 export default function CreatorHeader() {
   const router = useRouter()
@@ -18,8 +19,8 @@ export default function CreatorHeader() {
   return (
     <header className="bg-slate-800/50 border-b border-slate-700 sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-        <Link href="/creator/dashboard" className="text-xl font-bold text-blue-400">
-          CreatorIQ
+        <Link href="/creator/dashboard">
+          <BrandText size="xl" />
         </Link>
 
         <nav className="hidden md:flex gap-6">

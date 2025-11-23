@@ -13,6 +13,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../../../components/ui/tooltip"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../../../components/ui/alert-dialog"
 
 interface ContentItem {
   _id: string
@@ -32,6 +42,8 @@ export default function ContentModerationPage() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [contentToDelete, setContentToDelete] = useState<string | null>(null)
 
   useEffect(() => {
     fetchContent()
@@ -118,8 +130,13 @@ export default function ContentModerationPage() {
     }
   }
 
-  const handleDelete = async (contentId: string) => {
-    if (!confirm("Are you sure you want to delete this content item?")) return
+  const handleDeleteClick = (contentId: string) => {
+    setContentToDelete(contentId)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDelete = async () => {
+    if (!contentToDelete) return
 
     try {
       await graphqlQuery(
@@ -128,13 +145,15 @@ export default function ContentModerationPage() {
           deleteContentItem(id: $id)
         }
       `,
-        { id: contentId }
+        { id: contentToDelete }
       )
 
       toast({
         title: "Success",
         description: "Content deleted successfully",
       })
+      setDeleteDialogOpen(false)
+      setContentToDelete(null)
       await fetchContent()
     } catch (error: any) {
       toast({
@@ -271,7 +290,7 @@ export default function ContentModerationPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDelete(item._id)}
+                      onClick={() => handleDeleteClick(item._id)}
                       className="border-red-600 text-red-400 hover:bg-red-600/20"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -287,6 +306,29 @@ export default function ContentModerationPage() {
           )}
         </div>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Content Item</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this content item? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-slate-600 text-slate-300">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
