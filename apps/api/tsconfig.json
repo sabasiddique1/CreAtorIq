@@ -16,7 +16,6 @@
     "strict": false,
     "moduleResolution": "bundler",
     "noImplicitAny": false,
-    "suppressImplicitAnyIndexErrors": true,
     "skipLibCheck": true
   },
   "include": ["src/**/*"],
