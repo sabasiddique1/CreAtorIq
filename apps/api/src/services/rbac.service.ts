@@ -1,5 +1,5 @@
-import { CreatorProfileModel, SubscriberProfileModel } from "../db/index.ts"
-import { ForbiddenError, NotFoundError } from "../middleware/error-handler.ts"
+import { CreatorProfileModel, SubscriberProfileModel } from "../db/index.js"
+import { ForbiddenError, NotFoundError } from "../middleware/error-handler.js"
 
 export class RbacService {
   /**

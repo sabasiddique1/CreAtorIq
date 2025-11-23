@@ -3,12 +3,12 @@ import express, { type Express } from "express"
 import cookieParser from "cookie-parser"
 import { ApolloServer } from "@apollo/server"
 import { expressMiddleware } from "@apollo/server/express4"
-import { connectDB } from "./db/index.ts"
-import { corsMiddleware } from "./middleware/cors.ts"
-import { optional } from "./middleware/auth.ts"
-import { errorHandler } from "./middleware/error-handler.ts"
-import { typeDefs } from "./graphql/schema.ts"
-import { resolvers, type GraphQLContext } from "./graphql/resolvers.ts"
+import { connectDB } from "./db/index.js"
+import { corsMiddleware } from "./middleware/cors.js"
+import { optional } from "./middleware/auth.js"
+import { errorHandler } from "./middleware/error-handler.js"
+import { typeDefs } from "./graphql/schema.js"
+import { resolvers, type GraphQLContext } from "./graphql/resolvers.js"
 
 const PORT = process.env.PORT || 3001
 

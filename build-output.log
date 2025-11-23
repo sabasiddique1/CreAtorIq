@@ -1,0 +1,9 @@
+
+> my-v0-project@0.1.0 build
+> turbo build
+
+turbo 2.6.0
+
+  x Could not resolve workspaces.
+  `-> Missing `packageManager` field in package.json
+

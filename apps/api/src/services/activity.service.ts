@@ -1,5 +1,5 @@
-import { ActivityEventModel } from "../db/index.ts"
-import type { ActivityEventDocument } from "../db/schemas/activity-event.schema.ts"
+import { ActivityEventModel } from "../db/index.js"
+import type { ActivityEventDocument } from "../db/schemas/activity-event.schema.js"
 
 export type ActivityEventType =
   | "USER_LOGIN"

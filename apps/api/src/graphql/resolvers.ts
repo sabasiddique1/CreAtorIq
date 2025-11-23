@@ -1,7 +1,7 @@
-import { AuthService } from "../services/auth.service.ts"
-import { RbacService } from "../services/rbac.service.ts"
-import { AiService } from "../services/ai.service.ts"
-import { ActivityService } from "../services/activity.service.ts"
+import { AuthService } from "../services/auth.service.js"
+import { RbacService } from "../services/rbac.service.js"
+import { AiService } from "../services/ai.service.js"
+import { ActivityService } from "../services/activity.service.js"
 import {
   UserModel,
   CreatorProfileModel,
@@ -12,9 +12,9 @@ import {
   SentimentSnapshotModel,
   IdeaSuggestionModel,
   ActivityEventModel,
-} from "../db/index.ts"
-import { ValidationError, NotFoundError } from "../middleware/error-handler.ts"
-import type { JwtPayload } from "../utils/jwt.ts"
+} from "../db/index.js"
+import { ValidationError, NotFoundError } from "../middleware/error-handler.js"
+import type { JwtPayload } from "../utils/jwt.js"
 
 export interface GraphQLContext {
   user?: JwtPayload
