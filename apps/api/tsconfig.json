@@ -15,8 +15,7 @@
     "resolveJsonModule": true,
     "strict": false,
     "moduleResolution": "bundler",
-    "noImplicitAny": false,
-    "skipLibCheck": true
+    "noImplicitAny": false
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "node_modules"]
