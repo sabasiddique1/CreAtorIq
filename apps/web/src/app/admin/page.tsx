@@ -140,7 +140,7 @@ function AdminDashboardContent() {
                   <p className="text-slate-400 text-sm mb-1">{stat.label}</p>
                   <p className="text-3xl font-bold text-white">{value}</p>
                 </div>
-                <Icon className={`w-10 h-10 ${stat.iconColor} opacity-50`} />
+                <Icon className={`w-10 h-10 ${stat.iconColor} opacity-60`} />
               </div>
             </Card>
           )
