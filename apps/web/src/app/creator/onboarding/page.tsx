@@ -1,10 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
+import { CheckCircle2, XCircle } from "lucide-react"
 import { Button } from "../../../components/ui/button"
 import { Input } from "../../../components/ui/input"
 import { Card } from "../../../components/ui/card"
+import { cn } from "../../../lib/utils"
 
 export default function OnboardingPage() {
   const router = useRouter()
@@ -16,6 +18,37 @@ export default function OnboardingPage() {
     niche: "",
   })
   const [loading, setLoading] = useState(false)
+
+  // Validation for display name
+  const displayNameValidation = useMemo(() => {
+    const value = formData.displayName.trim()
+    if (value.length === 0) {
+      return { isValid: false, message: "" }
+    }
+    if (value.length < 2) {
+      return { isValid: false, message: "Display name must be at least 2 characters" }
+    }
+    if (value.length > 50) {
+      return { isValid: false, message: "Display name must be less than 50 characters" }
+    }
+    // Check for valid characters (letters, numbers, spaces, hyphens, underscores)
+    if (!/^[a-zA-Z0-9\s\-_]+$/.test(value)) {
+      return { isValid: false, message: "Display name can only contain letters, numbers, spaces, hyphens, and underscores" }
+    }
+    return { isValid: true, message: "Display name looks good!" }
+  }, [formData.displayName])
+
+  // Validation for niche
+  const nicheValidation = useMemo(() => {
+    const value = formData.niche.trim()
+    if (value.length === 0) {
+      return { isValid: false, message: "" }
+    }
+    if (value.length < 2) {
+      return { isValid: false, message: "Niche must be at least 2 characters" }
+    }
+    return { isValid: true, message: "Niche looks good!" }
+  }, [formData.niche])
 
   const handleNext = async () => {
     if (step === 3) {
@@ -58,12 +91,37 @@ export default function OnboardingPage() {
               </p>
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Display Name</label>
-                <Input
-                  value={formData.displayName}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, displayName: e.target.value }))}
-                  placeholder="Your creator name"
-                  className="bg-slate-900 border-slate-600 text-white"
-                />
+                <div className="relative">
+                  <Input
+                    value={formData.displayName}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, displayName: e.target.value }))}
+                    placeholder="Your creator name"
+                    className={cn(
+                      "bg-slate-900 border-slate-600 text-white pr-10",
+                      formData.displayName.trim().length > 0 && displayNameValidation.isValid && "border-green-500",
+                      formData.displayName.trim().length > 0 && !displayNameValidation.isValid && "border-red-500"
+                    )}
+                  />
+                  {formData.displayName.trim().length > 0 && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      {displayNameValidation.isValid ? (
+                        <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      ) : (
+                        <XCircle className="h-5 w-5 text-red-500" />
+                      )}
+                    </div>
+                  )}
+                </div>
+                {formData.displayName.trim().length > 0 && (
+                  <p
+                    className={cn(
+                      "text-xs mt-1.5",
+                      displayNameValidation.isValid ? "text-green-400" : "text-red-400"
+                    )}
+                  >
+                    {displayNameValidation.message}
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -80,15 +138,41 @@ export default function OnboardingPage() {
                   rows={4}
                   className="w-full bg-slate-900 border border-slate-600 text-white rounded p-3"
                 />
+                <p className="text-xs text-slate-500 mt-1.5">Optional - You can add this later</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Niche/Category</label>
-                <Input
-                  value={formData.niche}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, niche: e.target.value }))}
-                  placeholder="e.g., Gaming, Education, Music"
-                  className="bg-slate-900 border-slate-600 text-white"
-                />
+                <div className="relative">
+                  <Input
+                    value={formData.niche}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, niche: e.target.value }))}
+                    placeholder="e.g., Gaming, Education, Music"
+                    className={cn(
+                      "bg-slate-900 border-slate-600 text-white pr-10",
+                      formData.niche.trim().length > 0 && nicheValidation.isValid && "border-green-500",
+                      formData.niche.trim().length > 0 && !nicheValidation.isValid && "border-red-500"
+                    )}
+                  />
+                  {formData.niche.trim().length > 0 && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      {nicheValidation.isValid ? (
+                        <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      ) : (
+                        <XCircle className="h-5 w-5 text-red-500" />
+                      )}
+                    </div>
+                  )}
+                </div>
+                {formData.niche.trim().length > 0 && (
+                  <p
+                    className={cn(
+                      "text-xs mt-1.5",
+                      nicheValidation.isValid ? "text-green-400" : "text-red-400"
+                    )}
+                  >
+                    {nicheValidation.message}
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -116,14 +200,19 @@ export default function OnboardingPage() {
 
           <div className="flex gap-3 mt-8">
             {step > 1 && (
-              <Button variant="outline" onClick={handleBack} className="border-slate-600 bg-transparent">
+              <Button variant="outline" onClick={handleBack} className="border-slate-600 bg-transparent text-slate-300">
                 Back
               </Button>
             )}
             <Button
               onClick={handleNext}
-              disabled={loading || !formData.displayName || !formData.niche}
-              className="flex-1 bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90 hover:text-white text-white"
+              disabled={
+                loading ||
+                (step === 1 && !displayNameValidation.isValid) ||
+                (step === 2 && !nicheValidation.isValid) ||
+                (step === 3 && (!displayNameValidation.isValid || !nicheValidation.isValid))
+              }
+              className="flex-1 bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90 hover:text-white text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Setting up..." : step === 3 ? "Complete Setup" : "Next"}
             </Button>
