@@ -156,13 +156,38 @@ export const typeDefs = gql`
     usersByRole: JSON!
   }
 
+  type CreatorPublicProfile {
+    creator: CreatorProfile!
+    subscriptionTiers: [SubscriptionTier!]!
+    subscriberCount: Int!
+    recentContent: [ContentItem!]!
+    isSubscribed: Boolean!
+    currentTier: String
+  }
+
+  type DiscoverCreator {
+    creator: CreatorProfile!
+    subscriberCount: Int!
+    subscriptionTiers: [SubscriptionTier!]!
+    recentContentCount: Int!
+    isSubscribed: Boolean!
+  }
+
+  input CreatorFilterInput {
+    niche: String
+    search: String
+  }
+
   type Query {
     me: User
     creatorOverview(creatorId: ID!): CreatorOverview
     creatorProfile(creatorId: ID!): CreatorProfile
+    creatorPublicProfile(creatorId: ID!): CreatorPublicProfile!
     myCreatorProfile: CreatorProfile
     mySubscriptions: [SubscriberProfile!]!
+    discoverCreators(filter: CreatorFilterInput): [DiscoverCreator!]!
     contentItems(creatorId: ID!, filter: ContentFilterInput): [ContentItem!]!
+    contentItemsWithView(creatorId: ID!, filter: ContentFilterInput): [ContentItemWithView!]!
     sentimentSnapshots(creatorId: ID!, filter: SentimentFilterInput): [SentimentSnapshot!]!
     ideaSuggestions(creatorId: ID!, filter: IdeaFilterInput): [IdeaSuggestion!]!
     subscribers(creatorId: ID!, filter: SubscriberFilterInput): [SubscriberProfile!]!
@@ -192,7 +217,8 @@ export const typeDefs = gql`
     importCommentBatch(creatorId: ID!, source: String!, rawComments: [JSON!]!, linkedContentItemId: ID): CommentBatch!
     analyzeCommentBatch(batchId: ID!): SentimentSnapshot!
     generateIdeas(snapshotId: ID!, tierTarget: String): [IdeaSuggestion!]!
-    createSubscriber(userId: ID!, creatorId: ID!, tier: String!): SubscriberProfile!
+    createSubscriber(creatorId: ID!, tier: String!, userId: ID): SubscriberProfile!
+    markContentAsViewed(contentItemId: ID!): Boolean!
     # Admin mutations
     updateUser(id: ID!, name: String, email: String, role: String): User!
     deleteUser(id: ID!): Boolean!
@@ -233,5 +259,30 @@ export const typeDefs = gql`
     user: User!
     accessToken: String!
     refreshToken: String!
+  }
+
+  type ContentView {
+    _id: ID!
+    userId: ID!
+    contentItemId: ID!
+    viewedAt: Date!
+  }
+
+  type ContentItemWithView {
+    _id: ID!
+    creatorId: ID!
+    creator: CreatorProfile
+    title: String!
+    type: String!
+    isPremium: Boolean!
+    requiredTier: String
+    status: String!
+    description: String
+    contentUrl: String
+    contentBody: String
+    createdAt: Date!
+    updatedAt: Date!
+    isViewed: Boolean!
+    isNew: Boolean!
   }
 `

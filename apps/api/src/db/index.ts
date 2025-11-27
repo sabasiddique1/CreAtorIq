@@ -35,3 +35,7 @@ export {
   ActivityEventModel,
   type ActivityEventDocument,
 } from "./schemas/activity-event.schema.js"
+export {
+  ContentViewModel,
+  type ContentViewDocument,
+} from "./schemas/content-view.schema.js"

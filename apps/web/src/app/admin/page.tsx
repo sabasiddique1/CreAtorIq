@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react"
 import { Card } from '../../components/ui/card'
-import { Users, TrendingUp, Calendar, Mail } from "lucide-react"
+import { Users, Calendar, Mail } from "lucide-react"
 import { graphqlQuery } from '../../lib/graphql'
 import Link from "next/link"
 import { ADMIN_STATS } from '../../constants'
@@ -113,16 +113,15 @@ function AdminDashboardContent() {
 
   if (loading) {
     return (
-      <div className="p-8">
-        <div className="text-center py-12">
-          <p className="text-slate-400">Loading dashboard...</p>
-        </div>
+      <div className="h-full flex items-center justify-center">
+        <p className="text-slate-400">Loading dashboard...</p>
       </div>
     )
   }
 
   return (
-    <div className="p-8">
+    <div className="h-full overflow-y-auto">
+      <div className="p-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
         <p className="text-slate-400">Platform overview and key metrics</p>
@@ -272,6 +271,7 @@ function AdminDashboardContent() {
           </div>
         </div>
       </Card>
+      </div>
     </div>
   )
 }

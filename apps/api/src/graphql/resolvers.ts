@@ -12,6 +12,7 @@ import {
   SentimentSnapshotModel,
   IdeaSuggestionModel,
   ActivityEventModel,
+  ContentViewModel,
 } from "../db/index.js"
 import { ValidationError, NotFoundError } from "../middleware/error-handler.js"
 import type { JwtPayload } from "../utils/jwt.js"
@@ -108,6 +109,46 @@ export const resolvers = {
       return ContentItemModel.find(query).sort({ createdAt: -1 })
     },
 
+    contentItemsWithView: async (
+      _: any,
+      { creatorId, filter }: { creatorId: string; filter?: any },
+      context: GraphQLContext,
+    ) => {
+      if (!context.user) {
+        throw new Error("Unauthorized")
+      }
+
+      const query: any = { creatorId }
+      if (filter?.status) query.status = filter.status
+      if (filter?.type) query.type = filter.type
+      if (typeof filter?.isPremium === "boolean") query.isPremium = filter.isPremium
+
+      const contentItems = await ContentItemModel.find(query).sort({ createdAt: -1 })
+      const contentIds = contentItems.map((item) => item._id.toString())
+
+      // Get all views for this user and these content items
+      const views = await ContentViewModel.find({
+        userId: context.user.userId,
+        contentItemId: { $in: contentIds },
+      })
+
+      const viewedContentIds = new Set(views.map((v) => v.contentItemId.toString()))
+      const sevenDaysAgo = new Date()
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+
+      return contentItems.map((item) => {
+        const itemId = item._id.toString()
+        const isViewed = viewedContentIds.has(itemId)
+        const isNew = new Date(item.createdAt) > sevenDaysAgo && !isViewed
+
+        return {
+          ...item.toObject(),
+          isViewed,
+          isNew,
+        }
+      })
+    },
+
     sentimentSnapshots: async (_: any, { creatorId, filter }: { creatorId: string; filter?: any }) => {
       const query: any = { creatorId }
       if (filter?.startDate) query.timeRangeStart = { $gte: new Date(filter.startDate) }
@@ -144,6 +185,101 @@ export const resolvers = {
         throw new Error("Unauthorized")
       }
       return CommentBatchModel.find({ creatorId }).sort({ importedAt: -1 })
+    },
+
+    creatorPublicProfile: async (_: any, { creatorId }: { creatorId: string }, context: GraphQLContext) => {
+      if (!creatorId) {
+        throw new ValidationError("Creator ID is required")
+      }
+
+      // Try to find creator by ID (handles both string and ObjectId)
+      let creator = await CreatorProfileModel.findById(creatorId)
+      if (!creator) {
+        // Try finding by _id as string if ObjectId lookup failed
+        creator = await CreatorProfileModel.findOne({ _id: creatorId })
+        if (!creator) {
+          throw new NotFoundError(`Creator not found with ID: ${creatorId}`)
+        }
+      }
+
+      const subscriptionTiers = await SubscriptionTierModel.find({ creatorId })
+      const subscribers = await SubscriberProfileModel.find({ creatorId })
+      const recentContent = await ContentItemModel.find({ creatorId, status: "published" })
+        .sort({ createdAt: -1 })
+        .limit(3)
+
+      let isSubscribed = false
+      let currentTier: string | null = null
+
+      if (context.user) {
+        const subscription = await SubscriberProfileModel.findOne({
+          userId: context.user.userId,
+          creatorId,
+        })
+        if (subscription) {
+          isSubscribed = true
+          currentTier = subscription.tier
+        }
+      }
+
+      return {
+        creator,
+        subscriptionTiers,
+        subscriberCount: subscribers.length,
+        recentContent,
+        isSubscribed,
+        currentTier,
+      }
+    },
+
+    discoverCreators: async (_: any, { filter }: { filter?: any }, context: GraphQLContext) => {
+      const query: any = {}
+
+      if (filter?.niche) {
+        query.niche = { $regex: filter.niche, $options: "i" }
+      }
+
+      if (filter?.search) {
+        query.$or = [
+          { displayName: { $regex: filter.search, $options: "i" } },
+          { bio: { $regex: filter.search, $options: "i" } },
+          { niche: { $regex: filter.search, $options: "i" } },
+        ]
+      }
+
+      const creators = await CreatorProfileModel.find(query).sort({ createdAt: -1 })
+
+      const userId = context.user?.userId
+
+      const result = await Promise.all(
+        creators.map(async (creator) => {
+          const subscribers = await SubscriberProfileModel.find({ creatorId: creator._id })
+          const subscriptionTiers = await SubscriptionTierModel.find({ creatorId: creator._id })
+          const recentContentCount = await ContentItemModel.countDocuments({
+            creatorId: creator._id,
+            status: "published",
+          })
+
+          let isSubscribed = false
+          if (userId) {
+            const subscription = await SubscriberProfileModel.findOne({
+              userId,
+              creatorId: creator._id,
+            })
+            isSubscribed = !!subscription
+          }
+
+          return {
+            creator,
+            subscriberCount: subscribers.length,
+            subscriptionTiers,
+            recentContentCount,
+            isSubscribed,
+          }
+        })
+      )
+
+      return result
     },
 
     // Admin queries
@@ -596,12 +732,98 @@ export const resolvers = {
     },
 
     createSubscriber: async (_: any, { userId, creatorId, tier }: any, context: GraphQLContext) => {
-      // Allow self-subscription or admin/creator
-      if (context.user?.userId !== userId && context.user?.role !== "ADMIN") {
-        await RbacService.requireCreatorOwner(context.user?.userId || "", creatorId)
+      if (!context.user) {
+        throw new Error("Unauthorized")
       }
 
-      return SubscriberProfileModel.create({ userId, creatorId, tier })
+      // Use authenticated user's ID, or allow admin to specify
+      const targetUserId = context.user.role === "ADMIN" && userId ? userId : context.user.userId
+
+      // Check if already subscribed
+      const existing = await SubscriberProfileModel.findOne({
+        userId: targetUserId,
+        creatorId,
+      })
+
+      if (existing) {
+        // Update tier if different
+        if (existing.tier !== tier) {
+          existing.tier = tier
+          await existing.save()
+          return existing
+        }
+        return existing
+      }
+
+      const subscription = await SubscriberProfileModel.create({
+        userId: targetUserId,
+        creatorId,
+        tier,
+      })
+
+      // Log activity
+      await ActivityService.logActivity({
+        eventType: "SUBSCRIBER_JOINED",
+        userId: targetUserId,
+        creatorId,
+        metadata: { tier, subscriptionId: subscription._id.toString() },
+      })
+
+      return subscription
+    },
+
+    markContentAsViewed: async (_: any, { contentItemId }: { contentItemId: string }, context: GraphQLContext) => {
+      if (!context.user) {
+        throw new Error("Unauthorized")
+      }
+
+      // Check if content exists
+      const content = await ContentItemModel.findById(contentItemId)
+      if (!content) {
+        throw new NotFoundError("Content not found")
+      }
+
+      // Check if user has access (is subscribed to creator)
+      const subscription = await SubscriberProfileModel.findOne({
+        userId: context.user.userId,
+        creatorId: content.creatorId,
+      })
+
+      if (!subscription && content.isPremium) {
+        throw new Error("You must be subscribed to view this content")
+      }
+
+      // Check tier access for premium content
+      if (content.isPremium && content.requiredTier) {
+        const tierHierarchy: Record<string, string[]> = {
+          T1: ["T1"],
+          T2: ["T1", "T2"],
+          T3: ["T1", "T2", "T3"],
+        }
+        const accessibleTiers = tierHierarchy[subscription?.tier || ""] || []
+        if (!accessibleTiers.includes(content.requiredTier)) {
+          throw new Error("Your subscription tier does not have access to this content")
+        }
+      }
+
+      // Create or update view record
+      await ContentViewModel.findOneAndUpdate(
+        {
+          userId: context.user.userId,
+          contentItemId,
+        },
+        {
+          userId: context.user.userId,
+          contentItemId,
+          viewedAt: new Date(),
+        },
+        {
+          upsert: true,
+          new: true,
+        }
+      )
+
+      return true
     },
 
     // Admin mutations

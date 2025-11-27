@@ -356,8 +356,8 @@ export default function CreatorLayout({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className={`pt-16 lg:pt-0 transition-all duration-300 flex-1 overflow-y-auto`}>
-          <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+        <div className={`pt-16 lg:pt-0 transition-all duration-300 flex-1 overflow-y-auto bg-slate-950`}>
+          <div className="p-4 sm:p-6 lg:p-8 h-full">{children}</div>
         </div>
       </main>
 
