@@ -17,6 +17,7 @@ import {
   Menu,
   X,
   Search,
+  DollarSign,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -36,6 +37,7 @@ const navItems = [
   { href: "/creator/audience", label: "Audience", icon: Users },
   { href: "/creator/ideas", label: "Ideas", icon: Lightbulb },
   { href: "/creator/content", label: "Content", icon: FileText },
+  { href: "/creator/monetization", label: "Monetization", icon: DollarSign },
 ]
 
 export default function CreatorLayout({
