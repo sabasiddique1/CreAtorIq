@@ -15,7 +15,14 @@ export async function connectDB(): Promise<void> {
     console.log("MongoDB connected successfully")
   } catch (error) {
     console.error("MongoDB connection failed:", error)
-    process.exit(1)
+    // In serverless environments, don't exit the process - throw instead
+    // This allows Vercel to handle the error gracefully
+    if (process.env.VERCEL || process.env.VERCEL_ENV) {
+      throw error
+    } else {
+      // Only exit in non-serverless environments (local dev)
+      process.exit(1)
+    }
   }
 }
 
@@ -30,6 +37,12 @@ export async function disconnectDB(): Promise<void> {
     console.log("MongoDB disconnected")
   } catch (error) {
     console.error("MongoDB disconnection failed:", error)
-    process.exit(1)
+    // In serverless environments, don't exit the process - throw instead
+    if (process.env.VERCEL || process.env.VERCEL_ENV) {
+      throw error
+    } else {
+      // Only exit in non-serverless environments (local dev)
+      process.exit(1)
+    }
   }
 }

@@ -31,7 +31,15 @@ async function setupApp(): Promise<Express> {
   app.use(corsMiddleware())
 
   // Connect to database
-  await connectDB()
+  // Wrap in try-catch to handle connection errors gracefully
+  try {
+    await connectDB()
+  } catch (error) {
+    console.error("Failed to connect to database:", error)
+    // Don't throw here - allow the app to start but log the error
+    // The app can still handle requests, but database operations will fail
+    // This is better than crashing the entire serverless function
+  }
 
   // Apollo GraphQL Server
   apolloServer = new ApolloServer<GraphQLContext>({
@@ -69,11 +77,41 @@ async function setupApp(): Promise<Express> {
 // For Vercel: export handler that initializes app on first request
 // Vercel serverless functions need a default export
 export default async function handler(req: Request, res: Response) {
-  if (!appPromise) {
-    appPromise = setupApp()
+  try {
+    if (!appPromise) {
+      appPromise = setupApp()
+    }
+    const app = await appPromise
+    
+    // Express apps are callable functions - invoke directly
+    // Wrap in a Promise to ensure Vercel waits for the response to complete
+    return new Promise<void>((resolve, reject) => {
+      // Handle response completion via 'finish' event
+      res.once('finish', () => resolve())
+      res.once('close', () => resolve()) // Handle connection close
+      
+      // Create a next callback to handle errors
+      const next = (err?: any) => {
+        if (err) {
+          reject(err)
+        }
+        // Don't resolve here - wait for response to finish
+      }
+      
+      // Call Express app as a function (Express apps are callable)
+      app(req, res, next)
+    })
+  } catch (error) {
+    console.error("[Handler Error]:", error)
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        error: "Internal server error",
+        code: "INTERNAL_ERROR",
+      })
+    }
+    throw error // Re-throw to let Vercel know the function failed
   }
-  const app = await appPromise
-  return app(req, res)
 }
 
 // For local development: start the server if not in Vercel environment
