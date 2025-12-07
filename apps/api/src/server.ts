@@ -3,6 +3,7 @@ import express, { type Express, type Request, type Response } from "express"
 import cookieParser from "cookie-parser"
 import { ApolloServer } from "@apollo/server"
 import { expressMiddleware } from "@apollo/server/express4"
+import mongoose from "mongoose"
 import { connectDB } from "./db/index.js"
 import { corsMiddleware } from "./middleware/cors.js"
 import { optional } from "./middleware/auth.js"
@@ -15,9 +16,10 @@ const PORT = process.env.PORT || 3001
 // Initialize Apollo Server (will be started in setupApp)
 let apolloServer: ApolloServer<GraphQLContext> | null = null
 let appInstance: Express | null = null
-let appPromise: Promise<Express> | null = null
+let servicesInitializing = false
 
-async function setupApp(): Promise<Express> {
+// Initialize app synchronously - routes must be available immediately
+function createApp(): Express {
   if (appInstance) {
     return appInstance
   }
@@ -30,57 +32,44 @@ async function setupApp(): Promise<Express> {
   app.use(cookieParser())
   app.use(corsMiddleware())
 
-  // Connect to database with timeout protection
-  // Wrap in try-catch to handle connection errors gracefully
-  try {
-    await connectDB()
-  } catch (error) {
-    console.error("Failed to connect to database:", error)
-    // Don't throw here - allow the app to start but log the error
-    // The app can still handle requests, but database operations will fail
-    // This is better than crashing the entire serverless function
-    // In serverless, we'll retry on the next request
-  }
-
-  // Apollo GraphQL Server - optimized for serverless
-  apolloServer = new ApolloServer<GraphQLContext>({
-    typeDefs,
-    resolvers,
-    // Optimize for serverless: disable features that add overhead
-    introspection: process.env.NODE_ENV !== "production",
-    // Reduce startup time by not waiting for schema validation
-    stopOnTerminationSignals: false,
+  // Handle Vercel rewrites - strip /api prefix if present
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api/')) {
+      req.url = req.url.replace('/api', '')
+    }
+    next()
   })
 
-  // Start Apollo with timeout protection
-  try {
-    await Promise.race([
-      apolloServer.start(),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("Apollo Server startup timeout")), 10000)
-      ),
-    ])
-  } catch (error) {
-    console.error("Failed to start Apollo Server:", error)
-    // Continue anyway - GraphQL endpoint will fail but other routes work
-  }
+  // Health check endpoint - MUST be first and work immediately
+  app.get("/health", (req, res) => {
+    res.json({ 
+      status: "ok", 
+      timestamp: new Date().toISOString(),
+      db: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+      apollo: apolloServer ? "ready" : "not ready"
+    })
+  })
 
-  // GraphQL endpoint with optional auth
-  app.use(
-    "/graphql",
-    optional,
-    expressMiddleware(apolloServer, {
+  // GraphQL endpoint - check if Apollo is ready before handling
+  app.use("/graphql", optional, (req, res, next) => {
+    if (!apolloServer) {
+      return res.status(503).json({
+        success: false,
+        error: "GraphQL server is not ready yet. Please try again in a moment.",
+        code: "SERVICE_UNAVAILABLE",
+      })
+    }
+    
+    // Apollo is ready, use the middleware
+    const middleware = expressMiddleware(apolloServer, {
       context: async ({ req, res }) => ({
         user: (req as any).user,
         req,
         res,
       }),
-    }),
-  )
-
-  // Health check endpoint
-  app.get("/health", (req, res) => {
-    res.json({ status: "ok", timestamp: new Date().toISOString() })
+    })
+    
+    return middleware(req, res, next)
   })
 
   // Error handler
@@ -90,44 +79,67 @@ async function setupApp(): Promise<Express> {
   return app
 }
 
+// Initialize async services in background (non-blocking)
+async function initializeServices(): Promise<void> {
+  if (servicesInitializing) {
+    return // Already initializing
+  }
+  
+  servicesInitializing = true
+  
+  try {
+    // Connect to database with timeout protection
+    try {
+      await connectDB()
+    } catch (error) {
+      console.error("Failed to connect to database:", error)
+      // Don't throw - allow app to continue
+    }
+
+    // Apollo GraphQL Server - optimized for serverless
+    if (!apolloServer) {
+      apolloServer = new ApolloServer<GraphQLContext>({
+        typeDefs,
+        resolvers,
+        introspection: process.env.NODE_ENV !== "production",
+        stopOnTerminationSignals: false,
+      })
+
+      // Start Apollo with timeout protection
+      try {
+        await Promise.race([
+          apolloServer.start(),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("Apollo Server startup timeout")), 10000)
+          ),
+        ])
+        console.log("Apollo Server started successfully")
+      } catch (error) {
+        console.error("Failed to start Apollo Server:", error)
+        apolloServer = null // Mark as failed
+      }
+    }
+  } finally {
+    servicesInitializing = false
+  }
+}
+
 // For Vercel: export handler that initializes app on first request
 // Vercel serverless functions need a default export
 export default async function handler(req: Request, res: Response) {
-  // Set a maximum timeout for the entire handler (50 seconds for Pro plan, 25 for Hobby)
-  // This prevents the function from hanging indefinitely
-  const MAX_HANDLER_TIMEOUT = 25000 // 25 seconds (safe margin for 30s Hobby plan)
-  
-  const timeoutId = setTimeout(() => {
-    if (!res.headersSent) {
-      console.error("[Handler] Request timeout after", MAX_HANDLER_TIMEOUT, "ms")
-      res.status(504).json({
-        success: false,
-        error: "Request timeout - the operation took too long",
-        code: "TIMEOUT",
-      })
-    }
-  }, MAX_HANDLER_TIMEOUT)
-
   try {
-    // Initialize app with timeout protection
-    if (!appPromise) {
-      appPromise = Promise.race([
-        setupApp(),
-        new Promise<Express>((_, reject) =>
-          setTimeout(() => reject(new Error("App setup timeout after 15 seconds")), 15000)
-        ),
-      ])
+    // Get or create app (synchronous - returns immediately)
+    const app = createApp()
+    
+    // Start services initialization in background (non-blocking)
+    if (!servicesInitializing && !apolloServer) {
+      initializeServices().catch(console.error)
     }
     
-    const app = await appPromise
-    
-    // Clear the timeout once we have the app
-    clearTimeout(timeoutId)
-    
-    // Express apps are callable functions - invoke directly
-    // Wrap in a Promise to ensure Vercel waits for the response to complete
-    return new Promise<void>((resolve, reject) => {
-      // Set a new timeout for the actual request handling
+    // Handle the request with Express
+    // Use a Promise wrapper to ensure Vercel waits for response
+    return new Promise<void>((resolve) => {
+      // Set timeout for request processing (25 seconds)
       const requestTimeout = setTimeout(() => {
         if (!res.headersSent) {
           console.error("[Handler] Request processing timeout")
@@ -136,34 +148,38 @@ export default async function handler(req: Request, res: Response) {
             error: "Request processing timeout",
             code: "TIMEOUT",
           })
-          resolve() // Resolve to prevent hanging
         }
-      }, 20000) // 20 seconds for request processing
+        resolve()
+      }, 25000)
       
-      // Handle response completion via 'finish' event
-      res.once('finish', () => {
+      // Handle response completion
+      const cleanup = () => {
         clearTimeout(requestTimeout)
         resolve()
-      })
-      res.once('close', () => {
-        clearTimeout(requestTimeout)
-        resolve() // Handle connection close
-      })
-      
-      // Create a next callback to handle errors
-      const next = (err?: any) => {
-        if (err) {
-          clearTimeout(requestTimeout)
-          reject(err)
-        }
-        // Don't resolve here - wait for response to finish
       }
       
-      // Call Express app as a function (Express apps are callable)
+      res.once('finish', cleanup)
+      res.once('close', cleanup)
+      
+      // Handle errors
+      const next = (err?: any) => {
+        if (err) {
+          console.error("[Handler] Express error:", err)
+          if (!res.headersSent) {
+            res.status(500).json({
+              success: false,
+              error: err.message || "Internal server error",
+              code: "INTERNAL_ERROR",
+            })
+          }
+          cleanup()
+        }
+      }
+      
+      // Invoke Express app
       app(req, res, next)
     })
   } catch (error) {
-    clearTimeout(timeoutId)
     console.error("[Handler Error]:", error)
     if (!res.headersSent) {
       res.status(500).json({
@@ -172,15 +188,14 @@ export default async function handler(req: Request, res: Response) {
         code: "INTERNAL_ERROR",
       })
     }
-    // Don't re-throw in serverless - let the response be sent
-    // Re-throwing can cause Vercel to show an error page instead of JSON
   }
 }
 
 // For local development: start the server if not in Vercel environment
 if (process.env.VERCEL !== "1" && !process.env.VERCEL_ENV) {
-  setupApp()
-    .then((app) => {
+  const app = createApp()
+  initializeServices()
+    .then(() => {
       app.listen(PORT, () => {
         console.log(`Server running on http://localhost:${PORT}`)
         console.log(`GraphQL endpoint: http://localhost:${PORT}/graphql`)

@@ -2,11 +2,22 @@
   "functions": {
     "apps/api/src/server.ts": {
       "maxDuration": 30
+    },
+    "api/**/*.ts": {
+      "maxDuration": 30
     }
   },
   "rewrites": [
     {
       "source": "/api/:path*",
+      "destination": "/apps/api/src/server.ts"
+    },
+    {
+      "source": "/graphql",
+      "destination": "/apps/api/src/server.ts"
+    },
+    {
+      "source": "/health",
       "destination": "/apps/api/src/server.ts"
     }
   ]
