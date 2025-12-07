@@ -75,11 +75,16 @@ ${chunk.map((c) => `- "${c.text}"`).join("\n")}
 
 Return ONLY valid JSON array, no other text.`
 
-        // Use Google Gemini
-        const result = await generateText({
-          model: google("gemini-2.0-flash"),
-          prompt,
-        })
+        // Use Google Gemini with timeout protection (15 seconds per chunk)
+        const result = await Promise.race([
+          generateText({
+            model: google("gemini-2.0-flash"),
+            prompt,
+          }),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("AI API timeout after 15 seconds")), 15000)
+          ),
+        ])
         const text = result.text
 
         try {
@@ -162,11 +167,16 @@ ${commentTexts
 
 Return ONLY valid JSON array, no other text.`
 
-      // Use Google Gemini
-      const result = await generateText({
-        model: google("gemini-2.0-flash"),
-        prompt,
-      })
+      // Use Google Gemini with timeout protection (15 seconds)
+      const result = await Promise.race([
+        generateText({
+          model: google("gemini-2.0-flash"),
+          prompt,
+        }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("AI API timeout after 15 seconds")), 15000)
+        ),
+      ])
       const text = result.text
 
       try {
@@ -231,11 +241,16 @@ Return a JSON array of 3 ideas. Return ONLY JSON, no other text.`
       console.log("[AI Service] Generating ideas with prompt length:", prompt.length)
       console.log("[AI Service] Using provider: Google Gemini")
       
-      // Use Google Gemini (free tier available)
-      const result = await generateText({
-        model: google("gemini-2.0-flash"),
-        prompt,
-      })
+      // Use Google Gemini (free tier available) with timeout protection (20 seconds)
+      const result = await Promise.race([
+        generateText({
+          model: google("gemini-2.0-flash"),
+          prompt,
+        }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("AI API timeout after 20 seconds")), 20000)
+        ),
+      ])
       const text = result.text
 
       console.log("[AI Service] Received response from AI, length:", text.length)
@@ -298,11 +313,16 @@ Return JSON with:
 
 Include 4-5 modules. Return ONLY JSON, no other text.`
 
-        // Use Google Gemini
-        const { text } = await generateText({
-          model: google("gemini-2.0-flash"),
-          prompt,
-        })
+        // Use Google Gemini with timeout protection (15 seconds)
+        const { text } = await Promise.race([
+          generateText({
+            model: google("gemini-2.0-flash"),
+            prompt,
+          }),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("AI API timeout after 15 seconds")), 15000)
+          ),
+        ])
 
       try {
         return JSON.parse(text)
