@@ -188,7 +188,6 @@ export const typeDefs = gql`
     discoverCreators(filter: CreatorFilterInput): [DiscoverCreator!]!
     contentItems(creatorId: ID!, filter: ContentFilterInput): [ContentItem!]!
     contentItemsWithView(creatorId: ID!, filter: ContentFilterInput): [ContentItemWithView!]!
-    recentlyViewedContent(limit: Int): [ContentItemWithView!]!
     sentimentSnapshots(creatorId: ID!, filter: SentimentFilterInput): [SentimentSnapshot!]!
     ideaSuggestions(creatorId: ID!, filter: IdeaFilterInput): [IdeaSuggestion!]!
     subscribers(creatorId: ID!, filter: SubscriberFilterInput): [SubscriberProfile!]!

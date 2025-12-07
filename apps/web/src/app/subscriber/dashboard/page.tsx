@@ -21,7 +21,6 @@ export default function SubscriberDashboard() {
   const { user, checkAuth, logout } = useAuthStore()
   const [contentItems, setContentItems] = useState<ContentItem[]>([])
   const [subscriptions, setSubscriptions] = useState<SubscriberProfile[]>([])
-  const [recentlyViewed, setRecentlyViewed] = useState<ContentItem[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedContent, setSelectedContent] = useState<ContentItem | null>(null)
   const [showNewOnly, setShowNewOnly] = useState(false)
@@ -67,37 +66,6 @@ export default function SubscriberDashboard() {
           // Log subscriptions for debugging
           console.log("Subscriptions received:", subscriptionsResult.mySubscriptions)
           setSubscriptions(subscriptionsResult.mySubscriptions)
-        }
-
-        // Fetch recently viewed content
-        try {
-          const recentlyViewedResult = await graphqlQuery(`
-            query RecentlyViewedContent($limit: Int) {
-              recentlyViewedContent(limit: $limit) {
-                _id
-                title
-                type
-                status
-                isPremium
-                requiredTier
-                description
-                contentUrl
-                contentBody
-                createdAt
-                creator {
-                  _id
-                  displayName
-                  niche
-                }
-              }
-            }
-          `, { limit: 6 })
-
-          if (recentlyViewedResult?.recentlyViewedContent) {
-            setRecentlyViewed(recentlyViewedResult.recentlyViewedContent)
-          }
-        } catch (error) {
-          console.error("Error fetching recently viewed content:", error)
         }
 
         if (!subscriptionsResult?.mySubscriptions || subscriptionsResult.mySubscriptions.length === 0) {
@@ -338,69 +306,6 @@ export default function SubscriberDashboard() {
 
         {/* Main Content */}
         <div className="flex-1 min-w-0">
-          {/* Continue Watching Section */}
-          {recentlyViewed.length > 0 && (
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-white mb-1">Continue Watching</h2>
-                  <p className="text-slate-400 text-sm">Pick up where you left off</p>
-                </div>
-              </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                {recentlyViewed.slice(0, 6).map((item) => {
-                  const thumbnailUrl = getThumbnailWithFallback(
-                    item.title,
-                    item.type,
-                    item.creator?.niche
-                  )
-                  
-                  return (
-                    <Card
-                      key={item._id}
-                      className="bg-slate-800/50 border-slate-700 hover:border-blue-500 transition overflow-hidden flex flex-col group cursor-pointer"
-                      onClick={() => handleViewContent(item)}
-                    >
-                      <div className="relative w-full aspect-video bg-slate-900 overflow-hidden">
-                        <img
-                          src={thumbnailUrl}
-                          alt={item.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement
-                            target.src = `https://via.placeholder.com/400x225/4A5568/FFFFFF?text=${encodeURIComponent(item.title.substring(0, 20))}`
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                          {item.type === "video" && (
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                              <div className="w-16 h-16 rounded-full bg-red-500/90 flex items-center justify-center">
-                                <Play className="w-8 h-8 text-white ml-1" fill="white" />
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        <div className="absolute bottom-2 right-2">
-                          <span className="px-2 py-1 bg-black/70 text-white text-xs rounded capitalize backdrop-blur-sm">
-                            {item.type}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="p-4">
-                        <h3 className="text-sm font-semibold text-white mb-1 line-clamp-2 group-hover:text-blue-400 transition-colors">
-                          {item.title}
-                        </h3>
-                        <p className="text-xs text-slate-400">
-                          {item.creator?.displayName || "Unknown Creator"}
-                        </p>
-                      </div>
-                    </Card>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <div>
