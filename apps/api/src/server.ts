@@ -1,5 +1,5 @@
 import "dotenv/config"
-import express, { type Express } from "express"
+import express, { type Express, type Request, type Response } from "express"
 import cookieParser from "cookie-parser"
 import { ApolloServer } from "@apollo/server"
 import { expressMiddleware } from "@apollo/server/express4"
@@ -12,7 +12,16 @@ import { resolvers, type GraphQLContext } from "./graphql/resolvers.js"
 
 const PORT = process.env.PORT || 3001
 
-async function startServer() {
+// Initialize Apollo Server (will be started in setupApp)
+let apolloServer: ApolloServer<GraphQLContext> | null = null
+let appInstance: Express | null = null
+let appPromise: Promise<Express> | null = null
+
+async function setupApp(): Promise<Express> {
+  if (appInstance) {
+    return appInstance
+  }
+
   const app: Express = express()
 
   // Middleware
@@ -25,7 +34,7 @@ async function startServer() {
   await connectDB()
 
   // Apollo GraphQL Server
-  const apolloServer = new ApolloServer<GraphQLContext>({
+  apolloServer = new ApolloServer<GraphQLContext>({
     typeDefs,
     resolvers,
   })
@@ -53,11 +62,28 @@ async function startServer() {
   // Error handler
   app.use(errorHandler)
 
-  // Start server
-  app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`)
-    console.log(`GraphQL endpoint: http://localhost:${PORT}/graphql`)
-  })
+  appInstance = app
+  return app
 }
 
-startServer().catch(console.error)
+// For Vercel: export handler that initializes app on first request
+// Vercel serverless functions need a default export
+export default async function handler(req: Request, res: Response) {
+  if (!appPromise) {
+    appPromise = setupApp()
+  }
+  const app = await appPromise
+  return app(req, res)
+}
+
+// For local development: start the server if not in Vercel environment
+if (process.env.VERCEL !== "1" && !process.env.VERCEL_ENV) {
+  setupApp()
+    .then((app) => {
+      app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`)
+        console.log(`GraphQL endpoint: http://localhost:${PORT}/graphql`)
+      })
+    })
+    .catch(console.error)
+}

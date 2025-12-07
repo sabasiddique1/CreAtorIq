@@ -9,7 +9,6 @@ const userSchema = new Schema<UserDocument>(
     email: {
       type: String,
       required: true,
-      unique: true,
       lowercase: true,
       trim: true,
     },
@@ -32,6 +31,7 @@ const userSchema = new Schema<UserDocument>(
   },
 )
 
-userSchema.index({ email: 1 })
+// Unique index on email (removed duplicate - unique: true already creates an index)
+userSchema.index({ email: 1 }, { unique: true })
 
 export const UserModel = mongoose.model<UserDocument>("User", userSchema)

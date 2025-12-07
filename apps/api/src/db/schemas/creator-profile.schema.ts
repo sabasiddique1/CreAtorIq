@@ -10,7 +10,6 @@ const creatorProfileSchema = new Schema<CreatorProfileDocument>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true,
     },
     displayName: {
       type: String,
@@ -39,6 +38,7 @@ const creatorProfileSchema = new Schema<CreatorProfileDocument>(
   },
 )
 
-creatorProfileSchema.index({ userId: 1 })
+// Unique index on userId (removed duplicate - unique: true already creates an index)
+creatorProfileSchema.index({ userId: 1 }, { unique: true })
 
 export const CreatorProfileModel = mongoose.model<CreatorProfileDocument>("CreatorProfile", creatorProfileSchema)
