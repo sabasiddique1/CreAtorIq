@@ -6,18 +6,7 @@ import { Button } from "../../../components/ui/button"
 import { Input } from "../../../components/ui/input"
 import { graphqlQuery } from "../../../lib/graphql"
 import { toast } from "../../../hooks/use-toast"
-import { Search, Edit, Trash2, Shield, Mail, Calendar, Plus, Minus } from "lucide-react"
-import { ROLES } from "@engagement-nexus/config"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../../../components/ui/alert-dialog"
+import { Search, Edit, Trash2, Mail, Calendar, Plus, Minus } from "lucide-react"
 
 interface User {
   _id: string

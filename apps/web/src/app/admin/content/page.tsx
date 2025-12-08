@@ -6,7 +6,7 @@ import { Button } from "../../../components/ui/button"
 import { Input } from "../../../components/ui/input"
 import { graphqlQuery } from "../../../lib/graphql"
 import { toast } from "../../../hooks/use-toast"
-import { Search, Trash2, CheckCircle, XCircle, FileText, Calendar, Star } from "lucide-react"
+import { Search, Trash2, CheckCircle, XCircle, Calendar, Star } from "lucide-react"
 import {
   Tooltip,
   TooltipContent,
