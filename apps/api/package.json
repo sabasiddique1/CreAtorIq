@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "pnpm build && pnpm start:watch",
     "build": "tsc",
     "start": "node dist/server.js",
+    "start:watch": "node --watch dist/server.js",
     "lint": "eslint src/",
     "type-check": "tsc --noEmit",
     "seed": "node --loader tsx/cjs src/scripts/seed-data.ts"

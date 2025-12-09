@@ -36,3 +36,4 @@ function getColorForType(type: string): string {
 }
 
 
+

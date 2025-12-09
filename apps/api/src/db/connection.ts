@@ -27,8 +27,6 @@ export async function connectDB(): Promise<void> {
         connectTimeoutMS: 10000, // 10 second connection timeout
         maxPoolSize: 1, // Serverless: keep pool small
         minPoolSize: 1,
-        bufferCommands: false, // Disable mongoose buffering for serverless
-        bufferMaxEntries: 0, // Disable mongoose buffering
       }
 
       // Add timeout wrapper to prevent hanging
