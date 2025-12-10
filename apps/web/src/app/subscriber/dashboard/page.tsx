@@ -18,7 +18,7 @@ import { getThumbnailWithFallback } from "../../../lib/thumbnails"
 
 export default function SubscriberDashboard() {
   const router = useRouter()
-  const { user, checkAuth, logout } = useAuthStore()
+  const { user, checkAuth } = useAuthStore()
   const [contentItems, setContentItems] = useState<ContentItem[]>([])
   const [subscriptions, setSubscriptions] = useState<SubscriberProfile[]>([])
   const [loading, setLoading] = useState(true)
@@ -43,8 +43,7 @@ export default function SubscriberDashboard() {
 
       try {
         setLoading(true)
-        // Get subscriber tier (T1, T2, or T3)
-        const userTier = user.role.replace("SUBSCRIBER_", "")
+        // Get subscriber tier (T1, T2, or T3) - will be used in filtering below
 
         // Get all creators this user is subscribed to
         const subscriptionsResult = await graphqlQuery(`
@@ -75,12 +74,21 @@ export default function SubscriberDashboard() {
         }
 
         // For each subscribed creator, get their published content
-        const contentPromises = subscriptionsResult.mySubscriptions.map(async (subscription: SubscriberProfile) => {
+        const contentPromises = subscriptionsResult.mySubscriptions.map(async (subscription: any) => {
           try {
             // Ensure creatorId is a string (not an object)
-            const creatorId = typeof subscription.creatorId === "object" 
-              ? (subscription.creator?._id || subscription.creatorId?._id || subscription.creatorId)
-              : subscription.creatorId
+            let creatorId: string = ""
+            if (subscription.creator?._id) {
+              creatorId = typeof subscription.creator._id === "string" 
+                ? subscription.creator._id 
+                : String(subscription.creator._id)
+            } else if (typeof subscription.creatorId === "string") {
+              creatorId = subscription.creatorId
+            } else if (subscription.creatorId) {
+              creatorId = typeof subscription.creatorId === "object" && subscription.creatorId._id
+                ? String(subscription.creatorId._id)
+                : String(subscription.creatorId)
+            }
             
             const contentResult = await graphqlQuery(
               `
@@ -110,7 +118,8 @@ export default function SubscriberDashboard() {
               // T3 can access T1, T2, T3
               // T2 can access T1, T2
               // T1 can only access T1
-              const accessibleTiers = TIER_HIERARCHY[userTier] || []
+              const tier = String(user.role || "").replace("SUBSCRIBER_", "")
+              const accessibleTiers = TIER_HIERARCHY[tier] || []
 
               return contentResult.contentItems
                 .map((item: ContentItem) => {
@@ -208,7 +217,10 @@ export default function SubscriberDashboard() {
   
   if (filterCreator !== "all") {
     displayedContent = displayedContent.filter((item) => {
-      const creatorId = typeof item.creator?._id === "string" ? item.creator._id : item.creator?._id?.toString()
+      if (!item.creator?._id) return false
+      const creatorId = typeof item.creator._id === "string" 
+        ? item.creator._id 
+        : String(item.creator._id)
       return creatorId === filterCreator
     })
   }
@@ -222,10 +234,13 @@ export default function SubscriberDashboard() {
       contentItems
         .map((item) => item.creator)
         .filter(Boolean)
-        .map((creator) => [
-          typeof creator?._id === "string" ? creator._id : creator?._id?.toString(),
-          creator,
-        ])
+        .map((creator) => {
+          if (!creator?._id) return ["", creator]
+          const creatorId = typeof creator._id === "string" 
+            ? creator._id 
+            : String(creator._id)
+          return [creatorId, creator]
+        })
     ).values()
   )
 
@@ -236,8 +251,6 @@ export default function SubscriberDashboard() {
       </div>
     )
   }
-
-  const userTier = user.role.replace("SUBSCRIBER_", "")
 
   return (
     <div className="h-screen bg-gradient-to-b from-slate-950 to-slate-900 flex flex-col overflow-hidden">
@@ -350,7 +363,9 @@ export default function SubscriberDashboard() {
                 <SelectContent className="bg-slate-800 border-slate-700">
                   <SelectItem value="all">All Creators</SelectItem>
                   {uniqueCreators.map((creator) => {
-                    const creatorId = typeof creator?._id === "string" ? creator._id : creator?._id?.toString()
+                    const creatorId = creator?._id 
+                      ? (typeof creator._id === "string" ? creator._id : String(creator._id))
+                      : ""
                     return (
                       <SelectItem key={creatorId} value={creatorId || ""}>
                         {creator?.displayName || "Unknown"}

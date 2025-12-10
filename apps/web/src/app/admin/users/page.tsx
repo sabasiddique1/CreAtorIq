@@ -26,7 +26,6 @@ export default function UserManagementPage() {
   const [editName, setEditName] = useState("")
   const [editRole, setEditRole] = useState("")
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [userToDelete, setUserToDelete] = useState<string | null>(null)
 
   useEffect(() => {
@@ -125,11 +124,13 @@ export default function UserManagementPage() {
 
   const handleDeleteClick = (userId: string) => {
     setUserToDelete(userId)
-    setDeleteDialogOpen(true)
+    // Delete immediately (dialog was removed)
+    handleDelete(userId)
   }
 
-  const handleDelete = async () => {
-    if (!userToDelete) return
+  const handleDelete = async (userId?: string) => {
+    const idToDelete = userId || userToDelete
+    if (!idToDelete) return
 
     try {
       await graphqlQuery(
@@ -138,14 +139,13 @@ export default function UserManagementPage() {
           deleteUser(id: $id)
         }
       `,
-        { id: userToDelete }
+        { id: idToDelete }
       )
 
       toast({
         title: "Success",
         description: "User deleted successfully",
       })
-      setDeleteDialogOpen(false)
       setUserToDelete(null)
       await fetchUsers()
     } catch (error: any) {
