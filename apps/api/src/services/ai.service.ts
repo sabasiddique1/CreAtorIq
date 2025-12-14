@@ -238,9 +238,6 @@ For each idea, return a JSON object with:
 
 Return a JSON array of 3 ideas. Return ONLY JSON, no other text.`
 
-      console.log("[AI Service] Generating ideas with prompt length:", prompt.length)
-      console.log("[AI Service] Using provider: Google Gemini")
-      
       // Use Google Gemini (free tier available) with timeout protection (20 seconds)
       const result = await Promise.race([
         generateText({
@@ -252,8 +249,6 @@ Return a JSON array of 3 ideas. Return ONLY JSON, no other text.`
         ),
       ])
       const text = result.text
-
-      console.log("[AI Service] Received response from AI, length:", text.length)
 
       try {
         // Try to extract JSON from the response (sometimes AI adds extra text)
@@ -273,7 +268,6 @@ Return a JSON array of 3 ideas. Return ONLY JSON, no other text.`
             }))
           : []
 
-        console.log("[AI Service] Successfully parsed", ideas.length, "ideas")
         return ideas
       } catch (parseError) {
         console.error("[AI Service] Failed to parse JSON response:", parseError)

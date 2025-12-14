@@ -95,21 +95,14 @@ export default function ActivityLogsPage() {
         `),
       ])
 
-      console.log("Activities result:", activitiesResult)
-      console.log("Stats result:", statsResult)
-
       if (activitiesResult?.allActivities) {
         setActivities(activitiesResult.allActivities)
-        console.log(`✅ Loaded ${activitiesResult.allActivities.length} activities`)
       } else {
-        console.warn("⚠️ No activities in result:", activitiesResult)
         setActivities([])
       }
       if (statsResult?.activityStats) {
         setStats(statsResult.activityStats)
-        console.log("✅ Loaded stats:", statsResult.activityStats)
       } else {
-        console.warn("⚠️ No stats in result:", statsResult)
         setStats(null)
       }
     } catch (error: any) {

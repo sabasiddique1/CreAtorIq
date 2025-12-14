@@ -113,7 +113,6 @@ async function initializeServices(): Promise<void> {
             setTimeout(() => reject(new Error("Apollo Server startup timeout")), 10000)
           ),
         ])
-        console.log("Apollo Server started successfully")
       } catch (error) {
         console.error("Failed to start Apollo Server:", error)
         apolloServer = null // Mark as failed
@@ -197,8 +196,7 @@ if (process.env.VERCEL !== "1" && !process.env.VERCEL_ENV) {
   initializeServices()
     .then(() => {
       app.listen(PORT, () => {
-        console.log(`Server running on http://localhost:${PORT}`)
-        console.log(`GraphQL endpoint: http://localhost:${PORT}/graphql`)
+        // Server started
       })
     })
     .catch(console.error)

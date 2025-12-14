@@ -6,7 +6,6 @@ let connectionPromise: Promise<void> | null = null
 export async function connectDB(): Promise<void> {
   // If already connected, return immediately
   if (isConnected && mongoose.connection.readyState === 1) {
-    console.log("MongoDB already connected")
     return
   }
 
@@ -39,13 +38,11 @@ export async function connectDB(): Promise<void> {
 
       await connectWithTimeout
       isConnected = true
-      console.log("MongoDB connected successfully")
       
       // Handle connection events for serverless
       mongoose.connection.on("disconnected", () => {
         isConnected = false
         connectionPromise = null
-        console.log("MongoDB disconnected")
       })
     } catch (error) {
       isConnected = false
@@ -73,7 +70,6 @@ export async function disconnectDB(): Promise<void> {
   try {
     await mongoose.disconnect()
     isConnected = false
-    console.log("MongoDB disconnected")
   } catch (error) {
     console.error("MongoDB disconnection failed:", error)
     // In serverless environments, don't exit the process - throw instead

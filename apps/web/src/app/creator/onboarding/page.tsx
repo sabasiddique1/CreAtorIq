@@ -55,7 +55,6 @@ export default function OnboardingPage() {
       setLoading(true)
       try {
         // TODO: Call GraphQL mutation to create creator profile
-        console.log("Creating creator profile:", formData)
         router.push("/creator/dashboard")
       } finally {
         setLoading(false)

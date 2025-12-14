@@ -62,8 +62,6 @@ export default function SubscriberDashboard() {
         `)
 
         if (subscriptionsResult?.mySubscriptions) {
-          // Log subscriptions for debugging
-          console.log("Subscriptions received:", subscriptionsResult.mySubscriptions)
           setSubscriptions(subscriptionsResult.mySubscriptions)
         }
 
@@ -290,8 +288,6 @@ export default function SubscriberDashboard() {
                     console.warn("Invalid creatorId for subscription:", sub)
                     return null
                   }
-
-                  console.log(`Creating link for creator: ${sub.creator?.displayName}, ID: ${creatorId}`)
 
                   return (
                     <Link

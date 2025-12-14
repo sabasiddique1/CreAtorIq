@@ -15,7 +15,6 @@ import { ActivityService } from "../services/activity.service.js"
 async function seedData() {
   try {
     await connectDB()
-    console.log("✅ Connected to MongoDB")
 
     // Clear existing data (optional - uncomment to reset)
     // await UserModel.deleteMany({})
@@ -25,8 +24,6 @@ async function seedData() {
     // await CommentBatchModel.deleteMany({})
     // await SentimentSnapshotModel.deleteMany({})
     // await IdeaSuggestionModel.deleteMany({})
-
-    console.log("\n📦 Seeding database with comprehensive data...\n")
 
     // ========== USERS ==========
     const users = []
@@ -52,7 +49,6 @@ async function seedData() {
       { upsert: true, new: true }
     )
     users.push(adminUser)
-    console.log("👤 Created admin user:", (adminUser as any).email)
 
     // Create additional admin user for testing
     const adminUser2 = await UserModel.findOneAndUpdate(
@@ -66,7 +62,6 @@ async function seedData() {
       { upsert: true, new: true }
     )
     users.push(adminUser2)
-    console.log("👤 Created admin user 2:", (adminUser2 as any).email)
     
     // Log admin registration activities
     try {
@@ -96,7 +91,6 @@ async function seedData() {
       { upsert: true, new: true }
     )
     users.push(creator1User)
-    console.log("👤 Created creator 1:", (creator1User as any).email)
     await ActivityService.logActivity({
       eventType: "USER_REGISTER",
       userId: creator1User._id.toString(),
@@ -115,7 +109,6 @@ async function seedData() {
       { upsert: true, new: true }
     )
     users.push(creator2User)
-    console.log("👤 Created creator 2:", (creator2User as any).email)
     await ActivityService.logActivity({
       eventType: "USER_REGISTER",
       userId: creator2User._id.toString(),
@@ -134,7 +127,6 @@ async function seedData() {
       { upsert: true, new: true }
     )
     users.push(creator3User)
-    console.log("👤 Created creator 3:", (creator3User as any).email)
     await ActivityService.logActivity({
       eventType: "USER_REGISTER",
       userId: creator3User._id.toString(),
@@ -172,7 +164,6 @@ async function seedData() {
         metadata: { role: sub.role },
       })
     }
-    console.log(`👥 Created ${subscriberUsers.length} subscriber users`)
 
     // ========== CREATOR PROFILES ==========
     const creator1Profile = await CreatorProfileModel.findOneAndUpdate(
@@ -186,7 +177,6 @@ async function seedData() {
       },
       { upsert: true, new: true }
     )
-    console.log("🎬 Created creator profile 1:", (creator1Profile as any).displayName)
     await ActivityService.logActivity({
       eventType: "CREATOR_PROFILE_CREATED",
       userId: creator1User._id.toString(),
@@ -205,7 +195,6 @@ async function seedData() {
       },
       { upsert: true, new: true }
     )
-    console.log("🎬 Created creator profile 2:", (creator2Profile as any).displayName)
     await ActivityService.logActivity({
       eventType: "CREATOR_PROFILE_CREATED",
       userId: creator2User._id.toString(),
@@ -224,7 +213,6 @@ async function seedData() {
       },
       { upsert: true, new: true }
     )
-    console.log("🎬 Created creator profile 3:", (creator3Profile as any).displayName)
     await ActivityService.logActivity({
       eventType: "CREATOR_PROFILE_CREATED",
       userId: creator3User._id.toString(),
@@ -463,7 +451,6 @@ async function seedData() {
         })
       }
     }
-    console.log(`📝 Created ${contentItems.length} content items`)
 
     // ========== SUBSCRIBERS ==========
     const subscribers = []
@@ -499,7 +486,6 @@ async function seedData() {
         metadata: { tier: sub.tier },
       })
     }
-    console.log(`👥 Created ${subscribers.length} subscriber profiles`)
 
     // ========== COMMENT BATCHES ==========
     const commentBatches = []
@@ -557,7 +543,6 @@ async function seedData() {
       metadata: { batchId: batch3._id.toString(), commentCount: ((batch3 as any).rawComments || []).length },
     })
 
-    console.log(`💬 Created ${commentBatches.length} comment batches`)
 
     // ========== SENTIMENT SNAPSHOTS ==========
     const sentimentSnapshots = []
@@ -624,7 +609,6 @@ async function seedData() {
       metadata: { snapshotId: snapshot3._id.toString(), sentimentScore: (snapshot3 as any).overallSentimentScore },
     })
 
-    console.log(`📊 Created ${sentimentSnapshots.length} sentiment snapshots`)
 
     // ========== IDEA SUGGESTIONS ==========
     const ideas = []
@@ -698,7 +682,6 @@ async function seedData() {
       metadata: { ideaId: idea3._id.toString(), ideaType: (idea3 as any).ideaType, title: (idea3 as any).title },
     })
 
-    console.log(`💡 Created ${ideas.length} idea suggestions`)
 
     // ========== ADDITIONAL ACTIVITY EVENTS ==========
     // Add some login activities
@@ -722,57 +705,9 @@ async function seedData() {
     }
 
     const activityCount = await ActivityService.getActivities({ limit: 1000 })
-    console.log(`📊 Created ${activityCount.length} activity events`)
 
     // ========== SUMMARY ==========
-    console.log("\n✅ Seed data created successfully!")
-    console.log("\n📊 Database Summary:")
-    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    console.log(`👤 Total Users: ${users.length}`)
-    console.log(`   - Admins: ${users.filter((u) => u.role === "ADMIN").length}`)
-    console.log(`   - Creators: ${users.filter((u) => u.role === "CREATOR").length}`)
-    console.log(`   - Subscribers: ${users.filter((u) => u.role.startsWith("SUBSCRIBER")).length}`)
-    console.log(`🎬 Creator Profiles: 3`)
-    console.log(`📝 Content Items: ${contentItems.length}`)
-    console.log(`👥 Subscriber Profiles: ${subscribers.length}`)
-    console.log(`💬 Comment Batches: ${commentBatches.length}`)
-    console.log(`📊 Sentiment Snapshots: ${sentimentSnapshots.length}`)
-    console.log(`💡 Idea Suggestions: ${ideas.length}`)
-    console.log(`📊 Activity Events: ${activityCount.length}`)
-    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
-    console.log("\n📋 Sample Accounts:")
-    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    console.log("🔐 Admin:")
-    console.log("   Email: admin@example.com")
-    console.log("   Password: admin123")
-    console.log("   Dashboard: /admin")
-    console.log("")
-    console.log("👤 Creator 1 (Tech):")
-    console.log("   Email: creator@example.com")
-    console.log("   Password: password123")
-    console.log("   Dashboard: /creator/dashboard")
-    console.log("")
-    console.log("👤 Creator 2 (Design):")
-    console.log("   Email: designer@example.com")
-    console.log("   Password: password123")
-    console.log("")
-    console.log("👤 Creator 3 (Business):")
-    console.log("   Email: business@example.com")
-    console.log("   Password: password123")
-    console.log("")
-    console.log("👥 Subscriber (Tier 2):")
-    console.log("   Email: subscriber@example.com")
-    console.log("   Password: password123")
-    console.log("   Dashboard: /subscriber/dashboard")
-    console.log("")
-    console.log("⭐ Premium Subscriber (Tier 3):")
-    console.log("   Email: premium@example.com")
-    console.log("   Password: password123")
-    console.log("   Dashboard: /subscriber/dashboard")
-    console.log("   Access: All premium content (T1, T2, T3)")
-    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    console.log("\n✨ All data is now available in the admin dashboard!")
 
     process.exit(0)
   } catch (error) {
