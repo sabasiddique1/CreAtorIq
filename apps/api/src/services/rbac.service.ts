@@ -10,7 +10,7 @@ export class RbacService {
     if (!creator) {
       throw new NotFoundError("Creator not found")
     }
-    return creator.userId.toString() === userId
+    return (creator as any).userId.toString() === userId
   }
 
   /**
@@ -32,7 +32,7 @@ export class RbacService {
       userId,
       creatorId,
     })
-    return subscriber?.tier || null
+    return (subscriber as any)?.tier || null
   }
 
   /**

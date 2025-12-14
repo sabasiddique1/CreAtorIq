@@ -13,7 +13,6 @@ import {
   TrendingUp as TrendingUpIcon,
   Award,
   Sparkles,
-  Star,
 } from "lucide-react"
 
 export const STATS = [

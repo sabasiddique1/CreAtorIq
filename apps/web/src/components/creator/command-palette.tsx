@@ -16,7 +16,6 @@ import {
   Lightbulb,
   FileText,
   Settings,
-  Search,
 } from "lucide-react"
 
 interface CommandPaletteProps {

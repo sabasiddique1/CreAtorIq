@@ -8,7 +8,7 @@
 export function getThumbnailWithFallback(
   title: string,
   type: string,
-  niche?: string
+  _niche?: string
 ): string {
   // For now, use a placeholder service
   // You can enhance this to use actual thumbnail services later

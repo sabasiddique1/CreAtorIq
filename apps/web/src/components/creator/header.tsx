@@ -9,7 +9,7 @@ import { BrandText } from "../brand-text"
 
 export default function CreatorHeader() {
   const router = useRouter()
-  const { user, logout } = useAuthStore()
+  const { logout } = useAuthStore()
 
   const handleLogout = () => {
     logout()

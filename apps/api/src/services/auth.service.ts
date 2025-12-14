@@ -54,7 +54,7 @@ export class AuthService {
       throw new UnauthorizedError("Invalid credentials")
     }
 
-    const isPasswordValid = await comparePassword(password, user.passwordHash)
+    const isPasswordValid = await comparePassword(password, (user as any).passwordHash)
     if (!isPasswordValid) {
       throw new UnauthorizedError("Invalid credentials")
     }

@@ -52,7 +52,7 @@ async function seedData() {
       { upsert: true, new: true }
     )
     users.push(adminUser)
-    console.log("👤 Created admin user:", adminUser.email)
+    console.log("👤 Created admin user:", (adminUser as any).email)
 
     // Create additional admin user for testing
     const adminUser2 = await UserModel.findOneAndUpdate(
@@ -66,7 +66,7 @@ async function seedData() {
       { upsert: true, new: true }
     )
     users.push(adminUser2)
-    console.log("👤 Created admin user 2:", adminUser2.email)
+    console.log("👤 Created admin user 2:", (adminUser2 as any).email)
     
     // Log admin registration activities
     try {
@@ -96,7 +96,7 @@ async function seedData() {
       { upsert: true, new: true }
     )
     users.push(creator1User)
-    console.log("👤 Created creator 1:", creator1User.email)
+    console.log("👤 Created creator 1:", (creator1User as any).email)
     await ActivityService.logActivity({
       eventType: "USER_REGISTER",
       userId: creator1User._id.toString(),
@@ -115,7 +115,7 @@ async function seedData() {
       { upsert: true, new: true }
     )
     users.push(creator2User)
-    console.log("👤 Created creator 2:", creator2User.email)
+    console.log("👤 Created creator 2:", (creator2User as any).email)
     await ActivityService.logActivity({
       eventType: "USER_REGISTER",
       userId: creator2User._id.toString(),
@@ -134,7 +134,7 @@ async function seedData() {
       { upsert: true, new: true }
     )
     users.push(creator3User)
-    console.log("👤 Created creator 3:", creator3User.email)
+    console.log("👤 Created creator 3:", (creator3User as any).email)
     await ActivityService.logActivity({
       eventType: "USER_REGISTER",
       userId: creator3User._id.toString(),
@@ -186,12 +186,12 @@ async function seedData() {
       },
       { upsert: true, new: true }
     )
-    console.log("🎬 Created creator profile 1:", creator1Profile.displayName)
+    console.log("🎬 Created creator profile 1:", (creator1Profile as any).displayName)
     await ActivityService.logActivity({
       eventType: "CREATOR_PROFILE_CREATED",
       userId: creator1User._id.toString(),
       creatorId: creator1Profile._id.toString(),
-      metadata: { displayName: creator1Profile.displayName, niche: creator1Profile.niche },
+      metadata: { displayName: (creator1Profile as any).displayName, niche: (creator1Profile as any).niche },
     })
 
     const creator2Profile = await CreatorProfileModel.findOneAndUpdate(
@@ -205,12 +205,12 @@ async function seedData() {
       },
       { upsert: true, new: true }
     )
-    console.log("🎬 Created creator profile 2:", creator2Profile.displayName)
+    console.log("🎬 Created creator profile 2:", (creator2Profile as any).displayName)
     await ActivityService.logActivity({
       eventType: "CREATOR_PROFILE_CREATED",
       userId: creator2User._id.toString(),
       creatorId: creator2Profile._id.toString(),
-      metadata: { displayName: creator2Profile.displayName, niche: creator2Profile.niche },
+      metadata: { displayName: (creator2Profile as any).displayName, niche: (creator2Profile as any).niche },
     })
 
     const creator3Profile = await CreatorProfileModel.findOneAndUpdate(
@@ -224,12 +224,12 @@ async function seedData() {
       },
       { upsert: true, new: true }
     )
-    console.log("🎬 Created creator profile 3:", creator3Profile.displayName)
+    console.log("🎬 Created creator profile 3:", (creator3Profile as any).displayName)
     await ActivityService.logActivity({
       eventType: "CREATOR_PROFILE_CREATED",
       userId: creator3User._id.toString(),
       creatorId: creator3Profile._id.toString(),
-      metadata: { displayName: creator3Profile.displayName, niche: creator3Profile.niche },
+      metadata: { displayName: (creator3Profile as any).displayName, niche: (creator3Profile as any).niche },
     })
 
     // ========== CONTENT ITEMS ==========
@@ -536,7 +536,7 @@ async function seedData() {
     await ActivityService.logActivity({
       eventType: "COMMENT_BATCH_IMPORTED",
       creatorId: creator1Profile._id.toString(),
-      metadata: { batchId: batch2._id.toString(), commentCount: batch2.rawComments.length },
+      metadata: { batchId: batch2._id.toString(), commentCount: ((batch2 as any).rawComments || []).length },
     })
 
     // Creator 2 comment batch
@@ -554,7 +554,7 @@ async function seedData() {
     await ActivityService.logActivity({
       eventType: "COMMENT_BATCH_IMPORTED",
       creatorId: creator2Profile._id.toString(),
-      metadata: { batchId: batch3._id.toString(), commentCount: batch3.rawComments.length },
+      metadata: { batchId: batch3._id.toString(), commentCount: ((batch3 as any).rawComments || []).length },
     })
 
     console.log(`💬 Created ${commentBatches.length} comment batches`)
@@ -583,7 +583,7 @@ async function seedData() {
     await ActivityService.logActivity({
       eventType: "SENTIMENT_ANALYZED",
       creatorId: creator1Profile._id.toString(),
-      metadata: { snapshotId: snapshot1._id.toString(), sentimentScore: snapshot1.overallSentimentScore },
+      metadata: { snapshotId: snapshot1._id.toString(), sentimentScore: (snapshot1 as any).overallSentimentScore },
     })
 
     const snapshot2 = await SentimentSnapshotModel.create({
@@ -602,7 +602,7 @@ async function seedData() {
     await ActivityService.logActivity({
       eventType: "SENTIMENT_ANALYZED",
       creatorId: creator1Profile._id.toString(),
-      metadata: { snapshotId: snapshot2._id.toString(), sentimentScore: snapshot2.overallSentimentScore },
+      metadata: { snapshotId: snapshot2._id.toString(), sentimentScore: (snapshot2 as any).overallSentimentScore },
     })
 
     const snapshot3 = await SentimentSnapshotModel.create({
@@ -621,7 +621,7 @@ async function seedData() {
     await ActivityService.logActivity({
       eventType: "SENTIMENT_ANALYZED",
       creatorId: creator2Profile._id.toString(),
-      metadata: { snapshotId: snapshot3._id.toString(), sentimentScore: snapshot3.overallSentimentScore },
+      metadata: { snapshotId: snapshot3._id.toString(), sentimentScore: (snapshot3 as any).overallSentimentScore },
     })
 
     console.log(`📊 Created ${sentimentSnapshots.length} sentiment snapshots`)
@@ -649,7 +649,7 @@ async function seedData() {
     await ActivityService.logActivity({
       eventType: "IDEAS_GENERATED",
       creatorId: creator1Profile._id.toString(),
-      metadata: { ideaId: idea1._id.toString(), ideaType: idea1.ideaType, title: idea1.title },
+      metadata: { ideaId: idea1._id.toString(), ideaType: (idea1 as any).ideaType, title: (idea1 as any).title },
     })
 
     const idea2 = await IdeaSuggestionModel.create({
@@ -672,7 +672,7 @@ async function seedData() {
     await ActivityService.logActivity({
       eventType: "IDEAS_GENERATED",
       creatorId: creator1Profile._id.toString(),
-      metadata: { ideaId: idea2._id.toString(), ideaType: idea2.ideaType, title: idea2.title },
+      metadata: { ideaId: idea2._id.toString(), ideaType: (idea2 as any).ideaType, title: (idea2 as any).title },
     })
 
     const idea3 = await IdeaSuggestionModel.create({
@@ -695,7 +695,7 @@ async function seedData() {
     await ActivityService.logActivity({
       eventType: "IDEAS_GENERATED",
       creatorId: creator2Profile._id.toString(),
-      metadata: { ideaId: idea3._id.toString(), ideaType: idea3.ideaType, title: idea3.title },
+      metadata: { ideaId: idea3._id.toString(), ideaType: (idea3 as any).ideaType, title: (idea3 as any).title },
     })
 
     console.log(`💡 Created ${ideas.length} idea suggestions`)
@@ -717,7 +717,7 @@ async function seedData() {
       await ActivityService.logActivity({
         eventType: "CONTENT_UPDATED",
         creatorId: randomContent.creatorId.toString(),
-        metadata: { contentId: randomContent._id.toString(), title: randomContent.title },
+        metadata: { contentId: randomContent._id.toString(), title: (randomContent as any).title },
       })
     }
 

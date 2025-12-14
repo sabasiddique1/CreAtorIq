@@ -7,7 +7,6 @@ import {
   Activity,
   UserCircle,
   Lightbulb,
-  MessageSquare,
 } from "lucide-react"
 
 export const ADMIN_NAV_ITEMS = [
