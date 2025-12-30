@@ -1,21 +1,46 @@
 import { API_BASE_URL } from "@engagement-nexus/config"
 
 export async function graphqlQuery(query: string, variables?: Record<string, any>) {
-  const response = await fetch(`${API_BASE_URL}/graphql`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ query, variables }),
-  })
+  console.log("[GraphQL] Making request to:", `${API_BASE_URL}/graphql`)
+  console.log("[GraphQL] Query:", query.substring(0, 100) + "...")
+  console.log("[GraphQL] Variables:", variables)
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}/graphql`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ query, variables }),
+    })
 
-  const data = await response.json()
-  if (data.errors) {
-    const errorMessage = data.errors[0]?.message || "GraphQL error"
-    const error = new Error(errorMessage)
-    ;(error as any).graphqlErrors = data.errors
+    console.log("[GraphQL] Response status:", response.status, response.statusText)
+    
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error("[GraphQL] Response not OK:", errorText)
+      throw new Error(`Network error: ${response.status} ${response.statusText}`)
+    }
+
+    const data = await response.json()
+    console.log("[GraphQL] Response data:", data)
+    
+    if (data.errors) {
+      const errorMessage = data.errors[0]?.message || "GraphQL error"
+      console.error("[GraphQL] GraphQL errors:", data.errors)
+      const error = new Error(errorMessage)
+      ;(error as any).graphqlErrors = data.errors
+      throw error
+    }
+    
+    return data.data
+  } catch (error) {
+    console.error("[GraphQL] Request failed:", error)
+    if (error instanceof TypeError && error.message.includes("fetch")) {
+      console.error("[GraphQL] Network error - API might be unreachable. API_BASE_URL:", API_BASE_URL)
+      throw new Error(`Cannot connect to server. Please check your connection and try again.`)
+    }
     throw error
   }
-  return data.data
 }
 
 export const GET_CREATOR_OVERVIEW = `

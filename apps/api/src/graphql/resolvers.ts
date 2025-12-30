@@ -406,16 +406,20 @@ export const resolvers = {
       })
       // Set cookies
       if (context.res) {
-        context.res.cookie("accessToken", result.accessToken, {
+        const isProduction = process.env.NODE_ENV === "production"
+        // For cross-origin requests (different domains), use sameSite: "none" and secure: true
+        const cookieOptions: any = {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
+          secure: isProduction, // Must be true for sameSite: "none"
+          sameSite: isProduction ? ("none" as const) : ("lax" as const), // "none" for cross-origin in production
           maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        })
+          path: "/", // Ensure cookies are available for all paths
+        }
+        // Don't set domain in production - let browser handle it for cross-origin
+        // Setting domain explicitly can cause issues with subdomains
+        context.res.cookie("accessToken", result.accessToken, cookieOptions)
         context.res.cookie("refreshToken", result.refreshToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
+          ...cookieOptions,
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         })
       }
@@ -432,16 +436,20 @@ export const resolvers = {
       })
       // Set cookies
       if (context.res) {
-        context.res.cookie("accessToken", result.accessToken, {
+        const isProduction = process.env.NODE_ENV === "production"
+        // For cross-origin requests (different domains), use sameSite: "none" and secure: true
+        const cookieOptions: any = {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
+          secure: isProduction, // Must be true for sameSite: "none"
+          sameSite: isProduction ? ("none" as const) : ("lax" as const), // "none" for cross-origin in production
           maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        })
+          path: "/", // Ensure cookies are available for all paths
+        }
+        // Don't set domain in production - let browser handle it for cross-origin
+        // Setting domain explicitly can cause issues with subdomains
+        context.res.cookie("accessToken", result.accessToken, cookieOptions)
         context.res.cookie("refreshToken", result.refreshToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
+          ...cookieOptions,
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         })
       }

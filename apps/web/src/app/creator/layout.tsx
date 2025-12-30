@@ -73,18 +73,77 @@ export default function CreatorLayout({
 
   useEffect(() => {
     const initAuth = async () => {
-      await checkAuth()
+      // First, check if user exists in persisted store (from localStorage)
+      const currentUser = useAuthStore.getState().user
+      
+      if (currentUser) {
+        // User exists in store - set auth checked immediately
+        // This prevents redirect loop if cookies aren't ready yet
+        setAuthChecked(true)
+        
+        // Check auth from server in background (non-blocking)
+        // This will refresh the user data if cookies are now available
+        setTimeout(() => {
+          checkAuth().catch((error) => {
+            console.warn("Background auth check failed (non-critical):", error)
+            // Don't clear user on background check failure
+          })
+        }, 500) // Wait 500ms for cookies to be set
+        
+        return
+      }
+      
+      // No user in store - check from server
+      // Add retry logic for cookie timing issues
+      let retries = 3
+      while (retries > 0) {
+        try {
+          await checkAuth()
+          const userAfterCheck = useAuthStore.getState().user
+          if (userAfterCheck) {
+            setAuthChecked(true)
+            return
+          }
+        } catch (error) {
+          console.warn(`Auth check attempt ${4 - retries} failed:`, error)
+        }
+        
+        retries--
+        if (retries > 0) {
+          // Wait before retry (cookies might need time to be set)
+          await new Promise(resolve => setTimeout(resolve, 300))
+        }
+      }
+      
+      // All retries failed - set auth checked anyway
       setAuthChecked(true)
     }
     initAuth()
   }, [checkAuth])
 
   useEffect(() => {
-    if (authChecked && user && user.role !== ROLES.CREATOR) {
-      router.push("/")
-    }
-    if (authChecked && !user) {
-      router.push("/login")
+    // Only redirect if we've checked auth AND there's definitely no user
+    // Don't redirect on initial load if user exists in store
+    if (authChecked) {
+      if (user && user.role !== ROLES.CREATOR) {
+        router.push("/")
+      } else if (!user) {
+        // Only redirect if we've actually checked and confirmed no user
+        // Give more time to allow store to hydrate and cookies to be available
+        const timeout = setTimeout(() => {
+          const currentUser = useAuthStore.getState().user
+          if (!currentUser) {
+            // Double check one more time after a longer delay
+            setTimeout(() => {
+              const finalCheck = useAuthStore.getState().user
+              if (!finalCheck) {
+                router.push("/login")
+              }
+            }, 500)
+          }
+        }, 300)
+        return () => clearTimeout(timeout)
+      }
     }
   }, [user, router, authChecked])
 

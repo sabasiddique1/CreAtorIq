@@ -74,10 +74,28 @@ export const useAuthStore = create<AuthStore>()(
           if (user) {
             set({ user, isLoading: false })
           } else {
-            set({ user: null, accessToken: null, refreshToken: null, isLoading: false })
+            // Only clear user if we got an explicit "Unauthorized" response
+            // Don't clear on network errors - keep existing user in store
+            const currentUser = useAuthStore.getState().user
+            if (!currentUser) {
+              // Only clear if there was no user to begin with
+              set({ user: null, accessToken: null, refreshToken: null, isLoading: false })
+            } else {
+              // Keep existing user, just stop loading
+              set({ isLoading: false })
+            }
           }
         } catch (error) {
-          set({ user: null, accessToken: null, refreshToken: null, isLoading: false })
+          // On network errors, don't clear the user - keep existing auth state
+          console.warn("checkAuth error (keeping existing user):", error)
+          const currentUser = useAuthStore.getState().user
+          if (currentUser) {
+            // Keep existing user on network errors
+            set({ isLoading: false })
+          } else {
+            // Only clear if there was no user to begin with
+            set({ user: null, accessToken: null, refreshToken: null, isLoading: false })
+          }
         }
       },
 
