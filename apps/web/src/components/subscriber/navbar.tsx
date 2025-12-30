@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "../ui/button"
 import { useAuthStore } from "../../hooks/use-auth-store"
+import { toast } from "../../hooks/use-toast"
 import { LogOut, Settings, Home, Search } from "lucide-react"
 import { BrandText } from "../brand-text"
 
@@ -12,8 +13,20 @@ export function SubscriberNavbar() {
   const { user, logout } = useAuthStore()
 
   const handleLogout = () => {
-    logout()
-    router.push("/")
+    try {
+      logout()
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out.",
+      })
+      // Small delay to show toast before redirect
+      setTimeout(() => {
+        window.location.href = "/"
+      }, 300)
+    } catch (error) {
+      console.error("Logout error:", error)
+      window.location.href = "/"
+    }
   }
 
   return (

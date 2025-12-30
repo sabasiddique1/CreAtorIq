@@ -6,6 +6,7 @@ import { Card } from "../../../components/ui/card"
 import { Plus, FileText, Star, Lock } from "lucide-react"
 import { Input } from "../../../components/ui/input"
 import { useAuthStore } from "../../../hooks/use-auth-store"
+import { toast } from "../../../hooks/use-toast"
 import { graphqlQuery, GET_CONTENT_ITEMS, CREATE_CONTENT_ITEM } from "../../../lib/graphql"
 
 interface ContentItem {
@@ -86,6 +87,11 @@ export default function ContentPage() {
           description: newContent.description,
         })
 
+        toast({
+          title: "Content Created",
+          description: `"${newContent.title}" has been created successfully!`,
+        })
+
         // Refresh content list
         const result = await graphqlQuery(GET_CONTENT_ITEMS, {
           creatorId: profileResult.myCreatorProfile._id,
@@ -98,7 +104,13 @@ export default function ContentPage() {
         setNewContent({ title: "", type: "video", isPremium: false, description: "" })
         setShowNewForm(false)
       }
-    } catch (error) {
+    } catch (error: any) {
+      const errorMessage = error?.message || "Failed to create content. Please try again."
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: errorMessage,
+      })
       console.error("Error creating content:", error)
     }
   }

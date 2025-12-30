@@ -7,6 +7,8 @@ import { Button } from "../../../components/ui/button"
 import { Input } from "../../../components/ui/input"
 import { Card } from "../../../components/ui/card"
 import { cn } from "../../../lib/utils"
+import { toast } from "../../../hooks/use-toast"
+import { graphqlQuery } from "../../../lib/graphql"
 
 export default function OnboardingPage() {
   const router = useRouter()
@@ -54,9 +56,55 @@ export default function OnboardingPage() {
     if (step === 3) {
       setLoading(true)
       try {
-        // TODO: Call GraphQL mutation to create creator profile
-        router.push("/creator/dashboard")
-      } finally {
+        // Validate all fields before submitting
+        if (!displayNameValidation.isValid || !nicheValidation().isValid) {
+          toast({
+            variant: "destructive",
+            title: "Validation Error",
+            description: "Please fix the errors in the form before continuing.",
+          })
+          setLoading(false)
+          return
+        }
+
+        const result = await graphqlQuery(
+          `
+          mutation CreateCreatorProfile($displayName: String!, $bio: String!, $primaryPlatform: String!, $niche: String!) {
+            createCreatorProfile(displayName: $displayName, bio: $bio, primaryPlatform: $primaryPlatform, niche: $niche) {
+              _id
+              displayName
+              bio
+              niche
+              primaryPlatform
+            }
+          }
+          `,
+          {
+            displayName: formData.displayName.trim(),
+            bio: formData.bio.trim(),
+            primaryPlatform: formData.primaryPlatform,
+            niche: formData.niche.trim(),
+          }
+        )
+
+        if (result?.createCreatorProfile) {
+          toast({
+            title: "Profile Created",
+            description: "Your creator profile has been set up successfully!",
+          })
+          // Small delay to show toast before redirect
+          setTimeout(() => {
+            window.location.href = "/creator/dashboard"
+          }, 500)
+        }
+      } catch (error: any) {
+        const errorMessage = error?.message || "Failed to create profile. Please try again."
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: errorMessage,
+        })
+        console.error("Error creating profile:", error)
         setLoading(false)
       }
     } else {

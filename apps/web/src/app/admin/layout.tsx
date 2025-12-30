@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { useAuthStore } from '../../hooks/use-auth-store'
 import { ROLES } from "@engagement-nexus/config"
+import { toast } from '../../hooks/use-toast'
 import {
   Menu,
   X,
@@ -19,8 +20,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const handleLogout = async () => {
-    await logout()
-    router.push("/login")
+    try {
+      logout()
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out.",
+      })
+      // Small delay to show toast before redirect
+      setTimeout(() => {
+        window.location.href = "/login"
+      }, 300)
+    } catch (error) {
+      console.error("Logout error:", error)
+      // Still redirect even if toast fails
+      window.location.href = "/login"
+    }
   }
 
   if (!user || user.role !== ROLES.ADMIN) {

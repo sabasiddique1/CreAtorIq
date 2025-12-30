@@ -319,6 +319,10 @@ export default function AudiencePage() {
       )
 
       if (importResult?.importCommentBatch) {
+        toast({
+          title: "Comments Imported",
+          description: `Successfully imported ${comments.length} comment${comments.length !== 1 ? 's' : ''}!`,
+        })
         await fetchBatches()
         setPastedComments("")
         setParsedComments([])
@@ -362,17 +366,25 @@ export default function AudiencePage() {
       if (result?.analyzeCommentBatch) {
         const snapshotId = result.analyzeCommentBatch._id
         toast({
-          title: "Analysis complete",
+          title: "Analysis Complete",
           description: "Comments analyzed successfully! Generating ideas...",
         })
         
         await handleGenerateIdeas(snapshotId)
+        await fetchBatches() // Refresh batches to show updated status
+      } else {
+        toast({
+          title: "Analysis Failed",
+          description: "No results returned from analysis",
+          variant: "destructive",
+        })
       }
     } catch (error: any) {
       console.error("Error analyzing comments:", error)
+      const errorMessage = error?.message || "Failed to analyze comments. Please try again."
       toast({
-        title: "Analysis failed",
-        description: error.message || "Unknown error",
+        title: "Analysis Failed",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {

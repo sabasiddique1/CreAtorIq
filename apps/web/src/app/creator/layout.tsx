@@ -6,6 +6,7 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { useAuthStore } from '../../hooks/use-auth-store'
 import { ROLES } from "@engagement-nexus/config"
+import { toast } from '../../hooks/use-toast'
 import {
   LayoutDashboard,
   Users,
@@ -148,8 +149,21 @@ export default function CreatorLayout({
   }, [user, router, authChecked])
 
   const handleLogout = async () => {
-    await logout()
-    router.push("/login")
+    try {
+      logout()
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out.",
+      })
+      // Small delay to show toast before redirect
+      setTimeout(() => {
+        window.location.href = "/login"
+      }, 300)
+    } catch (error) {
+      console.error("Logout error:", error)
+      // Still redirect even if toast fails
+      window.location.href = "/login"
+    }
   }
 
   const getUserInitials = () => {
