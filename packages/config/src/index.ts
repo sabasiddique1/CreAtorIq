@@ -1,4 +1,6 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+// Remove trailing slash to prevent double slashes in URLs
+const rawUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+export const API_BASE_URL = rawUrl.replace(/\/+$/, "")
 
 export const ROLES = {
   ADMIN: "ADMIN",

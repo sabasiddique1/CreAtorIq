@@ -26,19 +26,21 @@ function createApp(): Express {
 
   const app: Express = express()
 
-  // Middleware
-  app.use(express.json())
-  app.use(express.urlencoded({ extended: true }))
-  app.use(cookieParser())
+  // CORS must be first to handle preflight requests
   app.use(corsMiddleware())
 
-  // Handle Vercel rewrites - strip /api prefix if present
+  // Handle Vercel rewrites - strip /api prefix if present (before other middleware)
   app.use((req, res, next) => {
     if (req.path.startsWith('/api/')) {
       req.url = req.url.replace('/api', '')
     }
     next()
   })
+
+  // Middleware
+  app.use(express.json())
+  app.use(express.urlencoded({ extended: true }))
+  app.use(cookieParser())
 
   // Health check endpoint - MUST be first and work immediately
   app.get("/health", (req, res) => {
