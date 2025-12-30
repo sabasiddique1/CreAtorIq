@@ -3,7 +3,6 @@
 import type React from "react"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
@@ -13,7 +12,6 @@ import { BrandText } from "../../components/brand-text"
 import { toast } from "../../hooks/use-toast"
 
 export default function LoginPage() {
-  const router = useRouter()
   const { login, isLoading, error } = useAuthStore()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
