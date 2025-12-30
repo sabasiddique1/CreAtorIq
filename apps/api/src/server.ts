@@ -31,7 +31,8 @@ function createApp(): Express {
 
   // Handle Vercel rewrites - strip /api prefix if present (before other middleware)
   app.use((req, res, next) => {
-    if (req.path.startsWith('/api/')) {
+    const path = req.path || req.url?.split('?')[0] || ''
+    if (path.startsWith('/api/')) {
       req.url = req.url.replace('/api', '')
     }
     next()
@@ -134,7 +135,8 @@ export default async function handler(req: Request, res: Response) {
     
     // Ensure services are initialized before handling GraphQL requests
     // For health endpoint, we don't need to wait
-    const isGraphQLRequest = req.path === '/graphql' || req.path.startsWith('/graphql')
+    const path = req.path || req.url?.split('?')[0] || ''
+    const isGraphQLRequest = path === '/graphql' || path.startsWith('/graphql')
     
     if (isGraphQLRequest && !apolloServer) {
       if (servicesInitializing) {
