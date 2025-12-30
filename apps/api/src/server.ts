@@ -132,8 +132,23 @@ export default async function handler(req: Request, res: Response) {
     // Get or create app (synchronous - returns immediately)
     const app = createApp()
     
-    // Start services initialization in background (non-blocking)
-    if (!servicesInitializing && !apolloServer) {
+    // Ensure services are initialized before handling GraphQL requests
+    // For health endpoint, we don't need to wait
+    const isGraphQLRequest = req.path === '/graphql' || req.path.startsWith('/graphql')
+    
+    if (isGraphQLRequest && !apolloServer) {
+      if (servicesInitializing) {
+        // Wait for ongoing initialization (max 10 seconds)
+        const startTime = Date.now()
+        while (!apolloServer && servicesInitializing && (Date.now() - startTime) < 10000) {
+          await new Promise(resolve => setTimeout(resolve, 100))
+        }
+      } else {
+        // Start initialization and wait for it
+        await initializeServices()
+      }
+    } else if (!servicesInitializing && !apolloServer) {
+      // Start initialization in background for non-GraphQL requests
       initializeServices().catch(console.error)
     }
     
