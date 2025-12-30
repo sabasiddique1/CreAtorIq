@@ -17,6 +17,6 @@
     "moduleResolution": "bundler",
     "noImplicitAny": false
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "api/**/*"],
   "exclude": ["dist", "node_modules"]
 }
