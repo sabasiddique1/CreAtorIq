@@ -32,7 +32,7 @@ function createApp(): Express {
   // Handle Vercel rewrites - strip /api prefix if present (before other middleware)
   app.use((req, res, next) => {
     const path = req.path || req.url?.split('?')[0] || ''
-    if (path.startsWith('/api/')) {
+    if (path.startsWith('/api/') && req.url) {
       req.url = req.url.replace('/api', '')
     }
     next()

@@ -52,6 +52,18 @@ export function errorHandler(err: ApiError, req: Request, res: Response, next: N
   const message = err.message || "Internal server error"
   const code = err.code || "INTERNAL_ERROR"
 
+  // Ensure CORS headers are set even on errors
+  const origin = req.headers.origin
+  if (origin) {
+    // Allow Vercel preview URLs or check ALLOWED_ORIGINS
+    if (origin.includes('.vercel.app') || process.env.ALLOWED_ORIGINS?.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin)
+      res.setHeader('Access-Control-Allow-Credentials', 'true')
+      res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,PATCH,OPTIONS')
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With')
+    }
+  }
+
   res.status(status).json({
     success: false,
     error: message,
