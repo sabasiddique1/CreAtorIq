@@ -34,3 +34,6 @@ coverage/
 
 # Build
 *.tsbuildinfo
+
+# Documentation
+docs/
