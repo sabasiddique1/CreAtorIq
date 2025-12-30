@@ -162,11 +162,17 @@ export default async function handler(req: Request, res: Response) {
       res.once('finish', cleanup)
       res.once('close', cleanup)
       
-      // Handle errors
+      // Handle errors - ensure CORS headers are set even on errors
       const next = (err?: any) => {
         if (err) {
           console.error("[Handler] Express error:", err)
           if (!res.headersSent) {
+            // Ensure CORS headers are set before sending error response
+            const origin = req.headers.origin
+            if (origin && (origin.includes('.vercel.app') || process.env.ALLOWED_ORIGINS?.includes(origin))) {
+              res.setHeader('Access-Control-Allow-Origin', origin)
+              res.setHeader('Access-Control-Allow-Credentials', 'true')
+            }
             res.status(500).json({
               success: false,
               error: err.message || "Internal server error",
@@ -183,6 +189,14 @@ export default async function handler(req: Request, res: Response) {
   } catch (error) {
     console.error("[Handler Error]:", error)
     if (!res.headersSent) {
+      // Ensure CORS headers are set even on handler errors
+      const origin = req.headers.origin
+      if (origin && (origin.includes('.vercel.app') || process.env.ALLOWED_ORIGINS?.includes(origin))) {
+        res.setHeader('Access-Control-Allow-Origin', origin)
+        res.setHeader('Access-Control-Allow-Credentials', 'true')
+        res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,PATCH,OPTIONS')
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With')
+      }
       res.status(500).json({
         success: false,
         error: error instanceof Error ? error.message : "Internal server error",

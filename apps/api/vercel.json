@@ -1,0 +1,27 @@
+{
+  "functions": {
+    "src/server.ts": {
+      "maxDuration": 30,
+      "memory": 1024
+    },
+    "dist/server.js": {
+      "maxDuration": 30,
+      "memory": 1024
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/src/server.ts"
+    },
+    {
+      "source": "/graphql",
+      "destination": "/src/server.ts"
+    },
+    {
+      "source": "/health",
+      "destination": "/src/server.ts"
+    }
+  ]
+}
+
