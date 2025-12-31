@@ -178,8 +178,8 @@ export default function CreatorLayout({
 
   if (!authChecked || isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-950">
-        <p className="text-slate-300">Loading...</p>
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-muted-foreground">Loading...</p>
       </div>
     )
   }
@@ -189,12 +189,12 @@ export default function CreatorLayout({
   }
 
   return (
-    <div className="h-screen bg-slate-950 flex overflow-hidden">
+    <div className="h-screen flex overflow-hidden">
       {/* Sidebar */}
       <aside
         className={`
           fixed lg:static h-screen left-0 z-50
-          bg-slate-900 border-r border-slate-800
+          bg-background/80 backdrop-blur-md border-r border-border/30
           transition-all duration-300 ease-in-out
           ${mobileMenuOpen ? "w-64" : sidebarCollapsed && !mobileMenuOpen ? "w-16 lg:w-16" : "w-64"}
           ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
@@ -202,7 +202,7 @@ export default function CreatorLayout({
       >
         <div className="h-full flex flex-col">
           {/* Header */}
-          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+          <div className="p-5 border-b border-border/50 flex items-center justify-between">
             {(!sidebarCollapsed || mobileMenuOpen) && (
               <Link href="/creator/dashboard">
                 <Logo showText={true} size="md" />
@@ -220,13 +220,13 @@ export default function CreatorLayout({
                   setSidebarCollapsed(!sidebarCollapsed)
                 }
               }}
-              className="hidden lg:flex items-center justify-center w-8 h-8 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition"
+              className="hidden lg:flex items-center justify-center w-8 h-8 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
             >
               <ChevronLeft className={`w-4 h-4 transition-transform ${sidebarCollapsed && !mobileMenuOpen ? "rotate-180" : ""}`} />
             </button>
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="lg:hidden text-slate-400 hover:text-white"
+              className="lg:hidden text-muted-foreground hover:text-foreground"
             >
               <X className="w-5 h-5" />
             </button>
@@ -244,60 +244,60 @@ export default function CreatorLayout({
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`
-                    flex items-center rounded-lg transition-colors
+                    flex items-center rounded-md transition-all
                     ${(sidebarCollapsed && !mobileMenuOpen)
                       ? "justify-center px-2 py-2.5" 
                       : "gap-3 px-3 py-2.5"
                     }
                     ${isActive
-                      ? "bg-[lab(33_35.57_-75.79)] text-white"
-                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                      ? "bg-primary/10 text-primary font-medium border-l-2 border-primary"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
                     }
                   `}
                 >
-                  <Icon className="w-5 h-5 shrink-0" />
-                  {(!sidebarCollapsed || mobileMenuOpen) && <span className="font-medium text-sm">{item.label}</span>}
+                  <Icon className={`w-5 h-5 shrink-0 ${isActive ? "text-primary" : ""}`} />
+                  {(!sidebarCollapsed || mobileMenuOpen) && <span className="text-sm">{item.label}</span>}
                 </Link>
               )
             })}
           </nav>
 
           {/* User Profile */}
-          <div className="p-4 border-t border-slate-800">
+          <div className="p-4 border-t border-border/50">
             {(!sidebarCollapsed || mobileMenuOpen) ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-800 transition-colors">
-                    <Avatar className="w-8 h-8">
+                  <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-accent transition-colors">
+                    <Avatar className="w-9 h-9">
                       <AvatarImage src="" alt={user.name} />
-                      <AvatarFallback className="bg-[lab(33_35.57_-75.79)] text-white text-xs">
+                      <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
                         {getUserInitials()}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 text-left">
-                      <p className="text-sm font-medium text-white">{user.name}</p>
-                      <p className="text-xs text-slate-400 truncate">{user.email}</p>
+                    <div className="flex-1 text-left min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 bg-slate-800 border-slate-700">
-                  <DropdownMenuLabel className="text-white">
+                <DropdownMenuContent align="end" className="w-56 bg-background/95 backdrop-blur-md border-border/30 shadow-lg">
+                  <DropdownMenuLabel className="text-foreground">
                     <div>
                       <p className="font-medium">{user.name}</p>
-                      <p className="text-xs text-slate-400 font-normal">{user.email}</p>
+                      <p className="text-xs text-muted-foreground font-normal">{user.email}</p>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="bg-slate-700" />
+                  <DropdownMenuSeparator className="bg-border/50" />
                   <DropdownMenuItem asChild>
-                    <Link href="/creator/settings" className="flex items-center gap-2 text-slate-300 hover:text-white cursor-pointer">
+                    <Link href="/creator/settings" className="flex items-center gap-2 text-foreground hover:text-foreground cursor-pointer">
                       <Settings className="w-4 h-4" />
                       Settings
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-slate-700" />
+                  <DropdownMenuSeparator className="bg-border/50" />
                   <DropdownMenuItem
                     onClick={handleLogout}
-                    className="flex items-center gap-2 text-red-400 hover:text-red-300 cursor-pointer"
+                    className="flex items-center gap-2 text-destructive hover:text-destructive cursor-pointer"
                   >
                     <LogOut className="w-4 h-4" />
                     Logout
@@ -308,32 +308,32 @@ export default function CreatorLayout({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="w-full flex items-center justify-center">
-                    <Avatar className="w-8 h-8">
+                    <Avatar className="w-9 h-9">
                       <AvatarImage src="" alt={user.name} />
-                      <AvatarFallback className="bg-[lab(33_35.57_-75.79)] text-white text-xs">
+                      <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
                         {getUserInitials()}
                       </AvatarFallback>
                     </Avatar>
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 bg-slate-800 border-slate-700">
-                  <DropdownMenuLabel className="text-white">
+                <DropdownMenuContent align="end" className="w-56 bg-background/95 backdrop-blur-md border-border/30 shadow-lg">
+                  <DropdownMenuLabel className="text-foreground">
                     <div>
                       <p className="font-medium">{user.name}</p>
-                      <p className="text-xs text-slate-400 font-normal">{user.email}</p>
+                      <p className="text-xs text-muted-foreground font-normal">{user.email}</p>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="bg-slate-700" />
+                  <DropdownMenuSeparator className="bg-border/50" />
                   <DropdownMenuItem asChild>
-                    <Link href="/creator/settings" className="flex items-center gap-2 text-slate-300 hover:text-white cursor-pointer">
+                    <Link href="/creator/settings" className="flex items-center gap-2 text-foreground hover:text-foreground cursor-pointer">
                       <Settings className="w-4 h-4" />
                       Settings
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-slate-700" />
+                  <DropdownMenuSeparator className="bg-border/50" />
                   <DropdownMenuItem
                     onClick={handleLogout}
-                    className="flex items-center gap-2 text-red-400 hover:text-red-300 cursor-pointer"
+                    className="flex items-center gap-2 text-destructive hover:text-destructive cursor-pointer"
                   >
                     <LogOut className="w-4 h-4" />
                     Logout
@@ -348,7 +348,7 @@ export default function CreatorLayout({
       {/* Mobile Overlay */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
@@ -356,17 +356,17 @@ export default function CreatorLayout({
       {/* Main Content */}
       <main className="flex-1 lg:ml-0 h-screen flex flex-col overflow-hidden">
         {/* Desktop Header */}
-        <div className="hidden lg:flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/50">
+        <div className="hidden lg:flex items-center justify-between px-8 py-5 border-b border-border/30 bg-background/60 backdrop-blur-sm">
           <div className="flex-1 max-w-2xl">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
               <Input
                 onClick={() => setCommandPaletteOpen(true)}
                 placeholder="Search pages, actions..."
                 readOnly
-                className="pl-9 pr-20 bg-slate-800 border-slate-700 text-white text-sm h-9 cursor-pointer hover:border-slate-600 transition-colors"
+                className="pl-9 pr-20 bg-background border-border text-foreground text-sm h-10 cursor-pointer hover:border-primary/30 transition-colors"
               />
-              <kbd className="absolute right-3 top-1/2 transform -translate-y-1/2 hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border border-slate-700 bg-slate-900 px-1.5 font-mono text-[10px] font-medium text-slate-400">
+              <kbd className="absolute right-3 top-1/2 transform -translate-y-1/2 hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
                 <span className="text-xs">⌘</span>K
               </kbd>
             </div>
@@ -374,10 +374,10 @@ export default function CreatorLayout({
         </div>
 
         {/* Mobile Header */}
-        <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-slate-900 border-b border-slate-800 p-4 flex items-center gap-3">
+        <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-md border-b border-border/30 p-4 flex items-center gap-3">
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="text-slate-300 hover:text-white shrink-0"
+            className="text-muted-foreground hover:text-foreground shrink-0"
           >
             <Menu className="w-6 h-6" />
           </button>
@@ -385,12 +385,12 @@ export default function CreatorLayout({
             <Logo showText={true} size="sm" textGradient={true} />
           </Link>
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
             <Input
               onClick={() => setCommandPaletteOpen(true)}
               placeholder="Search..."
               readOnly
-              className="pl-9 bg-slate-800 border-slate-700 text-white text-sm h-9 cursor-pointer hover:border-slate-600 transition-colors"
+              className="pl-9 bg-background border-border text-foreground text-sm h-9 cursor-pointer hover:border-primary/30 transition-colors"
             />
           </div>
           <DropdownMenu>
@@ -398,30 +398,30 @@ export default function CreatorLayout({
               <button>
                 <Avatar className="w-8 h-8">
                   <AvatarImage src="" alt={user.name} />
-                  <AvatarFallback className="bg-[lab(33_35.57_-75.79)] text-white text-xs">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
                     {getUserInitials()}
                   </AvatarFallback>
                 </Avatar>
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-slate-800 border-slate-700">
-              <DropdownMenuLabel className="text-white">
+            <DropdownMenuContent align="end" className="w-56 bg-background/95 backdrop-blur-md border-border/30 shadow-lg">
+              <DropdownMenuLabel className="text-foreground">
                 <div>
                   <p className="font-medium">{user.name}</p>
-                  <p className="text-xs text-slate-400 font-normal">{user.email}</p>
+                  <p className="text-xs text-muted-foreground font-normal">{user.email}</p>
                 </div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-slate-700" />
+              <DropdownMenuSeparator className="bg-border/50" />
               <DropdownMenuItem asChild>
-                <Link href="/creator/settings" className="flex items-center gap-2 text-slate-300 hover:text-white cursor-pointer">
+                <Link href="/creator/settings" className="flex items-center gap-2 text-foreground hover:text-foreground cursor-pointer">
                   <Settings className="w-4 h-4" />
                   Settings
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-slate-700" />
+              <DropdownMenuSeparator className="bg-border/50" />
               <DropdownMenuItem
                 onClick={handleLogout}
-                className="flex items-center gap-2 text-red-400 hover:text-red-300 cursor-pointer"
+                className="flex items-center gap-2 text-destructive hover:text-destructive cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
                 Logout

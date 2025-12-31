@@ -8,8 +8,8 @@ import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { useAuthStore } from "../../hooks/use-auth-store"
 import { ROLES } from "@engagement-nexus/config"
-import { BrandText } from "../../components/brand-text"
 import { toast } from "../../hooks/use-toast"
+import { Logo } from "../../components/logo"
 
 export default function LoginPage() {
   const { login, isLoading, error } = useAuthStore()
@@ -97,92 +97,88 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <main className="min-h-screen bg-paper-system flex items-center justify-center px-6 relative">
+      <div className="absolute top-6 left-6 z-50">
+        <Link href="/" className="block">
+          <Logo showText={true} size="md" textGradient={true} />
+        </Link>
+      </div>
+      <div className="w-full max-w-md flex flex-col items-center">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-          <p className="text-slate-400">
-            Log in to your <BrandText size="md" className="inline" /> account
-          </p>
+          <h1 className="text-3xl font-semibold mb-2 tracking-tight" style={{ color: 'rgb(55, 65, 81)' }}>Welcome Back</h1>
+          <p className="text-muted-foreground">Log in to your account</p>
         </div>
-
-        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-8">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Email
-                <span className="text-red-400 ml-1">*</span>
-              </label>
-              <Input
-                type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value)
-                  if (emailError) validateEmail(e.target.value)
-                }}
-                onBlur={() => validateEmail(email)}
-                placeholder="you@example.com"
-                className={`bg-slate-800 border-slate-700 text-white ${
-                  emailError ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/50" : ""
-                }`}
-                aria-invalid={!!emailError}
-              />
-              {emailError && (
-                <p className="mt-1.5 text-sm text-red-400 flex items-center gap-1">
-                  <span>•</span>
-                  <span>{emailError}</span>
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Password
-                <span className="text-red-400 ml-1">*</span>
-              </label>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value)
-                  if (passwordError) validatePassword(e.target.value)
-                }}
-                onBlur={() => validatePassword(password)}
-                placeholder="Your password"
-                className={`bg-slate-800 border-slate-700 text-white ${
-                  passwordError ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/50" : ""
-                }`}
-                aria-invalid={!!passwordError}
-              />
-              {passwordError && (
-                <p className="mt-1.5 text-sm text-red-400 flex items-center gap-1">
-                  <span>•</span>
-                  <span>{passwordError}</span>
-                </p>
-              )}
-            </div>
-
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/50 rounded-md p-3">
-                <p className="text-red-400 text-sm flex items-center gap-2">
-                  <span>⚠</span>
-                  <span>{error}</span>
-                </p>
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-4 flex flex-col items-center">
+          <div className="flex flex-col">
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                if (emailError) validateEmail(e.target.value)
+              }}
+              onBlur={() => validateEmail(email)}
+              placeholder="Email Address"
+              className={`w-[320px] bg-white border-gray-300 text-foreground placeholder:text-gray-400 rounded-lg hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors ${emailError ? "border-destructive" : ""}`}
+              aria-invalid={!!emailError}
+            />
+            {emailError && (
+              <p className="text-sm text-destructive mt-1 text-left" style={{ width: '320px' }}>
+                {emailError}
+              </p>
             )}
+          </div>
 
-            <Button type="submit" disabled={isLoading} className="w-full bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90 hover:text-white text-white disabled:opacity-50 disabled:cursor-not-allowed">
-              {isLoading ? "Logging in..." : "Log In"}
-            </Button>
+          <div className="flex flex-col">
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                if (passwordError) validatePassword(e.target.value)
+              }}
+              onBlur={() => validatePassword(password)}
+              placeholder="Password"
+              className={`w-[320px] bg-white border-gray-300 text-foreground placeholder:text-gray-400 rounded-lg hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors ${passwordError ? "border-destructive" : ""}`}
+              aria-invalid={!!passwordError}
+            />
+            {passwordError && (
+              <p className="text-sm text-destructive mt-1 text-left" style={{ width: '320px' }}>
+                {passwordError}
+              </p>
+            )}
+          </div>
 
-            <p className="text-center text-slate-400">
-              Don't have an account?{" "}
-              <Link href="/register" className="text-blue-400 hover:text-blue-300">
-                Sign up
-              </Link>
-            </p>
-          </form>
-        </div>
+          <Link href="/forgot-password" className="block text-sm text-primary underline hover:text-primary/80 self-start">
+            Forgot your password?
+          </Link>
+
+          {error && (
+            <div className="bg-destructive/10 border border-destructive/20 rounded-md p-3">
+              <p className="text-destructive text-sm flex items-center gap-2">
+                <span className="w-4 h-4 rounded-full border-2 border-destructive flex items-center justify-center">
+                  <span className="w-1.5 h-1.5 rounded-full bg-destructive"></span>
+                </span>
+                <span>{error}</span>
+              </p>
+            </div>
+          )}
+
+          <Button 
+            type="submit" 
+            disabled={isLoading} 
+            className="w-[320px] bg-primary text-white hover:bg-primary/90 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed h-11"
+          >
+            {isLoading ? "Logging in..." : "Log in"}
+          </Button>
+
+          <p className="text-center text-sm text-gray-600">
+            Don't have an account?{" "}
+            <Link href="/register" className="text-primary underline hover:text-primary/80">
+              Sign up
+            </Link>
+          </p>
+        </form>
       </div>
     </main>
   )

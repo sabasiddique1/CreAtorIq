@@ -459,25 +459,25 @@ export default function AudiencePage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 px-6 py-8 min-h-full">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-white mb-2">Audience & Sentiment</h1>
-        <p className="text-slate-400">Analyze comments to understand your audience better.</p>
+        <h1 className="text-3xl font-semibold text-foreground mb-2 tracking-tight">Audience & Sentiment</h1>
+        <p className="text-muted-foreground">Analyze comments to understand your audience better.</p>
       </div>
 
       {/* Import Section */}
-      <Card className="bg-slate-800/50 border-slate-700 p-6">
-        <h2 className="text-xl font-semibold text-white mb-4">Import Comments</h2>
+      <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-8 shadow-sm">
+        <h2 className="text-xl font-semibold text-foreground mb-6">Import Comments</h2>
         <div className="grid md:grid-cols-2 gap-4 mb-6">
           <button
             onClick={() => setImportMode(importMode === "paste" ? null : "paste")}
-            className="flex items-center gap-3 p-4 border-2 border-slate-600 rounded-lg hover:border-blue-400 transition text-left"
+            className="flex items-center gap-4 p-5 border border-border/50 rounded-lg hover:border-primary/50 hover:bg-accent/50 transition-all text-left group"
           >
-            <Copy className="w-5 h-5 text-blue-400" />
+            <Copy className="w-5 h-5 text-primary group-hover:text-primary" />
             <div>
-              <p className="font-medium text-white">Paste Text</p>
-              <p className="text-sm text-slate-400">Paste comments directly</p>
+              <p className="font-medium text-foreground">Paste Text</p>
+              <p className="text-sm text-muted-foreground">Paste comments directly</p>
             </div>
           </button>
 
@@ -488,12 +488,12 @@ export default function AudiencePage() {
                 fileInputRef.current.click()
               }
             }}
-            className="flex items-center gap-3 p-4 border-2 border-slate-600 rounded-lg hover:border-purple-400 transition text-left"
+            className="flex items-center gap-4 p-5 border border-border/50 rounded-lg hover:border-primary/50 hover:bg-accent/50 transition-all text-left group"
           >
-            <Upload className="w-5 h-5 text-purple-400" />
+            <Upload className="w-5 h-5 text-primary group-hover:text-primary" />
             <div>
-              <p className="font-medium text-white">Upload CSV</p>
-              <p className="text-sm text-slate-400">Import from file</p>
+              <p className="font-medium text-foreground">Upload CSV</p>
+              <p className="text-sm text-muted-foreground">Import from file</p>
             </div>
           </button>
           <input
@@ -506,34 +506,34 @@ export default function AudiencePage() {
         </div>
 
         {importMode === "paste" && (
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div>
               <textarea
                 value={pastedComments}
                 onChange={(e) => setPastedComments(e.target.value)}
                 placeholder="Paste comments here, one per line or as JSON array..."
-                className="w-full h-32 bg-slate-900 border border-slate-600 rounded text-white p-3 focus:border-blue-400 focus:outline-none"
+                className="w-full h-40 bg-background border border-input rounded-md text-foreground p-4 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-colors resize-none font-mono text-sm"
               />
             </div>
             
             {/* Show parsed comments as tags */}
             {parsedComments.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-sm text-slate-400">
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
                   {parsedComments.length} comment{parsedComments.length !== 1 ? 's' : ''} ready to import:
                 </p>
-                <div className="flex flex-wrap gap-2 p-3 bg-slate-900/50 rounded-lg border border-slate-700 max-h-48 overflow-y-auto">
+                <div className="flex flex-wrap gap-2 p-4 bg-muted/30 rounded-lg border border-border/50 max-h-48 overflow-y-auto">
                   {parsedComments.map((comment, index) => (
                     <div
                       key={index}
-                      className="group relative inline-flex items-center gap-2 px-3 py-1.5 bg-[lab(33_35.57_-75.79)]/20 border border-[lab(33_35.57_-75.79)]/30 rounded-lg text-sm text-[lab(33_35.57_-75.79)]"
+                      className="group relative inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-md text-sm text-primary"
                     >
                       <span className="max-w-xs truncate">{comment.text}</span>
                       <button
                         onClick={() => removeComment(index)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
                       >
-                        <X className="w-3.5 h-3.5 hover:text-red-400" />
+                        <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   ))}
@@ -545,8 +545,7 @@ export default function AudiencePage() {
               <Button
                 onClick={handleImport}
                 disabled={importing || !pastedComments.trim()}
-                variant="outline"
-                className="border-[lab(33_35.57_-75.79)]/50 text-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/10"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
               >
                 {importing ? "Importing..." : "Import Comments"}
               </Button>
@@ -557,7 +556,7 @@ export default function AudiencePage() {
                   setImportMode(null)
                 }}
                 variant="outline"
-                className="border-slate-600 text-slate-300"
+                className="border-border text-foreground hover:bg-accent"
               >
                 Cancel
               </Button>
@@ -567,11 +566,11 @@ export default function AudiencePage() {
 
         {importMode === "csv" && (
           <div className="space-y-4">
-            <div className="p-4 bg-slate-900/50 border border-slate-700 rounded-lg">
-              <p className="text-sm text-slate-400 mb-2">
+            <div className="p-4 bg-muted/30 border border-border/50 rounded-lg">
+              <p className="text-sm text-muted-foreground mb-2">
                 Click the "Upload CSV" button above to select a CSV file.
               </p>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-muted-foreground">
                 CSV format: First column should contain comment text, optional second column for author name.
               </p>
             </div>
@@ -583,7 +582,7 @@ export default function AudiencePage() {
                 }
               }}
               variant="outline"
-              className="border-slate-600 text-slate-300"
+              className="border-border text-foreground hover:bg-accent"
             >
               Cancel
             </Button>
@@ -592,33 +591,32 @@ export default function AudiencePage() {
       </Card>
 
       {/* Recent Batches */}
-      <Card className="bg-slate-800/50 border-slate-700 p-6">
-        <h2 className="text-xl font-semibold text-white mb-4">Recent Imports</h2>
+      <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-8 shadow-sm">
+        <h2 className="text-xl font-semibold text-foreground mb-6">Recent Imports</h2>
         {loading ? (
-          <p className="text-slate-400">Loading batches...</p>
+          <p className="text-muted-foreground">Loading batches...</p>
         ) : batches.length > 0 ? (
           <div className="space-y-4">
             {batches.map((batch) => (
-              <div key={batch._id} className="border border-slate-700 rounded-lg p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="w-5 h-5 text-blue-400" />
-                    <span className="text-white font-medium">
+              <div key={batch._id} className="border border-border/50 rounded-lg p-5 hover:border-primary/30 transition-colors">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <MessageSquare className="w-5 h-5 text-primary" />
+                    <span className="text-foreground font-medium">
                       {batch.rawComments.length} comments
                     </span>
                   </div>
-                  <span className="text-xs text-slate-400 capitalize">{batch.source}</span>
+                  <span className="text-xs text-muted-foreground capitalize">{batch.source}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Calendar className="w-4 h-4" />
                     <span>{new Date(batch.importedAt).toLocaleDateString()}</span>
                   </div>
                   <Button
                     onClick={() => handleAnalyze(batch._id)}
                     disabled={analyzing === batch._id || generatingIdeas}
-                    variant="outline"
-                    className="border-purple-600/50 text-purple-300 hover:text-purple-300 hover:bg-purple-600/10"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
                     size="sm"
                   >
                     {analyzing === batch._id ? "Analyzing..." : generatingIdeas ? "Generating..." : "Analyze for Ideas"}
@@ -628,49 +626,49 @@ export default function AudiencePage() {
             ))}
           </div>
         ) : (
-          <p className="text-slate-400">No comment batches yet. Import your first batch above.</p>
+          <p className="text-muted-foreground">No comment batches yet. Import your first batch above.</p>
         )}
       </Card>
 
       {/* Generated Ideas Modal */}
       <Dialog open={showIdeasModal} onOpenChange={setShowIdeasModal}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-slate-900 border-slate-700">
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-background/95 backdrop-blur-md border-border/30 shadow-lg">
           <DialogHeader>
-            <DialogTitle className="text-white">Generated Content Ideas</DialogTitle>
-            <DialogDescription className="text-slate-400">
+            <DialogTitle className="text-foreground">Generated Content Ideas</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               {generatedIdeas.length} AI-generated ideas based on your audience analysis
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 mt-4">
             {generatedIdeas.map((idea) => (
-              <Card key={idea._id} className="bg-slate-800/50 border-slate-700 p-4">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-purple-600/20 rounded-lg text-purple-400">
+              <Card key={idea._id} className="bg-background/80 backdrop-blur-sm border-border/30 p-5">
+                <div className="flex items-start gap-4">
+                  <div className="p-2.5 bg-primary/10 rounded-lg text-primary">
                     {getIdeaTypeIcon(idea.ideaType)}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <h3 className="text-lg font-semibold text-white mb-1">{idea.title}</h3>
-                        <div className="flex items-center gap-2 text-sm text-slate-400 mb-2">
-                          <span className="px-2 py-1 bg-slate-700/50 rounded">
+                        <h3 className="text-lg font-semibold text-foreground mb-2">{idea.title}</h3>
+                        <div className="flex items-center gap-2 text-sm mb-3">
+                          <span className="px-2.5 py-1 bg-muted rounded-md text-muted-foreground">
                             {getIdeaTypeLabel(idea.ideaType)}
                           </span>
                           {idea.tierTarget && idea.tierTarget !== "all" && (
-                            <span className="px-2 py-1 bg-blue-700/30 rounded text-blue-300">
+                            <span className="px-2.5 py-1 bg-primary/10 rounded-md text-primary">
                               Tier {idea.tierTarget}
                             </span>
                           )}
                         </div>
                       </div>
                     </div>
-                    <p className="text-slate-300 mb-3">{idea.description}</p>
+                    <p className="text-foreground mb-4 leading-relaxed">{idea.description}</p>
                     {idea.outline && idea.outline.length > 0 && (
                       <div>
-                        <p className="text-sm font-medium text-slate-400 mb-2">Content Outline:</p>
-                        <ul className="list-disc list-inside space-y-1 text-sm text-slate-300">
+                        <p className="text-sm font-medium text-muted-foreground mb-2">Content Outline:</p>
+                        <ul className="list-disc list-inside space-y-1.5 text-sm text-foreground">
                           {idea.outline.map((point, idx) => (
-                            <li key={idx}>{point}</li>
+                            <li key={idx} className="leading-relaxed">{point}</li>
                           ))}
                         </ul>
                       </div>
@@ -684,7 +682,7 @@ export default function AudiencePage() {
             <Button
               onClick={() => setShowIdeasModal(false)}
               variant="outline"
-              className="border-slate-600 text-slate-300"
+              className="border-border text-foreground hover:bg-accent"
             >
               Close
             </Button>
@@ -693,7 +691,7 @@ export default function AudiencePage() {
                 setShowIdeasModal(false)
                 window.location.href = "/creator/ideas"
               }}
-              variant="outline"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
               className="border-purple-600/50 text-purple-300 hover:bg-purple-600/10"
             >
               View All Ideas

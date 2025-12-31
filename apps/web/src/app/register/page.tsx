@@ -9,8 +9,9 @@ import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { useAuthStore } from '../../hooks/use-auth-store'
 import { ROLES } from "@engagement-nexus/config"
-import { BrandText } from '../../components/brand-text'
 import { toast } from '../../hooks/use-toast'
+import { AlertCircle } from 'lucide-react'
+import { Logo } from '../../components/logo'
 
 function RegisterForm() {
   const router = useRouter()
@@ -133,119 +134,93 @@ function RegisterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <div>
-        <label className="block text-sm font-medium text-slate-300 mb-2">
-          Full Name
-          <span className="text-red-400 ml-1">*</span>
-        </label>
+    <form onSubmit={handleSubmit} className="space-y-4 flex flex-col items-center">
+      <div className="flex flex-col">
         <Input
           type="text"
           name="name"
           value={formData.name}
           onChange={handleChange}
           onBlur={() => validateName(formData.name)}
-          placeholder="John Doe"
-          className={`bg-slate-800 border-slate-700 text-white ${
-            errors.name ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/50" : ""
-          }`}
+          placeholder="Full Name"
+          className={`w-[320px] bg-white border-gray-300 text-foreground placeholder:text-gray-400 rounded-lg hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors ${errors.name ? "border-destructive" : ""}`}
           aria-invalid={!!errors.name}
         />
         {errors.name && (
-          <p className="mt-1.5 text-sm text-red-400 flex items-center gap-1">
-            <span>•</span>
-            <span>{errors.name}</span>
+          <p className="text-sm text-destructive mt-1 text-left" style={{ width: '320px' }}>
+            {errors.name}
           </p>
         )}
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-slate-300 mb-2">
-          Email
-          <span className="text-red-400 ml-1">*</span>
-        </label>
+      <div className="flex flex-col">
         <Input
           type="email"
           name="email"
           value={formData.email}
           onChange={handleChange}
           onBlur={() => validateEmail(formData.email)}
-          placeholder="you@example.com"
-          className={`bg-slate-800 border-slate-700 text-white ${
-            errors.email ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/50" : ""
-          }`}
+          placeholder="Email Address"
+          className={`w-[320px] bg-white border-gray-300 text-foreground placeholder:text-gray-400 rounded-lg hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors ${errors.email ? "border-destructive" : ""}`}
           aria-invalid={!!errors.email}
         />
         {errors.email && (
-          <p className="mt-1.5 text-sm text-red-400 flex items-center gap-1">
-            <span>•</span>
-            <span>{errors.email}</span>
+          <p className="text-sm text-destructive mt-1 text-left" style={{ width: '320px' }}>
+            {errors.email}
           </p>
         )}
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-slate-300 mb-2">
-          Password
-          <span className="text-red-400 ml-1">*</span>
-        </label>
+      <div className="flex flex-col">
         <Input
           type="password"
           name="password"
           value={formData.password}
           onChange={handleChange}
           onBlur={() => validatePassword(formData.password)}
-          placeholder="At least 8 characters with uppercase, lowercase, and number"
-          className={`bg-slate-800 border-slate-700 text-white ${
-            errors.password ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/50" : ""
-          }`}
+          placeholder="Password"
+          className={`w-[320px] bg-white border-gray-300 text-foreground placeholder:text-gray-400 rounded-lg hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors ${errors.password ? "border-destructive" : ""}`}
           aria-invalid={!!errors.password}
         />
         {errors.password && (
-          <p className="mt-1.5 text-sm text-red-400 flex items-center gap-1">
-            <span>•</span>
-            <span>{errors.password}</span>
-          </p>
-        )}
-        {!errors.password && formData.password && (
-          <p className="mt-1.5 text-sm text-green-400 flex items-center gap-1">
-            <span>✓</span>
-            <span>Password looks good!</span>
+          <p className="text-sm text-destructive mt-1 text-left" style={{ width: '320px' }}>
+            {errors.password}
           </p>
         )}
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-slate-300 mb-2">I am a</label>
-        <select
-          name="role"
-          value={formData.role}
-          onChange={handleChange}
-          className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[lab(33_35.57_-75.79)] focus:border-transparent"
-        >
-          <option value={ROLES.CREATOR}>Content Creator</option>
-          <option value={ROLES.SUBSCRIBER_T1}>Subscriber (Tier 1)</option>
-          <option value={ROLES.SUBSCRIBER_T2}>Subscriber (Tier 2)</option>
-          <option value={ROLES.SUBSCRIBER_T3}>Subscriber (Tier 3)</option>
-        </select>
-      </div>
+      <select
+        name="role"
+        value={formData.role}
+        onChange={handleChange}
+        className="w-[320px] bg-white border border-gray-300 text-foreground rounded-lg px-3 py-2.5 text-sm hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+      >
+        <option value={ROLES.CREATOR}>Content Creator</option>
+        <option value={ROLES.SUBSCRIBER_T1}>Subscriber (Tier 1)</option>
+        <option value={ROLES.SUBSCRIBER_T2}>Subscriber (Tier 2)</option>
+        <option value={ROLES.SUBSCRIBER_T3}>Subscriber (Tier 3)</option>
+      </select>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/50 rounded-md p-3">
-          <p className="text-red-400 text-sm flex items-center gap-2">
-            <span>⚠</span>
+        <div className="bg-destructive/10 border border-destructive/20 rounded-md p-3">
+          <p className="text-destructive text-sm flex items-center gap-2">
+            <AlertCircle className="w-4 h-4" />
             <span>{error}</span>
           </p>
         </div>
       )}
 
-      <Button type="submit" disabled={isLoading} className="w-full bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90 hover:text-white text-white disabled:opacity-50 disabled:cursor-not-allowed">
-        {isLoading ? "Creating account..." : "Create Account"}
+      <Button 
+        type="submit" 
+        disabled={isLoading} 
+        className="w-[320px] bg-primary text-white hover:bg-primary/90 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed h-11"
+      >
+        {isLoading ? "Creating account..." : "Sign up"}
       </Button>
 
-      <p className="text-center text-slate-400">
+      <p className="text-center text-sm text-gray-600">
         Already have an account?{" "}
-        <Link href="/login" className="text-blue-400 hover:text-blue-300">
+        <Link href="/login" className="text-primary underline hover:text-primary/80">
           Log in
         </Link>
       </p>
@@ -255,20 +230,20 @@ function RegisterForm() {
 
 export default function RegisterPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <main className="min-h-screen bg-paper-system flex items-center justify-center px-6 relative">
+      <div className="absolute top-6 left-6 z-50">
+        <Link href="/" className="block">
+          <Logo showText={true} size="md" textGradient={true} />
+        </Link>
+      </div>
+      <div className="w-full max-w-md flex flex-col items-center">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Join <BrandText size="3xl" className="inline" />
-          </h1>
-          <p className="text-slate-400">Create your account to get started</p>
+          <h1 className="text-3xl font-semibold mb-2 tracking-tight" style={{ color: 'rgb(55, 65, 81)' }}>Create Account</h1>
+          <p className="text-muted-foreground">Sign up to get started</p>
         </div>
-
-        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-8">
-          <Suspense fallback={<div>Loading...</div>}>
-            <RegisterForm />
-          </Suspense>
-        </div>
+        <Suspense fallback={<div className="text-center py-8 text-muted-foreground">Loading...</div>}>
+          <RegisterForm />
+        </Suspense>
       </div>
     </main>
   )

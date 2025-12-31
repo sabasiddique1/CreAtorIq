@@ -132,54 +132,54 @@ export default function CreatorDashboard() {
   ]
 
   if (loading) {
-    return <div className="text-slate-300">Loading dashboard...</div>
+    return <div className="px-6 py-8 text-muted-foreground">Loading dashboard...</div>
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 px-6 py-8 min-h-full">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-        <p className="text-slate-400">Welcome back! Here's your community overview.</p>
+        <h1 className="text-3xl font-semibold text-foreground mb-2 tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground">Welcome back! Here's your community overview.</p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid md:grid-cols-3 gap-6">
-        <Card className="bg-slate-800/50 border-slate-700 p-6 hover:border-blue-500/50 transition-colors">
+        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6 hover:border-primary/30 hover:shadow-md transition-all">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-slate-400 text-sm mb-1">Total Subscribers</p>
-              <p className="text-3xl font-bold text-white animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <p className="text-muted-foreground text-sm mb-2">Total Subscribers</p>
+              <p className="text-3xl font-semibold text-foreground">
                 {data?.totalSubscribers || 0}
               </p>
             </div>
-            <Users className="w-10 h-10 text-blue-400 opacity-50" />
+            <Users className="w-10 h-10 text-primary/40" />
           </div>
         </Card>
 
-        <Card className="bg-slate-800/50 border-slate-700 p-6 hover:border-emerald-500/50 transition-colors">
+        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6 hover:border-primary/30 hover:shadow-md transition-all">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-slate-400 text-sm mb-1">Audience Sentiment</p>
-              <p className="text-3xl font-bold text-white animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <p className="text-muted-foreground text-sm mb-2">Audience Sentiment</p>
+              <p className="text-3xl font-semibold text-foreground">
                 {data?.latestSentimentTrend
                   ? `${(data.latestSentimentTrend.overallSentimentScore * 100).toFixed(0)}%`
                   : "--"}
               </p>
             </div>
-            <TrendingUp className="w-10 h-10 text-emerald-400 opacity-50" />
+            <TrendingUp className="w-10 h-10 text-primary/40" />
           </div>
         </Card>
 
-        <Card className="bg-slate-800/50 border-slate-700 p-6 hover:border-purple-500/50 transition-colors">
+        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6 hover:border-primary/30 hover:shadow-md transition-all">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-slate-400 text-sm mb-1">Content Items</p>
-              <p className="text-3xl font-bold text-white animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <p className="text-muted-foreground text-sm mb-2">Content Items</p>
+              <p className="text-3xl font-semibold text-foreground">
                 {data?.recentContent?.length || 0}
               </p>
             </div>
-            <FileText className="w-10 h-10 text-purple-400 opacity-50" />
+            <FileText className="w-10 h-10 text-primary/40" />
           </div>
         </Card>
       </div>
@@ -187,8 +187,8 @@ export default function CreatorDashboard() {
       {/* Charts Grid */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Sentiment Trend Chart */}
-        <Card className="bg-slate-800/50 border-slate-700 p-6">
-          <h2 className="text-xl font-semibold text-white mb-6">Sentiment Trend</h2>
+        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6 shadow-sm">
+          <h2 className="text-xl font-semibold text-foreground mb-6">Sentiment Trend</h2>
           {data?.latestSentimentTrend ? (
             <ChartContainer
               config={{
@@ -206,16 +206,16 @@ export default function CreatorDashboard() {
                     <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                 <XAxis
                   dataKey="month"
-                  stroke="#94a3b8"
+                  stroke="hsl(var(--muted-foreground))"
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
-                  stroke="#94a3b8"
+                  stroke="hsl(var(--muted-foreground))"
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
@@ -226,11 +226,11 @@ export default function CreatorDashboard() {
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       return (
-                        <div className="rounded-lg border bg-slate-900 p-2 shadow-sm">
+                        <div className="rounded-lg border border-border/30 bg-background/90 backdrop-blur-sm p-3 shadow-lg">
                           <div className="grid gap-2">
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-slate-400 text-sm">Score</span>
-                              <span className="font-bold text-emerald-400">
+                              <span className="text-muted-foreground text-sm">Score</span>
+                              <span className="font-semibold text-primary">
                                 {((payload[0].value as number) * 100).toFixed(1)}%
                               </span>
                             </div>
@@ -244,7 +244,7 @@ export default function CreatorDashboard() {
                 <Area
                   type="monotone"
                   dataKey="score"
-                  stroke="#10b981"
+                  stroke="hsl(var(--primary))"
                   strokeWidth={2}
                   fillOpacity={1}
                   fill="url(#colorScore)"
@@ -254,15 +254,15 @@ export default function CreatorDashboard() {
               </AreaChart>
             </ChartContainer>
           ) : (
-            <div className="h-[300px] bg-slate-900/50 rounded flex items-center justify-center">
-              <p className="text-slate-400">Import comments to see sentiment trends</p>
+            <div className="h-[300px] bg-muted/20 rounded-md flex items-center justify-center border border-border/50">
+              <p className="text-muted-foreground">Import comments to see sentiment trends</p>
             </div>
           )}
         </Card>
 
         {/* Subscribers by Tier Chart */}
-        <Card className="bg-slate-800/50 border-slate-700 p-6">
-          <h2 className="text-xl font-semibold text-white mb-6">Subscribers by Tier</h2>
+        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6 shadow-sm">
+          <h2 className="text-xl font-semibold text-foreground mb-6">Subscribers by Tier</h2>
           {tierData.length > 0 && tierData.some(t => t.value > 0) ? (
             <ChartContainer
               config={{
@@ -303,18 +303,18 @@ export default function CreatorDashboard() {
                     if (active && payload && payload.length) {
                       const data = payload[0]
                       return (
-                        <div className="rounded-lg border bg-slate-900 p-3 shadow-sm">
+                        <div className="rounded-lg border border-border/30 bg-background/90 backdrop-blur-sm p-3 shadow-lg">
                           <div className="flex items-center gap-2 mb-1">
                             <div
                               className="w-3 h-3 rounded-full"
                               style={{ backgroundColor: data.payload.fill }}
                             />
-                            <span className="text-white font-medium">{data.name}</span>
+                            <span className="text-foreground font-medium">{data.name}</span>
                           </div>
-                          <div className="text-slate-300 text-sm">
+                          <div className="text-foreground text-sm">
                             {data.value} subscriber{data.value !== 1 ? 's' : ''}
                           </div>
-                          <div className="text-slate-400 text-xs mt-1">
+                          <div className="text-muted-foreground text-xs mt-1">
                             {((data.payload.percent || 0) * 100).toFixed(1)}% of total
                           </div>
                         </div>
@@ -326,7 +326,7 @@ export default function CreatorDashboard() {
                 <Legend
                   wrapperStyle={{ paddingTop: '20px' }}
                   formatter={(value: string, entry: any) => (
-                    <span style={{ color: '#94a3b8', fontSize: '12px' }}>
+                    <span style={{ color: 'hsl(var(--muted-foreground))', fontSize: '12px' }}>
                       {value}: {entry.payload.value}
                     </span>
                   )}
@@ -334,8 +334,8 @@ export default function CreatorDashboard() {
               </PieChart>
             </ChartContainer>
           ) : (
-            <div className="h-[300px] bg-slate-900/50 rounded flex items-center justify-center">
-              <p className="text-slate-400">No subscribers yet</p>
+            <div className="h-[300px] bg-muted/20 rounded-md flex items-center justify-center border border-border/50">
+              <p className="text-muted-foreground">No subscribers yet</p>
             </div>
           )}
         </Card>
@@ -343,40 +343,39 @@ export default function CreatorDashboard() {
 
       {/* Sentiment Breakdown */}
       {data?.latestSentimentTrend && (
-        <Card className="bg-slate-800/50 border-slate-700 p-6">
-          <h2 className="text-xl font-semibold text-white mb-6">Sentiment Breakdown</h2>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400">Overall Score</span>
-              <span className="text-2xl font-bold text-emerald-400 animate-in fade-in slide-in-from-right duration-700">
+        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6 shadow-sm">
+          <h2 className="text-xl font-semibold text-foreground mb-6">Sentiment Breakdown</h2>
+          <div className="space-y-5">
+            <div className="flex items-center justify-between pb-4 border-b border-border/50">
+              <span className="text-muted-foreground">Overall Score</span>
+              <span className="text-2xl font-semibold text-primary">
                 {(data.latestSentimentTrend.overallSentimentScore * 100).toFixed(1)}%
               </span>
             </div>
             <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-slate-900/50 rounded-lg animate-in fade-in slide-in-from-bottom duration-500">
-                <p className="text-slate-400 text-sm mb-1">Positive</p>
-                <p className="text-2xl font-bold text-emerald-400">{data.latestSentimentTrend.positiveCount}</p>
+              <div className="text-center p-5 bg-muted/30 rounded-lg border border-border/50">
+                <p className="text-muted-foreground text-sm mb-2">Positive</p>
+                <p className="text-2xl font-semibold text-primary">{data.latestSentimentTrend.positiveCount}</p>
               </div>
-              <div className="text-center p-4 bg-slate-900/50 rounded-lg animate-in fade-in slide-in-from-bottom duration-700">
-                <p className="text-slate-400 text-sm mb-1">Negative</p>
-                <p className="text-2xl font-bold text-red-400">{data.latestSentimentTrend.negativeCount}</p>
+              <div className="text-center p-5 bg-muted/30 rounded-lg border border-border/50">
+                <p className="text-muted-foreground text-sm mb-2">Negative</p>
+                <p className="text-2xl font-semibold text-destructive">{data.latestSentimentTrend.negativeCount}</p>
               </div>
-              <div className="text-center p-4 bg-slate-900/50 rounded-lg animate-in fade-in slide-in-from-bottom duration-900">
-                <p className="text-slate-400 text-sm mb-1">Neutral</p>
-                <p className="text-2xl font-bold text-slate-400">
+              <div className="text-center p-5 bg-muted/30 rounded-lg border border-border/50">
+                <p className="text-muted-foreground text-sm mb-2">Neutral</p>
+                <p className="text-2xl font-semibold text-muted-foreground">
                   {data.latestSentimentTrend.neutralCount || 0}
                 </p>
               </div>
             </div>
             {data.latestSentimentTrend.topKeywords.length > 0 && (
               <div>
-                <p className="text-slate-400 text-sm mb-2">Top Keywords</p>
+                <p className="text-muted-foreground text-sm mb-3">Top Keywords</p>
                 <div className="flex flex-wrap gap-2">
                   {data.latestSentimentTrend.topKeywords.slice(0, 5).map((keyword, i) => (
                     <span
                       key={i}
-                      className="px-3 py-1 bg-slate-700 rounded-full text-sm text-white animate-in fade-in zoom-in duration-500"
-                      style={{ animationDelay: `${i * 100}ms` }}
+                      className="px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-full text-sm text-primary font-medium"
                     >
                       {keyword}
                     </span>
@@ -390,50 +389,50 @@ export default function CreatorDashboard() {
 
       {/* Quick Actions */}
       <div className="grid md:grid-cols-2 gap-6">
-        <Card className="bg-slate-800/50 border-slate-700 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Recent Content</h3>
+        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-foreground mb-5">Recent Content</h3>
           {data?.recentContent && data.recentContent.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {data.recentContent.slice(0, 3).map((item) => (
-                <div key={item._id} className="border-b border-slate-700 pb-3 last:border-0">
-                  <p className="text-white font-medium">{item.title}</p>
-                  <p className="text-slate-400 text-sm">
+                <div key={item._id} className="border-b border-border/50 pb-4 last:border-0 last:pb-0">
+                  <p className="text-foreground font-medium mb-1">{item.title}</p>
+                  <p className="text-muted-foreground text-sm">
                     {item.type} • {item.isPremium ? "Premium" : "Free"}
                   </p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-slate-400">No content yet. Create your first item to get started.</p>
+            <p className="text-muted-foreground">No content yet. Create your first item to get started.</p>
           )}
         </Card>
 
-        <Card className="bg-slate-800/50 border-slate-700 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Suggested Ideas</h3>
+        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-foreground mb-5">Suggested Ideas</h3>
           {data?.suggestedIdeas && data.suggestedIdeas.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {data.suggestedIdeas.slice(0, 3).map((idea) => (
-                <div key={idea._id} className="border-b border-slate-700 pb-3 last:border-0">
-                  <p className="text-white font-medium">{idea.title}</p>
-                  <p className="text-slate-400 text-sm line-clamp-2">{idea.description}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded">
+                <div key={idea._id} className="border-b border-border/50 pb-4 last:border-0 last:pb-0">
+                  <p className="text-foreground font-medium mb-1.5">{idea.title}</p>
+                  <p className="text-muted-foreground text-sm line-clamp-2 mb-2">{idea.description}</p>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-1 bg-primary/10 border border-primary/20 text-primary text-xs rounded-md font-medium">
                       {idea.ideaType.replace("_", " ")}
                     </span>
-                    <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-xs rounded">
+                    <span className="px-2.5 py-1 bg-muted text-muted-foreground text-xs rounded-md font-medium">
                       {idea.status}
                     </span>
                   </div>
                 </div>
               ))}
               {data.suggestedIdeas.length > 3 && (
-                <p className="text-slate-400 text-sm mt-2">
+                <p className="text-muted-foreground text-sm mt-2">
                   +{data.suggestedIdeas.length - 3} more ideas
                 </p>
               )}
             </div>
           ) : (
-            <p className="text-slate-400">No ideas yet. Generate ideas from the Ideas page after analyzing comments.</p>
+            <p className="text-muted-foreground">No ideas yet. Generate ideas from the Ideas page after analyzing comments.</p>
           )}
         </Card>
       </div>

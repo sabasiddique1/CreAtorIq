@@ -16,31 +16,31 @@ import {
 } from "lucide-react"
 
 export const STATS = [
-  { value: "10K+", label: "Active Creators" },
-  { value: "50K+", label: "Comments Analyzed" },
-  { value: "95%", label: "Accuracy Rate" },
-  { value: "24/7", label: "AI Monitoring" },
+  { value: "10K+", label: "Creators using CreatorIQ" },
+  { value: "2.5M+", label: "Comments analyzed" },
+  { value: "4.8/5", label: "Average creator rating" },
+  { value: "95%", label: "Sentiment accuracy" },
 ] as const
 
 export const FEATURES = [
   {
     icon: BarChart3,
-    title: "Deep Sentiment Analysis",
-    description: "Analyze audience comments with AI to understand exactly how your community feels about your content.",
+    title: "Analyze. Understand. Create.",
+    description: "Choose from AI-powered insights that analyze your audience comments to help you understand what content resonates most with each subscriber tier.",
     iconColor: "text-blue-400",
     hoverBorder: "hover:border-blue-500/50",
   },
   {
     icon: Zap,
-    title: "Smart Content Ideas",
-    description: "Get AI-generated content ideas tailored to what your audience actually wants, per subscription tier.",
+    title: "Go premium, or keep it accessible.",
+    description: "Switch between tier-specific content strategies with the click of a button and keep your content strategy aligned with subscriber expectations.",
     iconColor: "text-purple-400",
     hoverBorder: "hover:border-purple-500/50",
   },
   {
     icon: Users,
-    title: "Tier-Based Insights",
-    description: "Understand subscriber sentiment by tier and create premium content that drives retention and growth.",
+    title: "Content planning made easy.",
+    description: "Enjoy advanced AI capabilities that ensure your content ideas match audience sentiment, trending topics, and subscriber requests — before you hit 'publish'.",
     iconColor: "text-emerald-400",
     hoverBorder: "hover:border-emerald-500/50",
   },
@@ -195,20 +195,28 @@ export const TESTIMONIALS = [
 
 export const FAQ_ITEMS = [
   {
+    question: "What is CreatorIQ?",
+    answer: "CreatorIQ is an AI-powered platform that analyzes your audience comments to understand sentiment, extract key topics, and generate personalized content ideas tailored to each subscription tier.",
+  },
+  {
+    question: "How is CreatorIQ different from other analytics tools?",
+    answer: "Unlike generic analytics, CreatorIQ focuses specifically on comment sentiment analysis and tier-based insights. We don't just show you numbers—we tell you what content your subscribers actually want to see, organized by their subscription level.",
+  },
+  {
+    question: "Does CreatorIQ work with any platform?",
+    answer: "Yes! You can import comments from any platform—YouTube, Patreon, Discord, Twitch, or any other platform—by pasting them directly or uploading a CSV file. Our AI analyzes the content, not the source.",
+  },
+  {
+    question: "What types of content can CreatorIQ help with?",
+    answer: "CreatorIQ helps with all types of content: tutorials, vlogs, educational content, entertainment, Q&A sessions, behind-the-scenes, and more. The AI adapts to your niche and suggests ideas based on what your specific audience wants.",
+  },
+  {
+    question: "Can CreatorIQ help with content strategy?",
+    answer: "Absolutely. CreatorIQ provides actionable content outlines, identifies trending topics within your audience, and suggests content types that align with subscriber sentiment and requests.",
+  },
+  {
     question: "How accurate is the sentiment analysis?",
-    answer: "Our AI-powered sentiment analysis achieves 95%+ accuracy by using advanced natural language processing models trained on millions of comments.",
-  },
-  {
-    question: "Can I import comments from any platform?",
-    answer: "Yes! You can import comments from any platform by pasting them directly or uploading a CSV file. We support comments from YouTube, Patreon, Discord, and more.",
-  },
-  {
-    question: "How does tier-based analysis work?",
-    answer: "We analyze comments from different subscription tiers separately, giving you insights into what each tier values most. This helps you create targeted content for each audience segment.",
-  },
-  {
-    question: "Is my data secure?",
-    answer: "Absolutely. We use enterprise-grade encryption and never share your data with third parties. Your comments and insights are completely private.",
+    answer: "Our AI-powered sentiment analysis achieves 95%+ accuracy by using advanced natural language processing models trained on millions of comments across various niches and platforms.",
   },
 ] as const
 
