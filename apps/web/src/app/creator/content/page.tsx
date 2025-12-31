@@ -116,39 +116,38 @@ export default function ContentPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 px-6 py-8 min-h-full">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Content Management</h1>
-          <p className="text-slate-400">Manage and organize your premium content.</p>
+          <h1 className="text-3xl font-semibold text-foreground mb-2 tracking-tight">Content Management</h1>
+          <p className="text-muted-foreground">Manage and organize your premium content.</p>
         </div>
-        <Button onClick={() => setShowNewForm(!showNewForm)} className="bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90 hover:text-white text-white gap-2">
+        <Button onClick={() => setShowNewForm(!showNewForm)} className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm gap-2">
           <Plus className="w-4 h-4" /> New Content
         </Button>
       </div>
 
       {/* New Content Form */}
       {showNewForm && (
-        <Card className="bg-slate-800/50 border-slate-700 p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Create New Content</h2>
+        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4">Create New Content</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Title</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Title</label>
               <Input
                 value={newContent.title}
                 onChange={(e) => setNewContent((prev) => ({ ...prev, title: e.target.value }))}
                 placeholder="Content title"
-                className="bg-slate-900 border-slate-600 text-white"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Type</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Type</label>
               <select
                 value={newContent.type}
                 onChange={(e) => setNewContent((prev) => ({ ...prev, type: e.target.value }))}
-                className="w-full bg-slate-900 border border-slate-600 text-white rounded p-2"
+                className="w-full bg-background border border-input text-foreground rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
               >
                 <option value="video">Video</option>
                 <option value="course">Course</option>
@@ -158,13 +157,13 @@ export default function ContentPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Description</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Description</label>
               <textarea
                 value={newContent.description}
                 onChange={(e) => setNewContent((prev) => ({ ...prev, description: e.target.value }))}
                 placeholder="Content description"
                 rows={3}
-                className="w-full bg-slate-900 border border-slate-600 text-white rounded p-2"
+                className="w-full bg-background border border-input text-foreground rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors resize-none"
               />
             </div>
 
@@ -175,21 +174,21 @@ export default function ContentPage() {
                 onChange={(e) => setNewContent((prev) => ({ ...prev, isPremium: e.target.checked }))}
                 className="w-4 h-4"
               />
-              <label className="text-sm font-medium text-slate-300">Premium Content</label>
+              <label className="text-sm font-medium text-foreground">Premium Content</label>
             </div>
 
             <div className="flex gap-3">
               <Button
                 onClick={handleCreateContent}
                 disabled={!newContent.title}
-                className="bg-[lab(33_35.57_-75.79)] hover:bg-[lab(33_35.57_-75.79)]/90 hover:text-white text-white"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
               >
                 Create Content
               </Button>
               <Button
                 onClick={() => setShowNewForm(false)}
                 variant="outline"
-                className="border-slate-600 text-slate-300"
+                className="border-border text-foreground hover:bg-accent"
               >
                 Cancel
               </Button>
@@ -200,37 +199,37 @@ export default function ContentPage() {
 
       {/* Content List */}
       {loading ? (
-        <Card className="bg-slate-800/50 border-slate-700 p-6">
-          <p className="text-slate-300">Loading content...</p>
+        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6">
+          <p className="text-muted-foreground">Loading content...</p>
         </Card>
       ) : contentItems.length > 0 ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {contentItems.map((item) => (
-            <Card key={item._id} className="bg-slate-800/50 border-slate-700 p-6">
+            <Card key={item._id} className="bg-background/80 backdrop-blur-sm border-border/30 p-6 hover:border-primary/30 transition-all">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-white mb-1">{item.title}</h3>
-                  <p className="text-sm text-slate-400 capitalize">{item.type}</p>
+                  <h3 className="text-lg font-semibold text-foreground mb-1">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground capitalize">{item.type}</p>
                 </div>
                 {item.isPremium && (
-                  <Star className="w-5 h-5 text-yellow-400 flex-shrink-0" />
+                  <Star className="w-5 h-5 text-primary flex-shrink-0" />
                 )}
               </div>
               {item.description && (
-                <p className="text-slate-300 text-sm mb-3 line-clamp-2">{item.description}</p>
+                <p className="text-foreground text-sm mb-3 line-clamp-2">{item.description}</p>
               )}
               <div className="flex items-center justify-between">
                 <span
                   className={`px-2 py-1 rounded text-xs ${
                     item.status === "published"
-                      ? "bg-emerald-500/20 text-emerald-400"
-                      : "bg-slate-700 text-slate-300"
+                      ? "bg-primary/10 text-primary border border-primary/20"
+                      : "bg-muted text-muted-foreground border border-border/30"
                   }`}
                 >
                   {item.status}
                 </span>
                 {item.isPremium && item.requiredTier && (
-                  <span className="text-xs text-slate-400 flex items-center gap-1">
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
                     <Lock className="w-3 h-3" />
                     Tier {item.requiredTier}
                   </span>
@@ -240,8 +239,8 @@ export default function ContentPage() {
           ))}
         </div>
       ) : (
-        <Card className="bg-slate-800/50 border-slate-700 p-6">
-          <div className="flex items-center gap-3 text-slate-300">
+        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6">
+          <div className="flex items-center gap-3 text-muted-foreground">
             <FileText className="w-5 h-5" />
             <p>No content items yet. Create your first item above.</p>
           </div>

@@ -1,10 +1,15 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Geist } from "next/font/google"
+import { Inter } from "next/font/google"
 import { Toaster } from '../components/ui/toaster'
 import "./globals.css"
 
-const geist = Geist({ subsets: ["latin"] })
+// General Sans - using Inter as fallback (General Sans may need to be loaded via @font-face if custom)
+const generalSans = Inter({ 
+  subsets: ["latin"],
+  variable: "--font-general-sans",
+  display: "swap",
+})
 
 export const metadata: Metadata = {
   title: "creAtor IQ",
@@ -26,7 +31,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geist.className} antialiased`}>
+      <body className={`${generalSans.variable} font-sans antialiased`}>
         {children}
         <Toaster />
       </body>

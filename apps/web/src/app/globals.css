@@ -4,78 +4,114 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  /* Premium neutral palette - warm, soft grays */
+  --background: oklch(0.99 0.002 106.423);
+  --foreground: oklch(0.15 0.008 285.873);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.15 0.008 285.873);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --popover-foreground: oklch(0.15 0.008 285.873);
+  
+  /* Confident accent - purple */
+  --primary: rgb(117, 63, 234);
+  --primary-foreground: rgb(255, 255, 255);
+  
+  /* Subtle secondary */
+  --secondary: oklch(0.96 0.003 106.423);
+  --secondary-foreground: oklch(0.25 0.008 285.873);
+  
+  /* Muted tones */
+  --muted: oklch(0.96 0.003 106.423);
+  --muted-foreground: oklch(0.45 0.006 285.873);
+  
+  /* Accent */
+  --accent: oklch(0.97 0.004 106.423);
+  --accent-foreground: oklch(0.25 0.008 285.873);
+  
+  /* Destructive - soft red */
+  --destructive: oklch(0.55 0.15 25);
+  --destructive-foreground: oklch(0.99 0.002 106.423);
+  
+  /* Borders - very subtle */
+  --border: oklch(0.92 0.004 106.423);
+  --input: oklch(0.94 0.003 106.423);
+  --ring: rgb(117, 63, 234);
+  
+  /* Chart colors - muted, professional */
+  --chart-1: rgb(117, 63, 234);
+  --chart-2: oklch(0.50 0.10 200);
+  --chart-3: oklch(0.45 0.08 160);
+  --chart-4: oklch(0.60 0.10 300);
+  --chart-5: oklch(0.52 0.09 40);
+  
+  --radius: 0.5rem;
+  
+  /* Sidebar */
+  --sidebar: oklch(0.98 0.002 106.423);
+  --sidebar-foreground: oklch(0.25 0.008 285.873);
+  --sidebar-primary: rgb(117, 63, 234);
+  --sidebar-primary-foreground: rgb(255, 255, 255);
+  --sidebar-accent: oklch(0.96 0.003 106.423);
+  --sidebar-accent-foreground: oklch(0.25 0.008 285.873);
+  --sidebar-border: oklch(0.92 0.004 106.423);
+  --sidebar-ring: rgb(117, 63, 234);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  /* Premium dark mode - warm dark grays */
+  --background: oklch(0.12 0.006 285.873);
+  --foreground: oklch(0.98 0.002 106.423);
+  --card: oklch(0.15 0.008 285.873);
+  --card-foreground: oklch(0.98 0.002 106.423);
+  --popover: oklch(0.15 0.008 285.873);
+  --popover-foreground: oklch(0.98 0.002 106.423);
+  
+  /* Accent - confident purple */
+  --primary: rgb(140, 90, 250);
+  --primary-foreground: rgb(255, 255, 255);
+  
+  /* Secondary */
+  --secondary: oklch(0.20 0.008 285.873);
+  --secondary-foreground: oklch(0.95 0.002 106.423);
+  
+  /* Muted */
+  --muted: oklch(0.20 0.008 285.873);
+  --muted-foreground: oklch(0.65 0.006 285.873);
+  
+  /* Accent */
+  --accent: oklch(0.22 0.008 285.873);
+  --accent-foreground: oklch(0.95 0.002 106.423);
+  
+  /* Destructive */
+  --destructive: oklch(0.55 0.15 25);
+  --destructive-foreground: oklch(0.98 0.002 106.423);
+  
+  /* Borders */
+  --border: oklch(0.22 0.008 285.873);
+  --input: oklch(0.20 0.008 285.873);
+  --ring: rgb(140, 90, 250);
+  
+  /* Chart colors */
+  --chart-1: rgb(140, 90, 250);
+  --chart-2: oklch(0.60 0.12 200);
+  --chart-3: oklch(0.55 0.10 160);
+  --chart-4: oklch(0.70 0.12 300);
+  --chart-5: oklch(0.62 0.11 40);
+  
+  /* Sidebar */
+  --sidebar: oklch(0.15 0.008 285.873);
+  --sidebar-foreground: oklch(0.95 0.002 106.423);
+  --sidebar-primary: rgb(140, 90, 250);
+  --sidebar-primary-foreground: rgb(255, 255, 255);
+  --sidebar-accent: oklch(0.20 0.008 285.873);
+  --sidebar-accent-foreground: oklch(0.95 0.002 106.423);
+  --sidebar-border: oklch(0.22 0.008 285.873);
+  --sidebar-ring: rgb(140, 90, 250);
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
+  --font-sans: 'General Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-highlight: 'Ppfragment', 'General Sans', sans-serif;
   --font-mono: 'Geist Mono', 'Geist Mono Fallback';
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -120,7 +156,137 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'General Sans', 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    background-image: 
+      linear-gradient(to bottom, rgb(255, 255, 255), rgba(117, 63, 234, 0.03)),
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 1px,
+        rgba(117, 63, 234, 0.05) 1px,
+        rgba(117, 63, 234, 0.05) 2px
+      );
+    background-size: 100% 100%, 20px 20px;
   }
+  
+  /* Premium typography improvements */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+    letter-spacing: -0.01em;
+    font-family: 'General Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  
+  /* All text elements use General Sans */
+  p, span, div, a, button, input, textarea, select, label {
+    font-family: 'General Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  
+  /* Highlighted text using Ppfragment */
+  .font-highlight,
+  .highlight-text,
+  h1 .italic,
+  h2 .italic,
+  h3 .italic,
+  span.italic {
+    font-family: var(--font-highlight);
+    font-style: italic;
+  }
+  
+  /* Softer focus states */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary/20 ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer utilities {
+  .bg-paper-system {
+    --tw-bg-opacity: 1;
+    background-color: rgb(248 248 245 / var(--tw-bg-opacity));
+  }
+}
+
+/* Load fonts via @font-face - Add font files to /public/fonts/ directory */
+/* General Sans - Download from: https://pimpmytype.com/font/general-sans/ */
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/GeneralSans-Regular.woff2') format('woff2'),
+       url('/fonts/GeneralSans-Regular.woff') format('woff'),
+       local('General Sans'), local('GeneralSans');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/GeneralSans-Medium.woff2') format('woff2'),
+       url('/fonts/GeneralSans-Medium.woff') format('woff'),
+       local('General Sans Medium');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/GeneralSans-Semibold.woff2') format('woff2'),
+       url('/fonts/GeneralSans-Semibold.woff') format('woff'),
+       local('General Sans Semibold');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/GeneralSans-Bold.woff2') format('woff2'),
+       url('/fonts/GeneralSans-Bold.woff') format('woff'),
+       local('General Sans Bold');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* PP Fragment - Download from: https://pangrampangram.com/products/fragment */
+@font-face {
+  font-family: 'Ppfragment';
+  src: url('/fonts/PPFragment-Regular.woff2') format('woff2'),
+       url('/fonts/PPFragment-Regular.woff') format('woff'),
+       local('Ppfragment'), local('PPFragment');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Ppfragment';
+  src: url('/fonts/PPFragment-RegularItalic.woff2') format('woff2'),
+       url('/fonts/PPFragment-RegularItalic.woff') format('woff'),
+       local('Ppfragment Italic'), local('PPFragment-Italic');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Ppfragment';
+  src: url('/fonts/PPFragment-Medium.woff2') format('woff2'),
+       url('/fonts/PPFragment-Medium.woff') format('woff'),
+       local('Ppfragment Medium');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Ppfragment';
+  src: url('/fonts/PPFragment-Bold.woff2') format('woff2'),
+       url('/fonts/PPFragment-Bold.woff') format('woff'),
+       local('Ppfragment Bold');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
 }
 

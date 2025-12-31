@@ -15,9 +15,9 @@ const sizeClasses = {
 
 export function BrandText({ className = "", size = "md" }: BrandTextProps) {
   return (
-    <span className={`font-bold ${sizeClasses[size]} ${className}`}>
-      <span className="text-white">creAtor </span>
-      <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+    <span className={`font-bold ${sizeClasses[size]} font-highlight ${className}`}>
+      <span className="text-foreground">creAtor </span>
+      <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
         I<span className="text-[0.7em]">q</span>
       </span>
     </span>
