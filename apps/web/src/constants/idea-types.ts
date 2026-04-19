@@ -22,8 +22,8 @@ export const IDEA_STATUS_LABELS: Record<string, string> = {
 }
 
 export const IDEA_STATUS_COLORS: Record<string, string> = {
-  new: "bg-blue-700/30 text-blue-300 border-blue-700/50",
-  saved: "bg-yellow-700/30 text-yellow-300 border-yellow-700/50",
-  implemented: "bg-green-700/30 text-green-300 border-green-700/50",
+  new: "bg-blue-100 text-blue-700 border-blue-200 font-medium",
+  saved: "bg-yellow-100 text-yellow-700 border-yellow-200 font-medium",
+  implemented: "bg-emerald-100 text-emerald-700 border-emerald-200 font-medium",
 }
 

@@ -350,7 +350,7 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full bg-background/80 backdrop-blur-md border-b border-border/30 z-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between h-16">
           <Link href="/" className="transition-opacity hover:opacity-80">
-            <Logo showText={true} size="lg" textGradient={true} />
+            <Logo size="lg" />
           </Link>
           <div className="flex gap-3">
             <Link href="/login">
@@ -366,7 +366,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6 text-center">
+      <section className="pt-32 pb-24 px-6 text-center">
         <div className="max-w-5xl mx-auto">
           <h1 className="text-6xl md:text-7xl font-medium text-black mb-6 leading-[1.05] tracking-tight" style={{ fontWeight: 500 }}>
             Know what your{" "}
@@ -386,51 +386,42 @@ export default function LandingPage() {
           <p style={{ color: 'rgba(91, 91, 91, 0.6)', fontSize: '14px', fontWeight: 400 }}>No credit card required</p>
           
           {/* Stacked Image Cards (3 cards: 2 at back, 1 in front) */}
-          <div className="mt-16 max-w-5xl mx-auto relative h-[500px] md:h-[600px]">
+          <div className="mt-8 max-w-5xl mx-auto relative h-[380px] md:h-[420px]">
             {/* Back card 1 (left) */}
             <div className="absolute left-0 top-8 w-full max-w-sm aspect-[16/10] rounded-lg overflow-hidden bg-muted/30 border border-border/30 shadow-lg transform -rotate-2 opacity-60 z-0">
               <img
-                src="/carousel-1.jpg"
-                alt="Card image 1"
+                src="/card4.png"
+                alt="Creatiq feature card"
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none'
                 }}
               />
-              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm bg-background/50">
-                Image 1
-              </div>
             </div>
             
             {/* Back card 2 (right) */}
             <div className="absolute right-0 top-8 w-full max-w-sm aspect-[16/10] rounded-lg overflow-hidden bg-muted/30 border border-border/30 shadow-lg transform rotate-2 opacity-60 z-0">
               <img
-                src="/carousel-2.jpg"
-                alt="Card image 2"
+                src="/card5.png"
+                alt="Creatiq feature card"
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none'
                 }}
               />
-              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm bg-background/50">
-                Image 2
-          </div>
-        </div>
+            </div>
             
             {/* Front card (centered) */}
             <div className="absolute left-1/2 top-0 -translate-x-1/2 w-full max-w-sm aspect-[16/10] rounded-lg overflow-hidden bg-muted/30 border border-border/30 shadow-2xl z-10">
               <img
-                src="/carousel-3.jpg"
-                alt="Card image 3"
+                src="/card3.png"
+                alt="Creatiq feature card"
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none'
                 }}
               />
-              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm bg-background/50">
-                Image 3
-              </div>
-          </div>
+            </div>
           </div>
         </div>
       </section>
@@ -649,7 +640,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <Link href="/" className="inline-block mb-4">
-                <Logo showText={true} size="md" textGradient={true} />
+                <Logo size="md" />
               </Link>
               <p className="text-sm text-muted-foreground">
                 All Rights Reserved © CreatorIQ, 2025

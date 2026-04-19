@@ -117,34 +117,34 @@ export default function OnboardingPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 flex items-center justify-center px-4">
+    <main className="min-h-screen bg-paper-system flex items-center justify-center px-4">
       <div className="w-full max-w-lg">
         {/* Progress */}
         <div className="mb-8">
           <div className="flex justify-between mb-4">
             {[1, 2, 3].map((s) => (
-              <div key={s} className={`h-2 flex-1 mx-1 rounded ${s <= step ? "bg-blue-500" : "bg-slate-700"}`} />
+              <div key={s} className={`h-2 flex-1 mx-1 rounded ${s <= step ? "bg-primary" : "bg-gray-200"}`} />
             ))}
           </div>
-          <p className="text-slate-400 text-sm">Step {step} of 3</p>
+          <p className="text-gray-600 text-sm">Step {step} of 3</p>
         </div>
 
-        <Card className="bg-slate-800/50 border-slate-700 p-8">
+        <Card className="bg-white border-gray-200 p-8">
           {step === 1 && (
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-white mb-6">Welcome to Creator Hub</h2>
-              <p className="text-slate-400 mb-4">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-6">Welcome to Creator Hub</h2>
+              <p className="text-gray-600 mb-4">
                 Let's set up your creator profile so your audience can discover you.
               </p>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Display Name</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Display Name</label>
                 <div className="relative">
                   <Input
                     value={formData.displayName}
                     onChange={(e) => setFormData((prev) => ({ ...prev, displayName: e.target.value }))}
                     placeholder="Your creator name"
                     className={cn(
-                      "bg-slate-900 border-slate-600 text-white pr-10",
+                      "bg-white border-gray-300 text-gray-900 pr-10",
                       formData.displayName.trim().length > 0 && displayNameValidation.isValid && "border-green-500",
                       formData.displayName.trim().length > 0 && !displayNameValidation.isValid && "border-red-500"
                     )}
@@ -175,7 +175,7 @@ export default function OnboardingPage() {
 
           {step === 2 && (
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-white mb-6">About Your Channel</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-6">About Your Channel</h2>
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Bio</label>
                 <textarea
@@ -183,9 +183,9 @@ export default function OnboardingPage() {
                   onChange={(e) => setFormData((prev) => ({ ...prev, bio: e.target.value }))}
                   placeholder="Tell us about your channel..."
                   rows={4}
-                  className="w-full bg-slate-900 border border-slate-600 text-white rounded p-3"
+                  className="w-full bg-white border border-gray-300 text-gray-900 rounded p-3"
                 />
-                <p className="text-xs text-slate-500 mt-1.5">Optional - You can add this later</p>
+                <p className="text-xs text-gray-500 mt-1.5">Optional - You can add this later</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Niche/Category</label>
@@ -195,7 +195,7 @@ export default function OnboardingPage() {
                     onChange={(e) => setFormData((prev) => ({ ...prev, niche: e.target.value }))}
                     placeholder="e.g., Gaming, Education, Music"
                     className={cn(
-                      "bg-slate-900 border-slate-600 text-white pr-10",
+                      "bg-white border-gray-300 text-gray-900 pr-10",
                       formData.niche.trim().length > 0 && nicheValidation.isValid && "border-green-500",
                       formData.niche.trim().length > 0 && !nicheValidation.isValid && "border-red-500"
                     )}
@@ -226,22 +226,22 @@ export default function OnboardingPage() {
 
           {step === 3 && (
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-white mb-6">Confirm Details</h2>
-              <div className="bg-slate-900 rounded p-4 space-y-3">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-6">Confirm Details</h2>
+              <div className="bg-gray-50 rounded p-4 space-y-3 border border-gray-200">
                 <div>
-                  <p className="text-slate-400 text-sm">Display Name</p>
-                  <p className="text-white font-medium">{formData.displayName}</p>
+                  <p className="text-gray-600 text-sm">Display Name</p>
+                  <p className="text-gray-900 font-medium">{formData.displayName}</p>
                 </div>
                 <div>
-                  <p className="text-slate-400 text-sm">Niche</p>
-                  <p className="text-white font-medium">{formData.niche}</p>
+                  <p className="text-gray-600 text-sm">Niche</p>
+                  <p className="text-gray-900 font-medium">{formData.niche}</p>
                 </div>
                 <div>
-                  <p className="text-slate-400 text-sm">Bio</p>
-                  <p className="text-white font-medium text-sm">{formData.bio || "Not provided"}</p>
+                  <p className="text-gray-600 text-sm">Bio</p>
+                  <p className="text-gray-900 font-medium text-sm">{formData.bio || "Not provided"}</p>
                 </div>
               </div>
-              <p className="text-slate-400 text-sm">You can update these details anytime in your settings.</p>
+              <p className="text-gray-600 text-sm">You can update these details anytime in your settings.</p>
             </div>
           )}
 

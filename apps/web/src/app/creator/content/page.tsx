@@ -116,7 +116,7 @@ export default function ContentPage() {
   }
 
   return (
-    <div className="space-y-8 px-6 py-8 min-h-full">
+    <div className="space-y-8 px-6 py-8 min-h-full bg-paper-system">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -130,8 +130,8 @@ export default function ContentPage() {
 
       {/* New Content Form */}
       {showNewForm && (
-        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Create New Content</h2>
+        <Card className="bg-white border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Create New Content</h2>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">Title</label>

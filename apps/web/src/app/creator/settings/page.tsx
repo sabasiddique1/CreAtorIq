@@ -115,14 +115,14 @@ export default function SettingsPage() {
 
   if (fetching) {
     return (
-      <div className="space-y-8">
+      <div className="space-y-8 px-6 py-8 min-h-full bg-paper-system">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Creator Settings</h1>
-          <p className="text-slate-400">Manage your creator profile and preferences.</p>
+          <h1 className="text-3xl font-semibold text-gray-900 mb-2 tracking-tight">Creator Settings</h1>
+          <p className="text-gray-600">Manage your creator profile and preferences.</p>
         </div>
-        <Card className="bg-slate-800/50 border-slate-700 p-6 max-w-2xl">
+        <Card className="bg-white border-gray-200 p-6 max-w-2xl">
           <div className="text-center py-8">
-            <p className="text-slate-400">Loading profile...</p>
+            <p className="text-gray-600">Loading profile...</p>
           </div>
         </Card>
       </div>
@@ -130,14 +130,14 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 px-6 py-8 min-h-full bg-paper-system">
       <div>
-        <h1 className="text-3xl font-bold text-white mb-2">Creator Settings</h1>
-        <p className="text-slate-400">Manage your creator profile and preferences.</p>
+        <h1 className="text-3xl font-semibold text-gray-900 mb-2 tracking-tight">Creator Settings</h1>
+        <p className="text-gray-600">Manage your creator profile and preferences.</p>
       </div>
 
-      <Card className="bg-slate-800/50 border-slate-700 p-6 max-w-2xl">
-        <h2 className="text-xl font-semibold text-white mb-6">Creator Profile</h2>
+      <Card className="bg-white border-gray-200 p-6 max-w-2xl">
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">Creator Profile</h2>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Display Name</label>
@@ -145,33 +145,33 @@ export default function SettingsPage() {
               value={profile.displayName}
               onChange={(e) => setProfile((prev) => ({ ...prev, displayName: e.target.value }))}
               placeholder="Your display name"
-              className="bg-slate-900 border-slate-600 text-white"
+              className="bg-white border-gray-300 text-gray-900"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Bio</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
             <textarea
               value={profile.bio}
               onChange={(e) => setProfile((prev) => ({ ...prev, bio: e.target.value }))}
               placeholder="Tell us about yourself"
               rows={4}
-              className="w-full bg-slate-900 border border-slate-600 text-white rounded p-3"
+              className="w-full bg-white border border-gray-300 text-gray-900 rounded p-3"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Niche</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Niche</label>
             <Input
               value={profile.niche}
               onChange={(e) => setProfile((prev) => ({ ...prev, niche: e.target.value }))}
               placeholder="e.g., Tech, Gaming, Education"
-              className="bg-slate-900 border-slate-600 text-white"
+              className="bg-white border-gray-300 text-gray-900"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Primary Platform</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Primary Platform</label>
             <select
               value={profile.primaryPlatform}
               onChange={(e) => setProfile((prev) => ({ ...prev, primaryPlatform: e.target.value }))}

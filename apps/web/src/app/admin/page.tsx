@@ -123,8 +123,8 @@ function AdminDashboardContent() {
     <div className="h-full overflow-y-auto">
       <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-        <p className="text-slate-400">Platform overview and key metrics</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+        <p className="text-gray-600">Platform overview and key metrics</p>
       </div>
 
       {/* Stats Grid */}
@@ -133,11 +133,11 @@ function AdminDashboardContent() {
           const Icon = stat.icon
           const value = stats?.[stat.key as keyof PlatformStats] as number || 0
           return (
-            <Card key={stat.key} className="bg-slate-800/50 border-slate-700 p-6">
+            <Card key={stat.key} className="bg-white border-gray-200 p-6 hover:border-primary/30 hover:shadow-md transition-all">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-slate-400 text-sm mb-1">{stat.label}</p>
-                  <p className="text-3xl font-bold text-white">{value}</p>
+                  <p className="text-gray-600 text-sm mb-1">{stat.label}</p>
+                  <p className="text-3xl font-bold text-gray-900">{value}</p>
                 </div>
                 <Icon className={`w-10 h-10 ${stat.iconColor} opacity-60`} />
               </div>
@@ -148,13 +148,13 @@ function AdminDashboardContent() {
 
       {/* Users by Role */}
       {stats?.usersByRole && (
-        <Card className="bg-slate-800/50 border-slate-700 p-6 mb-8">
-          <h2 className="text-xl font-semibold text-white mb-4">Users by Role</h2>
+        <Card className="bg-white border-gray-200 p-6 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Users by Role</h2>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {Object.entries(stats.usersByRole).map(([role, count]) => (
               <div key={role} className="text-center">
-                <p className="text-slate-400 text-sm mb-1">{role.replace("SUBSCRIBER_", "Sub ")}</p>
-                <p className="text-2xl font-bold text-white">{count}</p>
+                <p className="text-gray-600 text-sm mb-1">{role.replace("SUBSCRIBER_", "Sub ")}</p>
+                <p className="text-2xl font-bold text-gray-900">{count}</p>
               </div>
             ))}
           </div>
@@ -162,12 +162,12 @@ function AdminDashboardContent() {
       )}
 
       {/* Recent Users */}
-      <Card className="bg-slate-800/50 border-slate-700 p-6 mb-8">
+      <Card className="bg-white border-gray-200 p-6 mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-white">Recent Users</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Recent Users</h2>
           <Link
             href="/admin/users"
-            className="text-blue-400 hover:text-blue-300 text-sm font-medium"
+            className="text-primary hover:text-primary/80 text-sm font-medium"
           >
             View All →
           </Link>
@@ -177,25 +177,25 @@ function AdminDashboardContent() {
             {recentUsers.map((user) => (
               <div
                 key={user._id}
-                className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg"
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-[lab(33_35.57_-75.79)] rounded-full flex items-center justify-center">
-                    <Users className="w-5 h-5 text-white" />
+                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                    <Users className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-white font-medium">{user.name}</p>
-                    <div className="flex items-center gap-2 text-slate-400 text-sm">
+                    <p className="text-gray-900 font-medium">{user.name}</p>
+                    <div className="flex items-center gap-2 text-gray-600 text-sm">
                       <Mail className="w-3 h-3" />
                       <span>{user.email}</span>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="px-2 py-1 bg-slate-700 text-slate-300 text-xs rounded">
+                  <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full font-medium">
                     {user.role.replace("SUBSCRIBER_", "Sub ")}
                   </span>
-                  <div className="flex items-center gap-1 text-slate-500 text-xs">
+                  <div className="flex items-center gap-1 text-gray-500 text-xs">
                     <Calendar className="w-3 h-3" />
                     {new Date(user.createdAt).toLocaleDateString()}
                   </div>
@@ -204,17 +204,17 @@ function AdminDashboardContent() {
             ))}
           </div>
         ) : (
-          <p className="text-slate-400 text-center py-4">No users yet</p>
+          <p className="text-gray-600 text-center py-4">No users yet</p>
         )}
       </Card>
 
       {/* Recent Content */}
-      <Card className="bg-slate-800/50 border-slate-700 p-6 mb-8">
+      <Card className="bg-white border-gray-200 p-6 mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-white">Recent Content</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Recent Content</h2>
           <Link
             href="/admin/content"
-            className="text-blue-400 hover:text-blue-300 text-sm font-medium"
+            className="text-primary hover:text-primary/80 text-sm font-medium"
           >
             View All →
           </Link>
@@ -224,29 +224,29 @@ function AdminDashboardContent() {
             {recentContent.map((item) => (
               <div
                 key={item._id}
-                className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg"
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
               >
                 <div className="flex-1">
-                  <p className="text-white font-medium mb-1">{item.title}</p>
-                  <div className="flex items-center gap-2 text-slate-400 text-sm">
-                    <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-xs rounded">
+                  <p className="text-gray-900 font-medium mb-1">{item.title}</p>
+                  <div className="flex items-center gap-2 text-gray-600 text-sm">
+                    <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded-full font-medium">
                       {item.type}
                     </span>
                     <span
-                      className={`px-2 py-0.5 text-xs rounded ${
+                      className={`px-2 py-0.5 text-xs rounded-full font-medium ${
                         item.status === "published"
-                          ? "bg-emerald-500/20 text-emerald-400"
-                          : "bg-slate-500/20 text-slate-400"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-gray-100 text-gray-600"
                       }`}
                     >
                       {item.status}
                     </span>
                     {item.creator?.displayName && (
-                      <span className="text-slate-500">by {item.creator.displayName}</span>
+                      <span className="text-gray-500">by {item.creator.displayName}</span>
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-1 text-slate-500 text-xs ml-4">
+                <div className="flex items-center gap-1 text-gray-500 text-xs ml-4">
                   <Calendar className="w-3 h-3" />
                   {new Date(item.createdAt).toLocaleDateString()}
                 </div>
@@ -254,20 +254,20 @@ function AdminDashboardContent() {
             ))}
           </div>
         ) : (
-          <p className="text-slate-400 text-center py-4">No content yet</p>
+          <p className="text-gray-600 text-center py-4">No content yet</p>
         )}
       </Card>
 
       {/* System Status */}
-      <Card className="bg-slate-800/50 border-slate-700 p-6">
+      <Card className="bg-white border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-white mb-2">System Status</h2>
-            <p className="text-slate-400">All systems operational</p>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">System Status</h2>
+            <p className="text-gray-600">All systems operational</p>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
-            <span className="text-emerald-400 font-semibold">Healthy</span>
+            <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
+            <span className="text-emerald-600 font-semibold">Healthy</span>
           </div>
         </div>
       </Card>
@@ -281,7 +281,7 @@ export default function AdminDashboard() {
     <Suspense fallback={
       <div className="p-8">
         <div className="text-center py-12">
-          <p className="text-slate-400">Loading...</p>
+          <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     }>

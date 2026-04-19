@@ -459,7 +459,7 @@ export default function AudiencePage() {
   }
 
   return (
-    <div className="space-y-8 px-6 py-8 min-h-full">
+    <div className="space-y-8 px-6 py-8 min-h-full bg-paper-system">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-semibold text-foreground mb-2 tracking-tight">Audience & Sentiment</h1>
@@ -467,8 +467,8 @@ export default function AudiencePage() {
       </div>
 
       {/* Import Section */}
-      <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-8 shadow-sm">
-        <h2 className="text-xl font-semibold text-foreground mb-6">Import Comments</h2>
+      <Card className="bg-white border-gray-200 p-8 shadow-sm">
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">Import Comments</h2>
         <div className="grid md:grid-cols-2 gap-4 mb-6">
           <button
             onClick={() => setImportMode(importMode === "paste" ? null : "paste")}

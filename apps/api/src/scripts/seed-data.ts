@@ -8,6 +8,7 @@ import {
   SentimentSnapshotModel,
   SubscriberProfileModel,
   IdeaSuggestionModel,
+  ActivityEventModel,
 } from "../db/index.js"
 import { hashPassword } from "../utils/password.js"
 import { ActivityService } from "../services/activity.service.js"
@@ -15,218 +16,109 @@ import { ActivityService } from "../services/activity.service.js"
 async function seedData() {
   try {
     await connectDB()
+    console.log("🌱 Starting database seed...")
 
-    // Clear existing data (optional - uncomment to reset)
-    // await UserModel.deleteMany({})
-    // await CreatorProfileModel.deleteMany({})
-    // await ContentItemModel.deleteMany({})
-    // await SubscriberProfileModel.deleteMany({})
-    // await CommentBatchModel.deleteMany({})
-    // await SentimentSnapshotModel.deleteMany({})
-    // await IdeaSuggestionModel.deleteMany({})
+    // Clear existing data
+    console.log("🧹 Clearing existing data...")
+    await UserModel.deleteMany({})
+    await CreatorProfileModel.deleteMany({})
+    await ContentItemModel.deleteMany({})
+    await SubscriberProfileModel.deleteMany({})
+    await CommentBatchModel.deleteMany({})
+    await SentimentSnapshotModel.deleteMany({})
+    await IdeaSuggestionModel.deleteMany({})
+    // Clear activity logs
+    await ActivityEventModel.deleteMany({})
 
     // ========== USERS ==========
-    const users = []
-    const passwords = {
-      creator: await hashPassword("password123"),
-      subscriber1: await hashPassword("password123"),
-      subscriber2: await hashPassword("password123"),
-      subscriber3: await hashPassword("password123"),
-      subscriber4: await hashPassword("password123"),
-      subscriber5: await hashPassword("password123"),
-      admin: await hashPassword("admin123"),
-    }
+    console.log("👥 Creating users...")
+    const passwordHash = await hashPassword("password123")
+    const adminPasswordHash = await hashPassword("admin123")
 
     // Admin user
-    const adminUser = await UserModel.findOneAndUpdate(
-      { email: "admin@example.com" },
-      {
-        email: "admin@example.com",
-        passwordHash: passwords.admin,
-        name: "Admin User",
-        role: "ADMIN",
-      },
-      { upsert: true, new: true }
-    )
-    users.push(adminUser)
+    const adminUser = await UserModel.create({
+      email: "admin@test.com",
+      passwordHash: adminPasswordHash,
+      name: "Admin User",
+      role: "ADMIN",
+    })
+    console.log("✅ Created admin user: admin@test.com / admin123")
 
-    // Create additional admin user for testing
-    const adminUser2 = await UserModel.findOneAndUpdate(
-      { email: "admin2@example.com" },
-      {
-        email: "admin2@example.com",
-        passwordHash: passwords.admin,
-        name: "Admin User 2",
-        role: "ADMIN",
-      },
-      { upsert: true, new: true }
-    )
-    users.push(adminUser2)
-    
-    // Log admin registration activities
-    try {
-      await ActivityService.logActivity({
-        eventType: "USER_REGISTER",
-        userId: adminUser._id.toString(),
-        metadata: { role: "ADMIN" },
-      })
-      await ActivityService.logActivity({
-        eventType: "USER_REGISTER",
-        userId: adminUser2._id.toString(),
-        metadata: { role: "ADMIN" },
-      })
-    } catch (err) {
-      console.warn("Could not log admin registration activity:", err)
-    }
+    // Creator user
+    const creatorUser = await UserModel.create({
+      email: "creator@test.com",
+      passwordHash: passwordHash,
+      name: "Tech Creator",
+      role: "CREATOR",
+    })
+    console.log("✅ Created creator user: creator@test.com / password123")
 
-    // Creator 1 - Tech
-    const creator1User = await UserModel.findOneAndUpdate(
-      { email: "creator@example.com" },
-      {
-        email: "creator@example.com",
-        passwordHash: passwords.creator,
-        name: "John Creator",
-        role: "CREATOR",
-      },
-      { upsert: true, new: true }
-    )
-    users.push(creator1User)
+    // Subscriber user (T2)
+    const subscriberUser = await UserModel.create({
+      email: "subscriber@test.com",
+      passwordHash: passwordHash,
+      name: "Regular Subscriber",
+      role: "SUBSCRIBER_T2",
+    })
+    console.log("✅ Created subscriber user: subscriber@test.com / password123")
+
+    // Premium subscriber user (T3)
+    const premiumUser = await UserModel.create({
+      email: "premium@test.com",
+      passwordHash: passwordHash,
+      name: "Premium Subscriber",
+      role: "SUBSCRIBER_T3",
+    })
+    console.log("✅ Created premium user: premium@test.com / password123")
+
+    // Log user registrations
     await ActivityService.logActivity({
       eventType: "USER_REGISTER",
-      userId: creator1User._id.toString(),
-      metadata: { role: "CREATOR" },
+      userId: adminUser._id.toString(),
+      metadata: { role: "ADMIN" },
     })
-
-    // Creator 2 - Design
-    const creator2User = await UserModel.findOneAndUpdate(
-      { email: "designer@example.com" },
-      {
-        email: "designer@example.com",
-        passwordHash: passwords.creator,
-        name: "Sarah Designer",
-        role: "CREATOR",
-      },
-      { upsert: true, new: true }
-    )
-    users.push(creator2User)
     await ActivityService.logActivity({
       eventType: "USER_REGISTER",
-      userId: creator2User._id.toString(),
+      userId: creatorUser._id.toString(),
       metadata: { role: "CREATOR" },
     })
-
-    // Creator 3 - Business
-    const creator3User = await UserModel.findOneAndUpdate(
-      { email: "business@example.com" },
-      {
-        email: "business@example.com",
-        passwordHash: passwords.creator,
-        name: "Mike Business",
-        role: "CREATOR",
-      },
-      { upsert: true, new: true }
-    )
-    users.push(creator3User)
     await ActivityService.logActivity({
       eventType: "USER_REGISTER",
-      userId: creator3User._id.toString(),
-      metadata: { role: "CREATOR" },
+      userId: subscriberUser._id.toString(),
+      metadata: { role: "SUBSCRIBER_T2" },
+    })
+    await ActivityService.logActivity({
+      eventType: "USER_REGISTER",
+      userId: premiumUser._id.toString(),
+      metadata: { role: "SUBSCRIBER_T3" },
     })
 
-    // Subscriber users
-    const subscriberUsers = []
-    const subscriberData = [
-      { email: "subscriber@example.com", name: "Jane Subscriber", role: "SUBSCRIBER_T2" },
-      { email: "premium@example.com", name: "Premium User", role: "SUBSCRIBER_T3" },
-      { email: "sub1@example.com", name: "Alice Fan", role: "SUBSCRIBER_T1" },
-      { email: "sub2@example.com", name: "Bob Enthusiast", role: "SUBSCRIBER_T2" },
-      { email: "sub3@example.com", name: "Charlie Premium", role: "SUBSCRIBER_T3" },
-      { email: "sub4@example.com", name: "Diana Supporter", role: "SUBSCRIBER_T1" },
-      { email: "sub5@example.com", name: "Eve Member", role: "SUBSCRIBER_T2" },
-    ]
-
-    for (const sub of subscriberData) {
-      const subUser = await UserModel.findOneAndUpdate(
-        { email: sub.email },
-        {
-          email: sub.email,
-          passwordHash: passwords.subscriber1,
-          name: sub.name,
-          role: sub.role,
-        },
-        { upsert: true, new: true }
-      )
-      subscriberUsers.push(subUser)
-      users.push(subUser)
-      await ActivityService.logActivity({
-        eventType: "USER_REGISTER",
-        userId: subUser._id.toString(),
-        metadata: { role: sub.role },
-      })
-    }
-
-    // ========== CREATOR PROFILES ==========
-    const creator1Profile = await CreatorProfileModel.findOneAndUpdate(
-      { userId: creator1User._id },
-      {
-        userId: creator1User._id,
-        displayName: "Tech Guru",
-        bio: "I create amazing tech content and tutorials. Join me on this journey of learning and innovation!",
-        primaryPlatform: "YouTube",
-        niche: "Technology",
-      },
-      { upsert: true, new: true }
-    )
-    await ActivityService.logActivity({
-      eventType: "CREATOR_PROFILE_CREATED",
-      userId: creator1User._id.toString(),
-      creatorId: creator1Profile._id.toString(),
-      metadata: { displayName: (creator1Profile as any).displayName, niche: (creator1Profile as any).niche },
+    // ========== CREATOR PROFILE ==========
+    console.log("🎨 Creating creator profile...")
+    const creatorProfile = await CreatorProfileModel.create({
+      userId: creatorUser._id,
+      displayName: "Tech Guru",
+      bio: "I create amazing tech content and tutorials. Join me on this journey of learning and innovation!",
+      primaryPlatform: "YouTube",
+      niche: "Technology",
     })
+    console.log("✅ Created creator profile")
 
-    const creator2Profile = await CreatorProfileModel.findOneAndUpdate(
-      { userId: creator2User._id },
-      {
-        userId: creator2User._id,
-        displayName: "Design Master",
-        bio: "UI/UX design tutorials, Figma tips, and creative inspiration for designers.",
-        primaryPlatform: "YouTube",
-        niche: "Design",
-      },
-      { upsert: true, new: true }
-    )
     await ActivityService.logActivity({
       eventType: "CREATOR_PROFILE_CREATED",
-      userId: creator2User._id.toString(),
-      creatorId: creator2Profile._id.toString(),
-      metadata: { displayName: (creator2Profile as any).displayName, niche: (creator2Profile as any).niche },
-    })
-
-    const creator3Profile = await CreatorProfileModel.findOneAndUpdate(
-      { userId: creator3User._id },
-      {
-        userId: creator3User._id,
-        displayName: "Business Coach",
-        bio: "Entrepreneurship, marketing strategies, and business growth tips for startups.",
-        primaryPlatform: "YouTube",
-        niche: "Business",
-      },
-      { upsert: true, new: true }
-    )
-    await ActivityService.logActivity({
-      eventType: "CREATOR_PROFILE_CREATED",
-      userId: creator3User._id.toString(),
-      creatorId: creator3Profile._id.toString(),
-      metadata: { displayName: (creator3Profile as any).displayName, niche: (creator3Profile as any).niche },
+      userId: creatorUser._id.toString(),
+      creatorId: creatorProfile._id.toString(),
+      metadata: { displayName: creatorProfile.displayName, niche: creatorProfile.niche },
     })
 
     // ========== CONTENT ITEMS ==========
+    console.log("📝 Creating content items...")
     const contentItems = []
 
-    // Creator 1 content - Tech/Programming
-    const creator1Content = [
+    const contentData = [
+      // Free content
       {
-        creatorId: creator1Profile._id,
+        creatorId: creatorProfile._id,
         title: "Introduction to React Hooks",
         type: "video",
         isPremium: false,
@@ -235,7 +127,56 @@ async function seedData() {
         contentUrl: "https://www.youtube.com/watch?v=O6P86uwfdR0",
       },
       {
-        creatorId: creator1Profile._id,
+        creatorId: creatorProfile._id,
+        title: "JavaScript Fundamentals Refresher",
+        type: "video",
+        isPremium: false,
+        status: "published",
+        description: "A quick refresher on JavaScript fundamentals including closures, promises, and async/await patterns.",
+        contentUrl: "https://www.youtube.com/watch?v=PkZNo7MFNFg",
+      },
+      {
+        creatorId: creatorProfile._id,
+        title: "Weekly Tech News Roundup",
+        type: "post",
+        isPremium: false,
+        status: "published",
+        description: "This week's top tech news and updates from the developer world. Stay informed about the latest trends and technologies.",
+        contentUrl: "https://medium.com/tag/technology",
+      },
+      {
+        creatorId: creatorProfile._id,
+        title: "Getting Started with TypeScript",
+        type: "video",
+        isPremium: false,
+        status: "published",
+        description: "Learn TypeScript from scratch. Understand types, interfaces, and how to use TypeScript in your projects.",
+        contentUrl: "https://www.youtube.com/watch?v=ahCwqrYpIuM",
+      },
+      // T1 Premium content
+      {
+        creatorId: creatorProfile._id,
+        title: "GraphQL API Design",
+        type: "course",
+        isPremium: true,
+        requiredTier: "T1",
+        status: "published",
+        description: "Learn how to design and implement GraphQL APIs. Covers schema design, resolvers, and best practices.",
+        contentUrl: "https://www.udemy.com/course/graphql-bootcamp/",
+      },
+      {
+        creatorId: creatorProfile._id,
+        title: "Node.js Basics for Beginners",
+        type: "course",
+        isPremium: true,
+        requiredTier: "T1",
+        status: "published",
+        description: "Complete introduction to Node.js. Learn to build server-side applications with JavaScript.",
+        contentUrl: "https://www.udemy.com/course/nodejs-basics/",
+      },
+      // T2 Premium content
+      {
+        creatorId: creatorProfile._id,
         title: "Advanced TypeScript Patterns",
         type: "course",
         isPremium: true,
@@ -245,26 +186,7 @@ async function seedData() {
         contentUrl: "https://www.udemy.com/course/typescript-the-complete-developers-guide/",
       },
       {
-        creatorId: creator1Profile._id,
-        title: "Building Full-Stack Apps with Next.js",
-        type: "course",
-        isPremium: true,
-        requiredTier: "T3",
-        status: "published",
-        description: "Complete guide to building production-ready full-stack applications with Next.js 14, including authentication, database integration, and deployment.",
-        contentUrl: "https://www.udemy.com/course/nextjs-full-stack-app-development/",
-      },
-      {
-        creatorId: creator1Profile._id,
-        title: "Weekly Tech News Roundup",
-        type: "post",
-        isPremium: false,
-        status: "published",
-        description: "This week's top tech news and updates from the developer world. Stay informed about the latest trends and technologies.",
-        contentUrl: "https://medium.com/tag/technology",
-      },
-      {
-        creatorId: creator1Profile._id,
+        creatorId: creatorProfile._id,
         title: "Node.js Performance Optimization",
         type: "video",
         isPremium: true,
@@ -274,7 +196,28 @@ async function seedData() {
         contentUrl: "https://www.youtube.com/watch?v=3aGSqasVPsI",
       },
       {
-        creatorId: creator1Profile._id,
+        creatorId: creatorProfile._id,
+        title: "Building RESTful APIs",
+        type: "course",
+        isPremium: true,
+        requiredTier: "T2",
+        status: "published",
+        description: "Learn to build robust REST APIs with Express.js. Authentication, validation, error handling, and testing.",
+        contentUrl: "https://www.udemy.com/course/rest-api-development/",
+      },
+      // T3 Premium content
+      {
+        creatorId: creatorProfile._id,
+        title: "Building Full-Stack Apps with Next.js",
+        type: "course",
+        isPremium: true,
+        requiredTier: "T3",
+        status: "published",
+        description: "Complete guide to building production-ready full-stack applications with Next.js 14, including authentication, database integration, and deployment.",
+        contentUrl: "https://www.udemy.com/course/nextjs-full-stack-app-development/",
+      },
+      {
+        creatorId: creatorProfile._id,
         title: "Docker for Developers",
         type: "course",
         isPremium: true,
@@ -284,165 +227,38 @@ async function seedData() {
         contentUrl: "https://www.udemy.com/course/docker-mastery/",
       },
       {
-        creatorId: creator1Profile._id,
-        title: "JavaScript Fundamentals Refresher",
-        type: "video",
-        isPremium: false,
-        status: "published",
-        description: "A quick refresher on JavaScript fundamentals including closures, promises, and async/await patterns.",
-        contentUrl: "https://www.youtube.com/watch?v=PkZNo7MFNFg",
-      },
-      {
-        creatorId: creator1Profile._id,
-        title: "GraphQL API Design",
-        type: "course",
-        isPremium: true,
-        requiredTier: "T1",
-        status: "published",
-        description: "Learn how to design and implement GraphQL APIs. Covers schema design, resolvers, and best practices.",
-        contentUrl: "https://www.udemy.com/course/graphql-bootcamp/",
-      },
-    ]
-
-    // Creator 2 content - Design/UI
-    const creator2Content = [
-      {
-        creatorId: creator2Profile._id,
-        title: "Figma Design System Tutorial",
-        type: "video",
-        isPremium: false,
-        status: "published",
-        description: "Learn how to create and maintain design systems in Figma. Build scalable component libraries and design tokens.",
-        contentUrl: "https://www.youtube.com/watch?v=FTFaQWZBqQ8",
-      },
-      {
-        creatorId: creator2Profile._id,
-        title: "UI Animation Principles",
-        type: "course",
-        isPremium: true,
-        requiredTier: "T2",
-        status: "published",
-        description: "Master the art of UI animations and micro-interactions. Learn Framer Motion, CSS animations, and motion design principles.",
-        contentUrl: "https://www.udemy.com/course/ui-animation-with-framer-motion/",
-      },
-      {
-        creatorId: creator2Profile._id,
-        title: "Color Theory for Designers",
-        type: "video",
-        isPremium: false,
-        status: "published",
-        description: "Understanding color psychology and application in design. Learn how to choose color palettes that work.",
-        contentUrl: "https://www.youtube.com/watch?v=Qj1FKgE8Mxo",
-      },
-      {
-        creatorId: creator2Profile._id,
-        title: "Responsive Design Masterclass",
-        type: "course",
-        isPremium: true,
-        requiredTier: "T1",
-        status: "published",
-        description: "Complete guide to responsive design. Learn mobile-first approaches, breakpoints, and flexible layouts.",
-        contentUrl: "https://www.udemy.com/course/responsive-web-design-html5-css3-bootstrap/",
-      },
-      {
-        creatorId: creator2Profile._id,
-        title: "Typography Essentials",
-        type: "video",
-        isPremium: false,
-        status: "published",
-        description: "Essential typography principles for digital design. Font pairing, hierarchy, and readability tips.",
-        contentUrl: "https://www.youtube.com/watch?v=sByzHoiYFX0",
-      },
-      {
-        creatorId: creator2Profile._id,
-        title: "Advanced Prototyping in Figma",
+        creatorId: creatorProfile._id,
+        title: "Microservices Architecture",
         type: "course",
         isPremium: true,
         requiredTier: "T3",
         status: "published",
-        description: "Take your Figma prototypes to the next level. Learn advanced interactions, animations, and user testing techniques.",
-        contentUrl: "https://www.udemy.com/course/figma-advanced-prototyping/",
+        description: "Learn to design and implement microservices architectures. Service communication, deployment, and monitoring.",
+        contentUrl: "https://www.udemy.com/course/microservices-architecture/",
       },
-    ]
-
-    // Creator 3 content - Business/Marketing
-    const creator3Content = [
+      // Draft content
       {
-        creatorId: creator3Profile._id,
-        title: "Startup Funding Strategies",
-        type: "video",
-        isPremium: false,
-        status: "published",
-        description: "How to secure funding for your startup. Learn about angel investors, VC funding, and bootstrapping strategies.",
-        contentUrl: "https://www.youtube.com/watch?v=6reLWfFNer0",
-      },
-      {
-        creatorId: creator3Profile._id,
-        title: "Digital Marketing Masterclass",
-        type: "course",
-        isPremium: true,
-        requiredTier: "T3",
-        status: "published",
-        description: "Complete guide to digital marketing and growth hacking. SEO, social media marketing, email campaigns, and analytics.",
-        contentUrl: "https://www.udemy.com/course/learn-digital-marketing-course/",
-      },
-      {
-        creatorId: creator3Profile._id,
-        title: "Building Your Personal Brand",
+        creatorId: creatorProfile._id,
+        title: "Advanced React Patterns (Coming Soon)",
         type: "video",
         isPremium: true,
         requiredTier: "T2",
-        status: "published",
-        description: "Strategies for building a strong personal brand online. Content creation, networking, and thought leadership.",
-        contentUrl: "https://www.youtube.com/watch?v=Zk9J5xnTVMA",
-      },
-      {
-        creatorId: creator3Profile._id,
-        title: "Product Launch Checklist",
-        type: "post",
-        isPremium: false,
-        status: "published",
-        description: "Essential checklist for launching your product successfully. Pre-launch, launch day, and post-launch strategies.",
-        contentUrl: "https://medium.com/tag/product-launch",
-      },
-      {
-        creatorId: creator3Profile._id,
-        title: "Sales Funnel Optimization",
-        type: "course",
-        isPremium: true,
-        requiredTier: "T1",
-        status: "published",
-        description: "Learn how to optimize your sales funnel for maximum conversions. A/B testing, landing pages, and conversion optimization.",
-        contentUrl: "https://www.udemy.com/course/sales-funnel-optimization/",
-      },
-      {
-        creatorId: creator3Profile._id,
-        title: "Social Media Strategy for Businesses",
-        type: "video",
-        isPremium: true,
-        requiredTier: "T2",
-        status: "published",
-        description: "Develop a winning social media strategy for your business. Content planning, engagement tactics, and platform selection.",
-        contentUrl: "https://www.youtube.com/watch?v=Zk9J5xnTVMA",
+        status: "draft",
+        description: "Deep dive into advanced React patterns and performance optimization techniques.",
+        contentUrl: "",
       },
     ]
 
-    for (const item of [...creator1Content, ...creator2Content, ...creator3Content]) {
-      const created = await ContentItemModel.findOneAndUpdate(
-        { creatorId: item.creatorId, title: item.title },
-        item,
-        { upsert: true, new: true }
-      )
+    for (const item of contentData) {
+      const created = await ContentItemModel.create(item)
       contentItems.push(created)
-      
-      // Log content creation activity
+
       await ActivityService.logActivity({
         eventType: "CONTENT_CREATED",
         creatorId: item.creatorId.toString(),
         metadata: { contentId: created._id.toString(), title: item.title, type: item.type },
       })
-      
-      // Log content published activity if status is published
+
       if (item.status === "published") {
         await ActivityService.logActivity({
           eventType: "CONTENT_PUBLISHED",
@@ -451,48 +267,50 @@ async function seedData() {
         })
       }
     }
+    console.log(`✅ Created ${contentItems.length} content items`)
 
     // ========== SUBSCRIBERS ==========
+    console.log("👥 Creating subscriptions...")
     const subscribers = []
-    const subscriberProfiles = [
-      { user: subscriberUsers[0], creator: creator1Profile, tier: "T2" },
-      { user: subscriberUsers[1], creator: creator1Profile, tier: "T3" }, // Premium user - T3
-      { user: subscriberUsers[2], creator: creator1Profile, tier: "T1" },
-      { user: subscriberUsers[3], creator: creator1Profile, tier: "T2" },
-      { user: subscriberUsers[4], creator: creator1Profile, tier: "T3" },
-      { user: subscriberUsers[5], creator: creator2Profile, tier: "T1" },
-      { user: subscriberUsers[6], creator: creator2Profile, tier: "T2" },
-      { user: subscriberUsers[0], creator: creator2Profile, tier: "T1" },
-      { user: subscriberUsers[1], creator: creator2Profile, tier: "T3" }, // Premium user - T3 to creator 2
-      { user: subscriberUsers[1], creator: creator3Profile, tier: "T3" }, // Premium user - T3 to creator 3
-    ]
 
-    for (const sub of subscriberProfiles) {
-      const subscriber = await SubscriberProfileModel.findOneAndUpdate(
-        { userId: sub.user._id, creatorId: sub.creator._id },
-        {
-          userId: sub.user._id,
-          creatorId: sub.creator._id,
-          tier: sub.tier,
-          joinedAt: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000), // Random date in last 90 days
-        },
-        { upsert: true, new: true }
-      )
-      subscribers.push(subscriber)
-      await ActivityService.logActivity({
-        eventType: "SUBSCRIBER_JOINED",
-        userId: sub.user._id.toString(),
-        creatorId: sub.creator._id.toString(),
-        metadata: { tier: sub.tier },
-      })
-    }
+    // Regular subscriber (T2) - subscribed to creator
+    const subscriber1 = await SubscriberProfileModel.create({
+      userId: subscriberUser._id,
+      creatorId: creatorProfile._id,
+      tier: "T2",
+      joinedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+    })
+    subscribers.push(subscriber1)
+    await ActivityService.logActivity({
+      eventType: "SUBSCRIBER_JOINED",
+      userId: subscriberUser._id.toString(),
+      creatorId: creatorProfile._id.toString(),
+      metadata: { tier: "T2" },
+    })
+
+    // Premium subscriber (T3) - subscribed to creator
+    const subscriber2 = await SubscriberProfileModel.create({
+      userId: premiumUser._id,
+      creatorId: creatorProfile._id,
+      tier: "T3",
+      joinedAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000), // 60 days ago
+    })
+    subscribers.push(subscriber2)
+    await ActivityService.logActivity({
+      eventType: "SUBSCRIBER_JOINED",
+      userId: premiumUser._id.toString(),
+      creatorId: creatorProfile._id.toString(),
+      metadata: { tier: "T3" },
+    })
+    console.log("✅ Created subscriptions")
 
     // ========== COMMENT BATCHES ==========
+    console.log("💬 Creating comment batches...")
     const commentBatches = []
 
-    // Creator 1 comment batches
+    // Batch 1 - Recent comments
     const batch1 = await CommentBatchModel.create({
-      creatorId: creator1Profile._id,
+      creatorId: creatorProfile._id,
       source: "MANUAL_PASTE",
       rawComments: [
         { author: "user1", text: "Great video! Really helped me understand React Hooks", timestamp: new Date() },
@@ -502,119 +320,134 @@ async function seedData() {
         { author: "user5", text: "The TypeScript course is excellent!", timestamp: new Date() },
         { author: "user6", text: "More advanced topics please!", timestamp: new Date() },
         { author: "user7", text: "Your explanations are so clear", timestamp: new Date() },
+        { author: "user8", text: "When is the next course coming?", timestamp: new Date() },
+        { author: "user9", text: "This changed my development workflow", timestamp: new Date() },
+        { author: "user10", text: "Can you cover Docker in more detail?", timestamp: new Date() },
       ],
-      importedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+      importedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
       linkedContentItemId: contentItems[0]._id,
     })
     commentBatches.push(batch1)
 
+    // Batch 2 - YouTube comments
     const batch2 = await CommentBatchModel.create({
-      creatorId: creator1Profile._id,
+      creatorId: creatorProfile._id,
       source: "YouTube",
       rawComments: [
         { author: "viewer1", text: "This changed my development workflow completely", timestamp: new Date() },
         { author: "viewer2", text: "Can you do a deep dive on performance?", timestamp: new Date() },
         { author: "viewer3", text: "Subscribed! Amazing content", timestamp: new Date() },
+        { author: "viewer4", text: "More microservices content please", timestamp: new Date() },
+        { author: "viewer5", text: "Your teaching style is perfect", timestamp: new Date() },
       ],
-      importedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      importedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+      linkedContentItemId: contentItems[1]._id,
     })
     commentBatches.push(batch2)
-    await ActivityService.logActivity({
-      eventType: "COMMENT_BATCH_IMPORTED",
-      creatorId: creator1Profile._id.toString(),
-      metadata: { batchId: batch2._id.toString(), commentCount: ((batch2 as any).rawComments || []).length },
-    })
 
-    // Creator 2 comment batch
+    // Batch 3 - Older comments
     const batch3 = await CommentBatchModel.create({
-      creatorId: creator2Profile._id,
+      creatorId: creatorProfile._id,
       source: "MANUAL_PASTE",
       rawComments: [
-        { author: "designer1", text: "Love your Figma tutorials!", timestamp: new Date() },
-        { author: "designer2", text: "Can you cover accessibility in design?", timestamp: new Date() },
-        { author: "designer3", text: "Your design system approach is brilliant", timestamp: new Date() },
+        { author: "fan1", text: "Best tutorial series I've watched", timestamp: new Date() },
+        { author: "fan2", text: "When will you cover GraphQL?", timestamp: new Date() },
+        { author: "fan3", text: "Love the practical examples", timestamp: new Date() },
+        { author: "fan4", text: "Can you make a course on testing?", timestamp: new Date() },
+        { author: "fan5", text: "Your content is always top-notch", timestamp: new Date() },
       ],
-      importedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      importedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
     })
     commentBatches.push(batch3)
-    await ActivityService.logActivity({
-      eventType: "COMMENT_BATCH_IMPORTED",
-      creatorId: creator2Profile._id.toString(),
-      metadata: { batchId: batch3._id.toString(), commentCount: ((batch3 as any).rawComments || []).length },
-    })
 
+    for (const batch of commentBatches) {
+      await ActivityService.logActivity({
+        eventType: "COMMENT_BATCH_IMPORTED",
+        creatorId: creatorProfile._id.toString(),
+        metadata: { batchId: batch._id.toString(), commentCount: batch.rawComments.length },
+      })
+    }
+    console.log(`✅ Created ${commentBatches.length} comment batches`)
 
     // ========== SENTIMENT SNAPSHOTS ==========
+    console.log("📊 Creating sentiment snapshots...")
     const sentimentSnapshots = []
 
     const snapshot1 = await SentimentSnapshotModel.create({
-      creatorId: creator1Profile._id,
+      creatorId: creatorProfile._id,
       commentBatchId: batch1._id,
       timeRangeStart: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
       timeRangeEnd: new Date(),
-      overallSentimentScore: 0.85,
-      positiveCount: 6,
+      overallSentimentScore: 0.88,
+      positiveCount: 9,
       negativeCount: 0,
       neutralCount: 1,
-      topKeywords: ["React", "Hooks", "TypeScript", "Next.js", "tutorial", "performance"],
-      topRequests: ["Next.js 14 video", "More TypeScript content", "Advanced patterns", "Performance deep dive"],
+      topKeywords: ["React", "Hooks", "TypeScript", "Next.js", "tutorial", "performance", "Docker", "course"],
+      topRequests: ["Next.js 14 video", "More TypeScript content", "Advanced patterns", "Performance deep dive", "Docker tutorial"],
       byTier: [
-        { tier: "T1", sentimentScore: 0.8, positiveCount: 2, negativeCount: 0 },
-        { tier: "T2", sentimentScore: 0.9, positiveCount: 3, negativeCount: 0 },
-        { tier: "T3", sentimentScore: 0.85, positiveCount: 1, negativeCount: 0 },
+        { tier: "T1", sentimentScore: 0.85, positiveCount: 3, negativeCount: 0 },
+        { tier: "T2", sentimentScore: 0.90, positiveCount: 4, negativeCount: 0 },
+        { tier: "T3", sentimentScore: 0.88, positiveCount: 2, negativeCount: 0 },
       ],
     })
     sentimentSnapshots.push(snapshot1)
     await ActivityService.logActivity({
       eventType: "SENTIMENT_ANALYZED",
-      creatorId: creator1Profile._id.toString(),
-      metadata: { snapshotId: snapshot1._id.toString(), sentimentScore: (snapshot1 as any).overallSentimentScore },
+      creatorId: creatorProfile._id.toString(),
+      metadata: { snapshotId: snapshot1._id.toString(), sentimentScore: snapshot1.overallSentimentScore },
     })
 
     const snapshot2 = await SentimentSnapshotModel.create({
-      creatorId: creator1Profile._id,
+      creatorId: creatorProfile._id,
       commentBatchId: batch2._id,
-      timeRangeStart: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      timeRangeStart: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
       timeRangeEnd: new Date(),
       overallSentimentScore: 0.92,
-      positiveCount: 3,
+      positiveCount: 5,
       negativeCount: 0,
       neutralCount: 0,
-      topKeywords: ["workflow", "performance", "development"],
-      topRequests: ["Performance deep dive", "More tutorials"],
+      topKeywords: ["workflow", "performance", "development", "microservices", "teaching"],
+      topRequests: ["Performance deep dive", "More tutorials", "Microservices content"],
+      byTier: [
+        { tier: "T1", sentimentScore: 0.90, positiveCount: 1, negativeCount: 0 },
+        { tier: "T2", sentimentScore: 0.93, positiveCount: 2, negativeCount: 0 },
+        { tier: "T3", sentimentScore: 0.92, positiveCount: 2, negativeCount: 0 },
+      ],
     })
     sentimentSnapshots.push(snapshot2)
     await ActivityService.logActivity({
       eventType: "SENTIMENT_ANALYZED",
-      creatorId: creator1Profile._id.toString(),
-      metadata: { snapshotId: snapshot2._id.toString(), sentimentScore: (snapshot2 as any).overallSentimentScore },
+      creatorId: creatorProfile._id.toString(),
+      metadata: { snapshotId: snapshot2._id.toString(), sentimentScore: snapshot2.overallSentimentScore },
     })
 
     const snapshot3 = await SentimentSnapshotModel.create({
-      creatorId: creator2Profile._id,
+      creatorId: creatorProfile._id,
       commentBatchId: batch3._id,
-      timeRangeStart: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-      timeRangeEnd: new Date(),
-      overallSentimentScore: 0.88,
-      positiveCount: 3,
+      timeRangeStart: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+      timeRangeEnd: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+      overallSentimentScore: 0.85,
+      positiveCount: 5,
       negativeCount: 0,
       neutralCount: 0,
-      topKeywords: ["Figma", "accessibility", "design system"],
-      topRequests: ["Accessibility in design", "More design system content"],
+      topKeywords: ["tutorial", "GraphQL", "examples", "testing", "content"],
+      topRequests: ["GraphQL course", "Testing course", "More practical examples"],
     })
     sentimentSnapshots.push(snapshot3)
     await ActivityService.logActivity({
       eventType: "SENTIMENT_ANALYZED",
-      creatorId: creator2Profile._id.toString(),
-      metadata: { snapshotId: snapshot3._id.toString(), sentimentScore: (snapshot3 as any).overallSentimentScore },
+      creatorId: creatorProfile._id.toString(),
+      metadata: { snapshotId: snapshot3._id.toString(), sentimentScore: snapshot3.overallSentimentScore },
     })
-
+    console.log(`✅ Created ${sentimentSnapshots.length} sentiment snapshots`)
 
     // ========== IDEA SUGGESTIONS ==========
+    console.log("💡 Creating idea suggestions...")
     const ideas = []
 
+    // New ideas
     const idea1 = await IdeaSuggestionModel.create({
-      creatorId: creator1Profile._id,
+      creatorId: creatorProfile._id,
       sourceSnapshotId: snapshot1._id,
       tierTarget: "all",
       ideaType: "video",
@@ -632,12 +465,12 @@ async function seedData() {
     ideas.push(idea1)
     await ActivityService.logActivity({
       eventType: "IDEAS_GENERATED",
-      creatorId: creator1Profile._id.toString(),
-      metadata: { ideaId: idea1._id.toString(), ideaType: (idea1 as any).ideaType, title: (idea1 as any).title },
+      creatorId: creatorProfile._id.toString(),
+      metadata: { ideaId: idea1._id.toString(), ideaType: idea1.ideaType, title: idea1.title },
     })
 
     const idea2 = await IdeaSuggestionModel.create({
-      creatorId: creator1Profile._id,
+      creatorId: creatorProfile._id,
       sourceSnapshotId: snapshot1._id,
       tierTarget: "T2",
       ideaType: "mini-course",
@@ -655,37 +488,111 @@ async function seedData() {
     ideas.push(idea2)
     await ActivityService.logActivity({
       eventType: "IDEAS_GENERATED",
-      creatorId: creator1Profile._id.toString(),
-      metadata: { ideaId: idea2._id.toString(), ideaType: (idea2 as any).ideaType, title: (idea2 as any).title },
+      creatorId: creatorProfile._id.toString(),
+      metadata: { ideaId: idea2._id.toString(), ideaType: idea2.ideaType, title: idea2.title },
     })
 
+    // Saved ideas
     const idea3 = await IdeaSuggestionModel.create({
-      creatorId: creator2Profile._id,
-      sourceSnapshotId: snapshot3._id,
-      tierTarget: "all",
-      ideaType: "video",
-      title: "Accessibility in Modern UI Design",
-      description: "Your audience is interested in accessibility. Create content that helps designers build inclusive interfaces.",
+      creatorId: creatorProfile._id,
+      sourceSnapshotId: snapshot2._id,
+      tierTarget: "T3",
+      ideaType: "mini-course",
+      title: "Docker & Containerization Deep Dive",
+      description: "Your premium subscribers are interested in Docker. Create an advanced course covering Docker, Docker Compose, and Kubernetes.",
       outline: [
-        "WCAG guidelines overview",
-        "Color contrast and readability",
-        "Keyboard navigation patterns",
-        "Screen reader considerations",
-        "Testing for accessibility",
+        "Docker fundamentals",
+        "Docker Compose for multi-container apps",
+        "Container orchestration with Kubernetes",
+        "Production deployment strategies",
+        "Best practices and security",
       ],
-      status: "new",
+      status: "saved",
     })
     ideas.push(idea3)
     await ActivityService.logActivity({
       eventType: "IDEAS_GENERATED",
-      creatorId: creator2Profile._id.toString(),
-      metadata: { ideaId: idea3._id.toString(), ideaType: (idea3 as any).ideaType, title: (idea3 as any).title },
+      creatorId: creatorProfile._id.toString(),
+      metadata: { ideaId: idea3._id.toString(), ideaType: idea3.ideaType, title: idea3.title },
     })
 
+    const idea4 = await IdeaSuggestionModel.create({
+      creatorId: creatorProfile._id,
+      sourceSnapshotId: snapshot2._id,
+      tierTarget: "all",
+      ideaType: "video",
+      title: "Performance Optimization Techniques",
+      description: "Your audience wants a deep dive on performance. Create a comprehensive video covering all optimization techniques.",
+      outline: [
+        "Code splitting and lazy loading",
+        "Caching strategies",
+        "Database query optimization",
+        "CDN and asset optimization",
+        "Monitoring and profiling",
+      ],
+      status: "saved",
+    })
+    ideas.push(idea4)
+    await ActivityService.logActivity({
+      eventType: "IDEAS_GENERATED",
+      creatorId: creatorProfile._id.toString(),
+      metadata: { ideaId: idea4._id.toString(), ideaType: idea4.ideaType, title: idea4.title },
+    })
+
+    // Implemented ideas
+    const idea5 = await IdeaSuggestionModel.create({
+      creatorId: creatorProfile._id,
+      sourceSnapshotId: snapshot3._id,
+      tierTarget: "T1",
+      ideaType: "mini-course",
+      title: "GraphQL API Design",
+      description: "GraphQL course based on audience requests. This has been implemented.",
+      outline: [
+        "GraphQL schema design",
+        "Resolvers and queries",
+        "Mutations and subscriptions",
+        "Authentication and authorization",
+        "Best practices",
+      ],
+      status: "implemented",
+    })
+    ideas.push(idea5)
+    await ActivityService.logActivity({
+      eventType: "IDEAS_GENERATED",
+      creatorId: creatorProfile._id.toString(),
+      metadata: { ideaId: idea5._id.toString(), ideaType: idea5.ideaType, title: idea5.title },
+    })
+
+    const idea6 = await IdeaSuggestionModel.create({
+      creatorId: creatorProfile._id,
+      sourceSnapshotId: snapshot3._id,
+      tierTarget: "all",
+      ideaType: "video",
+      title: "Testing Best Practices",
+      description: "Testing course requested by audience. This has been implemented.",
+      outline: [
+        "Unit testing fundamentals",
+        "Integration testing",
+        "E2E testing strategies",
+        "Test coverage and quality",
+        "CI/CD integration",
+      ],
+      status: "implemented",
+    })
+    ideas.push(idea6)
+    await ActivityService.logActivity({
+      eventType: "IDEAS_GENERATED",
+      creatorId: creatorProfile._id.toString(),
+      metadata: { ideaId: idea6._id.toString(), ideaType: idea6.ideaType, title: idea6.title },
+    })
+    console.log(`✅ Created ${ideas.length} idea suggestions`)
 
     // ========== ADDITIONAL ACTIVITY EVENTS ==========
-    // Add some login activities
-    for (let i = 0; i < 5; i++) {
+    console.log("📋 Creating activity logs...")
+    
+    // Login activities
+    for (let i = 0; i < 10; i++) {
+      const users = [adminUser, creatorUser, subscriberUser, premiumUser]
       const randomUser = users[Math.floor(Math.random() * users.length)]
       await ActivityService.logActivity({
         eventType: "USER_LOGIN",
@@ -694,20 +601,44 @@ async function seedData() {
       })
     }
 
-    // Add some content updates
-    if (contentItems.length > 0) {
+    // Content updates
+    for (let i = 0; i < 3; i++) {
       const randomContent = contentItems[Math.floor(Math.random() * contentItems.length)]
       await ActivityService.logActivity({
         eventType: "CONTENT_UPDATED",
-        creatorId: randomContent.creatorId.toString(),
-        metadata: { contentId: randomContent._id.toString(), title: (randomContent as any).title },
+        creatorId: creatorProfile._id.toString(),
+        metadata: { contentId: randomContent._id.toString(), title: randomContent.title },
       })
     }
 
-    const activityCount = await ActivityService.getActivities({ limit: 1000 })
+    // Batch analyzed activities
+    for (const batch of commentBatches) {
+      await ActivityService.logActivity({
+        eventType: "BATCH_ANALYZED",
+        creatorId: creatorProfile._id.toString(),
+        metadata: { batchId: batch._id.toString() },
+      })
+    }
+
+    console.log("✅ Created activity logs")
 
     // ========== SUMMARY ==========
-
+    console.log("\n" + "=".repeat(50))
+    console.log("✅ SEED COMPLETE!")
+    console.log("=".repeat(50))
+    console.log("\n📝 Test Accounts:")
+    console.log("  Admin:     admin@test.com / admin123")
+    console.log("  Creator:   creator@test.com / password123")
+    console.log("  Subscriber: subscriber@test.com / password123 (T2)")
+    console.log("  Premium:   premium@test.com / password123 (T3)")
+    console.log("\n📊 Data Created:")
+    console.log(`  - ${contentItems.length} content items (free + T1/T2/T3 premium)`)
+    console.log(`  - ${commentBatches.length} comment batches`)
+    console.log(`  - ${sentimentSnapshots.length} sentiment snapshots`)
+    console.log(`  - ${ideas.length} idea suggestions (new, saved, implemented)`)
+    console.log(`  - ${subscribers.length} subscriptions`)
+    console.log("  - Multiple activity logs")
+    console.log("\n" + "=".repeat(50) + "\n")
 
     process.exit(0)
   } catch (error) {

@@ -100,7 +100,7 @@ export default function LoginPage() {
     <main className="min-h-screen bg-paper-system flex items-center justify-center px-6 relative">
       <div className="absolute top-6 left-6 z-50">
         <Link href="/" className="block">
-          <Logo showText={true} size="md" textGradient={true} />
+          <Logo size="md" />
         </Link>
       </div>
       <div className="w-full max-w-md flex flex-col items-center">
@@ -167,7 +167,8 @@ export default function LoginPage() {
           <Button 
             type="submit" 
             disabled={isLoading} 
-            className="w-[320px] bg-primary text-white hover:bg-primary/90 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed h-11"
+            className="w-[320px] text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed h-11 hover:opacity-90 transition-opacity"
+            style={{ backgroundColor: 'rgb(117, 63, 234)' }}
           >
             {isLoading ? "Logging in..." : "Log in"}
           </Button>

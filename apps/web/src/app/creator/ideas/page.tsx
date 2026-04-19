@@ -75,9 +75,9 @@ export default function IdeasPage() {
           setSnapshots(snapshotsResult.sentimentSnapshots)
           
           const batchIds = [...new Set(snapshotsResult.sentimentSnapshots.map((s: SentimentSnapshot) => s.commentBatchId))] as string[]
-          const batchesMap: Record<string, CommentBatch> = {}
           
-          for (const batchId of batchIds) {
+          // Fetch all batches in parallel for better performance
+          const batchPromises = batchIds.map(async (batchId) => {
             try {
               const batchResult = await graphqlQuery(`
                 query {
@@ -89,13 +89,20 @@ export default function IdeasPage() {
                   }
                 }
               `)
-              if (batchResult?.commentBatch) {
-                batchesMap[batchId] = batchResult.commentBatch as CommentBatch
-              }
+              return batchResult?.commentBatch ? { batchId, batch: batchResult.commentBatch as CommentBatch } : null
             } catch (error) {
               console.error(`Error fetching batch ${batchId}:`, error)
+              return null
             }
-          }
+          })
+          
+          const batchResults = await Promise.all(batchPromises)
+          const batchesMap: Record<string, CommentBatch> = {}
+          batchResults.forEach((result) => {
+            if (result) {
+              batchesMap[result.batchId] = result.batch
+            }
+          })
           setBatches(batchesMap)
         }
 
@@ -191,7 +198,7 @@ export default function IdeasPage() {
   }
 
   const getStatusColor = (status: string) => {
-    return IDEA_STATUS_COLORS[status] || "bg-slate-700/30 text-slate-300 border-slate-700/50"
+    return IDEA_STATUS_COLORS[status] || "bg-gray-100 text-gray-700 border-gray-200"
   }
 
   const organizeBySnapshot = (): SnapshotWithIdeas[] => {
@@ -224,60 +231,60 @@ export default function IdeasPage() {
 
   if (loading) {
     return (
-      <div className="space-y-8">
+      <div className="space-y-8 px-6 py-8 min-h-full bg-paper-system">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Monetization Ideas</h1>
-          <p className="text-slate-400">AI-generated content ideas based on your audience sentiment.</p>
+          <h1 className="text-3xl font-semibold text-gray-900 mb-2 tracking-tight">Monetization Ideas</h1>
+          <p className="text-gray-600">AI-generated content ideas based on your audience sentiment.</p>
         </div>
-        <Card className="bg-slate-800/50 border-slate-700 p-12 text-center">
-          <p className="text-slate-400">Loading...</p>
+        <Card className="bg-white border-gray-200 p-12 text-center">
+          <p className="text-gray-600">Loading...</p>
         </Card>
       </div>
     )
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 px-6 py-8 min-h-full bg-paper-system">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-white mb-2">Monetization Ideas</h1>
-        <p className="text-slate-400">AI-generated content ideas organized by comment analysis.</p>
+        <h1 className="text-3xl font-semibold text-gray-900 mb-2 tracking-tight">Monetization Ideas</h1>
+        <p className="text-gray-600">AI-generated content ideas organized by comment analysis.</p>
       </div>
 
       {/* Generate Ideas Section */}
       {snapshots.length > 0 ? (
-        <Card className="bg-slate-800/50 border-slate-700 p-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Generate Ideas from Analysis</h2>
+        <Card className="bg-white border-gray-200 p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Generate Ideas from Analysis</h2>
           <div className="space-y-4">
             {snapshots.map((snapshot) => {
               const snapshotIdeas = ideas.filter((idea) => idea.sourceSnapshotId === snapshot._id)
               const batch = batches[snapshot.commentBatchId]
               
               return (
-                <div key={snapshot._id} className="border border-slate-700 rounded-lg p-4">
+                <div key={snapshot._id} className="border border-gray-200 rounded-lg p-4 bg-white">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <TrendingUp className="w-5 h-5 text-green-400" />
-                        <span className="text-white font-medium">
+                        <span className="text-gray-900 font-medium">
                           Sentiment Score: {(snapshot.overallSentimentScore * 100).toFixed(0)}%
                         </span>
                         {snapshotIdeas.length > 0 && (
-                          <span className="px-2 py-1 bg-purple-700/30 rounded text-xs text-purple-300">
+                          <span className="px-2 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs text-primary font-medium">
                             {snapshotIdeas.length} ideas
                           </span>
                         )}
                       </div>
                       {batch && (
-                        <div className="flex items-center gap-2 text-sm text-slate-400 mb-2">
+                        <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
                           <MessageSquare className="w-4 h-4" />
                           <span>{batch.rawComments.length} comments</span>
-                          <span className="text-slate-500">•</span>
+                          <span className="text-gray-400">•</span>
                           <Calendar className="w-4 h-4" />
                           <span>{new Date(batch.importedAt).toLocaleDateString()}</span>
                         </div>
                       )}
-                      <div className="flex gap-4 text-sm text-slate-400">
+                      <div className="flex gap-4 text-sm text-gray-600">
                         <span className="flex items-center gap-1">
                           <TrendingUp className="w-3.5 h-3.5 text-green-400" />
                           {snapshot.positiveCount} positive
@@ -287,18 +294,18 @@ export default function IdeasPage() {
                           {snapshot.negativeCount} negative
                         </span>
                         <span className="flex items-center gap-1">
-                          <Users className="w-3.5 h-3.5 text-slate-400" />
+                          <Users className="w-3.5 h-3.5 text-gray-400" />
                           {snapshot.neutralCount} neutral
                         </span>
                       </div>
                       {snapshot.topKeywords.length > 0 && (
                         <div className="mt-2">
-                          <p className="text-xs text-slate-500 mb-1">Top Keywords:</p>
+                          <p className="text-xs text-gray-600 mb-1">Top Keywords:</p>
                           <div className="flex flex-wrap gap-2">
                             {snapshot.topKeywords.slice(0, 5).map((keyword, idx) => (
                               <span
                                 key={idx}
-                                className="px-2 py-1 bg-slate-700/50 rounded text-xs text-slate-300"
+                                className="px-3 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs text-primary font-medium"
                               >
                                 {keyword}
                               </span>
@@ -317,7 +324,7 @@ export default function IdeasPage() {
                             }
                           }}
                           variant="outline"
-                          className="border-purple-600/50 text-purple-300 hover:text-purple-300 hover:bg-purple-600/10"
+                          className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50"
                           size="sm"
                         >
                           View Ideas ({snapshotIdeas.length})
@@ -326,8 +333,7 @@ export default function IdeasPage() {
                       <Button
                         onClick={() => handleGenerateIdeas(snapshot._id)}
                         disabled={generating === snapshot._id}
-                        variant="outline"
-                        className="border-purple-600/50 text-purple-300 hover:text-purple-300 hover:bg-purple-600/10"
+                        className="bg-primary text-primary-foreground hover:bg-primary/90"
                         size="sm"
                       >
                         {generating === snapshot._id ? "Generating..." : "Generate Ideas"}
@@ -337,10 +343,10 @@ export default function IdeasPage() {
                   
                   {/* Expandable ideas preview */}
                   {snapshotIdeas.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-slate-700">
+                    <div className="mt-3 pt-3 border-t border-gray-200">
                       <button
                         onClick={() => toggleSnapshot(snapshot._id)}
-                        className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition w-full"
+                        className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition w-full"
                       >
                         {expandedSnapshots.has(snapshot._id) ? (
                           <ChevronUp className="w-4 h-4" />
@@ -353,14 +359,14 @@ export default function IdeasPage() {
                       {expandedSnapshots.has(snapshot._id) && (
                         <div className="mt-3 space-y-2">
                           {snapshotIdeas.map((idea) => (
-                            <Card key={idea._id} className="bg-slate-900/50 border-slate-600 p-3">
+                            <Card key={idea._id} className="bg-gray-50 border-gray-200 p-3">
                               <div className="flex items-start gap-3">
-                                <div className="p-1.5 bg-purple-600/20 rounded text-purple-400">
+                                <div className="p-1.5 bg-primary/10 rounded text-primary">
                                   {getIdeaTypeIcon(idea.ideaType)}
                                 </div>
                                 <div className="flex-1">
-                                  <h4 className="text-sm font-semibold text-white mb-1">{idea.title}</h4>
-                                  <p className="text-xs text-slate-400 line-clamp-2">{idea.description}</p>
+                                  <h4 className="text-sm font-semibold text-gray-900 mb-1">{idea.title}</h4>
+                                  <p className="text-xs text-gray-600 line-clamp-2">{idea.description}</p>
                                 </div>
                               </div>
                             </Card>
@@ -375,14 +381,14 @@ export default function IdeasPage() {
           </div>
         </Card>
       ) : (
-        <Card className="bg-slate-800/50 border-slate-700 p-12 text-center">
-          <Sparkles className="w-12 h-12 text-purple-400 mx-auto mb-4 opacity-50" />
-          <h3 className="text-xl font-semibold text-white mb-2">No Sentiment Analysis Yet</h3>
-          <p className="text-slate-400 mb-6">
+        <Card className="bg-white border-gray-200 p-12 text-center">
+          <Sparkles className="w-12 h-12 text-primary mx-auto mb-4 opacity-50" />
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No Sentiment Analysis Yet</h3>
+          <p className="text-gray-600 mb-6">
             Import and analyze audience comments first to generate personalized content ideas.
           </p>
           <Link href="/creator/audience">
-            <Button variant="outline" className="border-purple-600/50 text-purple-300 hover:bg-purple-600/10">
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
               Go to Audience Analysis
             </Button>
           </Link>
@@ -392,19 +398,19 @@ export default function IdeasPage() {
       {/* Ideas Modal with Tabs */}
       {selectedSnapshot && (
         <Dialog open={!!selectedSnapshot} onOpenChange={() => setSelectedSnapshot(null)}>
-          <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto bg-slate-900 border-slate-700">
+          <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto bg-white border-gray-200">
             <DialogHeader>
-              <DialogTitle className="text-white">
+              <DialogTitle className="text-gray-900">
                 Ideas from {selectedSnapshot.batch ? new Date(selectedSnapshot.batch.importedAt).toLocaleDateString() : 'Analysis'}
               </DialogTitle>
-              <DialogDescription className="text-slate-400">
+              <DialogDescription className="text-gray-600">
                 {selectedSnapshot.ideas.length} AI-generated ideas based on {selectedSnapshot.batch?.rawComments.length || 0} comments
               </DialogDescription>
             </DialogHeader>
             
             {selectedSnapshot.ideas.length === 3 ? (
               <Tabs defaultValue="0" className="mt-4">
-                <TabsList className="grid w-full grid-cols-3 bg-slate-800">
+                <TabsList className="grid w-full grid-cols-3 bg-gray-100">
                   {selectedSnapshot.ideas.map((idea, index) => (
                     <TabsTrigger 
                       key={idea._id} 
@@ -419,7 +425,7 @@ export default function IdeasPage() {
                 {selectedSnapshot.ideas.map((idea, index) => (
                   <TabsContent key={idea._id} value={index.toString()} className="mt-4">
                     <Card 
-                      className="bg-slate-800/50 border-slate-700 p-5 cursor-pointer hover:bg-slate-800/70 transition-colors"
+                      className="bg-white border-gray-200 p-5 cursor-pointer hover:bg-gray-50 transition-colors"
                       onClick={() => {
                         setSelectedIdea(idea)
                         setSelectedSnapshot(null)
@@ -432,27 +438,27 @@ export default function IdeasPage() {
                         <div className="flex-1">
                           <div className="flex items-start justify-between mb-2">
                             <div>
-                              <h3 className="text-lg font-semibold text-white mb-1">{idea.title}</h3>
-                              <div className="flex items-center gap-3 text-sm text-slate-400 mb-2">
+                              <h3 className="text-lg font-semibold text-gray-900 mb-1">{idea.title}</h3>
+                              <div className="flex items-center gap-3 text-sm text-gray-600 mb-2">
                                 <span className={`px-2 py-1 rounded border ${getStatusColor(idea.status)}`}>
                                   {getStatusLabel(idea.status)}
                                 </span>
-                                <span className="px-2 py-1 bg-slate-700/50 rounded">
+                                <span className="px-2 py-1 bg-gray-100 text-gray-700 border border-gray-200 rounded-full font-medium">
                                   {getIdeaTypeLabel(idea.ideaType)}
                                 </span>
                                 {idea.tierTarget && idea.tierTarget !== "all" && (
-                                  <span className="px-2 py-1 bg-blue-700/30 rounded text-blue-300">
+                                  <span className="px-2 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full font-medium">
                                     Tier {idea.tierTarget}
                                   </span>
                                 )}
                               </div>
                             </div>
                           </div>
-                          <p className="text-slate-300 mb-4">{idea.description}</p>
+                          <p className="text-gray-700 mb-4">{idea.description}</p>
                           {idea.outline && idea.outline.length > 0 && (
                             <div>
-                              <p className="text-sm font-medium text-slate-400 mb-2">Content Outline:</p>
-                              <ul className="list-disc list-inside space-y-1 text-sm text-slate-300">
+                              <p className="text-sm font-medium text-gray-600 mb-2">Content Outline:</p>
+                              <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
                                 {idea.outline.map((point, idx) => (
                                   <li key={idx}>{point}</li>
                                 ))}
@@ -461,8 +467,8 @@ export default function IdeasPage() {
                           )}
                         </div>
                       </div>
-                      <div className="mt-4 pt-4 border-t border-slate-700">
-                        <p className="text-xs text-slate-400 text-center">Click to view full details</p>
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <p className="text-xs text-gray-600 text-center">Click to view full details</p>
                       </div>
                     </Card>
                   </TabsContent>
@@ -471,35 +477,35 @@ export default function IdeasPage() {
             ) : (
               <div className="space-y-4 mt-4">
                 {selectedSnapshot.ideas.map((idea) => (
-                  <Card key={idea._id} className="bg-slate-800/50 border-slate-700 p-5">
+                  <Card key={idea._id} className="bg-white border-gray-200 p-5">
                     <div className="flex items-start gap-4">
-                      <div className="p-2 bg-purple-600/20 rounded-lg text-purple-400">
+                      <div className="p-2 bg-primary/10 rounded-lg text-primary">
                         {getIdeaTypeIcon(idea.ideaType)}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-start justify-between mb-2">
                           <div>
-                            <h3 className="text-lg font-semibold text-white mb-1">{idea.title}</h3>
-                            <div className="flex items-center gap-3 text-sm text-slate-400 mb-2">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-1">{idea.title}</h3>
+                            <div className="flex items-center gap-3 text-sm text-gray-600 mb-2">
                               <span className={`px-2 py-1 rounded border ${getStatusColor(idea.status)}`}>
                                 {getStatusLabel(idea.status)}
                               </span>
-                              <span className="px-2 py-1 bg-slate-700/50 rounded">
+                              <span className="px-2 py-1 bg-gray-100 text-gray-700 border border-gray-200 rounded-full font-medium">
                                 {getIdeaTypeLabel(idea.ideaType)}
                               </span>
                               {idea.tierTarget && idea.tierTarget !== "all" && (
-                                <span className="px-2 py-1 bg-blue-700/30 rounded text-blue-300">
+                                <span className="px-2 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full font-medium">
                                   Tier {idea.tierTarget}
                                 </span>
                               )}
                             </div>
                           </div>
                         </div>
-                        <p className="text-slate-300 mb-4">{idea.description}</p>
+                        <p className="text-gray-700 mb-4">{idea.description}</p>
                         {idea.outline && idea.outline.length > 0 && (
                           <div>
-                            <p className="text-sm font-medium text-slate-400 mb-2">Content Outline:</p>
-                            <ul className="list-disc list-inside space-y-1 text-sm text-slate-300">
+                            <p className="text-sm font-medium text-gray-900 mb-2">Content Outline:</p>
+                            <ul className="list-disc list-inside space-y-1 text-sm text-gray-600">
                               {idea.outline.map((point, idx) => (
                                 <li key={idx}>{point}</li>
                               ))}
@@ -517,7 +523,7 @@ export default function IdeasPage() {
               <Button
                 onClick={() => setSelectedSnapshot(null)}
                 variant="outline"
-                className="border-slate-600 text-slate-300"
+                className="border-gray-300 text-gray-700 hover:text-gray-900"
               >
                 Close
               </Button>
@@ -529,39 +535,39 @@ export default function IdeasPage() {
       {/* Individual Idea Modal */}
       {selectedIdea && (
         <Dialog open={!!selectedIdea} onOpenChange={() => setSelectedIdea(null)}>
-          <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto bg-slate-900 border-slate-700">
+          <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto bg-white border-gray-200">
             <DialogHeader>
-              <DialogTitle className="text-white">{selectedIdea.title}</DialogTitle>
-              <DialogDescription className="text-slate-400">
+              <DialogTitle className="text-gray-900">{selectedIdea.title}</DialogTitle>
+              <DialogDescription className="text-gray-600">
                 {getIdeaTypeLabel(selectedIdea.ideaType)} • {getStatusLabel(selectedIdea.status)}
               </DialogDescription>
             </DialogHeader>
             
             <div className="mt-4 space-y-4">
-              <Card className="bg-slate-800/50 border-slate-700 p-5">
+              <Card className="bg-white border-gray-200 p-5">
                 <div className="flex items-start gap-4">
-                  <div className="p-2 bg-purple-600/20 rounded-lg text-purple-400">
+                  <div className="p-2 bg-primary/10 rounded-lg text-primary">
                     {getIdeaTypeIcon(selectedIdea.ideaType)}
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 text-sm text-slate-400 mb-4">
-                      <span className={`px-2 py-1 rounded border ${getStatusColor(selectedIdea.status)}`}>
+                    <div className="flex items-center gap-3 text-sm text-gray-600 mb-4">
+                      <span className={`px-2 py-1 rounded-full border ${getStatusColor(selectedIdea.status)}`}>
                         {getStatusLabel(selectedIdea.status)}
                       </span>
-                      <span className="px-2 py-1 bg-slate-700/50 rounded">
+                      <span className="px-2 py-1 bg-gray-100 text-gray-700 border border-gray-200 rounded-full font-medium">
                         {getIdeaTypeLabel(selectedIdea.ideaType)}
                       </span>
                       {selectedIdea.tierTarget && selectedIdea.tierTarget !== "all" && (
-                        <span className="px-2 py-1 bg-blue-700/30 rounded text-blue-300">
+                        <span className="px-2 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full font-medium">
                           Tier {selectedIdea.tierTarget}
                         </span>
                       )}
                     </div>
-                    <p className="text-slate-300 mb-4 text-lg">{selectedIdea.description}</p>
+                    <p className="text-gray-700 mb-4 text-lg">{selectedIdea.description}</p>
                     {selectedIdea.outline && selectedIdea.outline.length > 0 && (
                       <div>
-                        <p className="text-sm font-medium text-slate-400 mb-3">Content Outline:</p>
-                        <ul className="list-disc list-inside space-y-2 text-sm text-slate-300">
+                        <p className="text-sm font-medium text-gray-900 mb-3">Content Outline:</p>
+                        <ul className="list-disc list-inside space-y-2 text-sm text-gray-600">
                           {selectedIdea.outline.map((point, idx) => (
                             <li key={idx} className="text-base">{point}</li>
                           ))}
@@ -577,7 +583,7 @@ export default function IdeasPage() {
               <Button
                 onClick={() => setSelectedIdea(null)}
                 variant="outline"
-                className="border-slate-600 text-slate-300"
+                className="border-gray-300 text-gray-700 hover:text-gray-900"
               >
                 Close
               </Button>
@@ -587,8 +593,8 @@ export default function IdeasPage() {
       )}
 
       {ideas.length === 0 && snapshots.length > 0 && (
-        <Card className="bg-slate-800/50 border-slate-700 p-6">
-          <p className="text-slate-400 text-center">
+        <Card className="bg-white border-gray-200 p-6">
+          <p className="text-gray-600 text-center">
             No ideas generated yet. Click "Generate Ideas" above to create AI-powered content suggestions.
           </p>
         </Card>

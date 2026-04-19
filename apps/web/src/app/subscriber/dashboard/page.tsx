@@ -29,7 +29,7 @@ export default function SubscriberDashboard() {
 
   useEffect(() => {
     checkAuth()
-  }, [])
+  }, [checkAuth])
 
   useEffect(() => {
     if (user && !user.role.includes("SUBSCRIBER")) {
@@ -116,7 +116,7 @@ export default function SubscriberDashboard() {
               // T3 can access T1, T2, T3
               // T2 can access T1, T2
               // T1 can only access T1
-              const tier = String(user.role || "").replace("SUBSCRIBER_", "")
+              const tier = String(user?.role || "T1").replace("SUBSCRIBER_", "")
               const accessibleTiers = TIER_HIERARCHY[tier] || []
 
               return contentResult.contentItems
@@ -196,7 +196,7 @@ export default function SubscriberDashboard() {
   const getTierBadge = (tier?: string) => {
     if (!tier) return null
     return (
-      <span className={`px-2 py-0.5 text-xs rounded ${TIER_COLORS[tier as keyof typeof TIER_COLORS] || "bg-slate-500/20 text-slate-400"}`}>
+      <span className={`px-2 py-0.5 text-xs rounded ${TIER_COLORS[tier as keyof typeof TIER_COLORS] || "bg-gray-100 text-gray-600"}`}>
         {tier} Only
       </span>
     )
@@ -244,14 +244,14 @@ export default function SubscriberDashboard() {
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-950">
-        <p className="text-slate-300">Loading...</p>
+      <div className="flex items-center justify-center min-h-screen bg-paper-system">
+        <p className="text-gray-600">Loading...</p>
       </div>
     )
   }
 
   return (
-    <div className="h-screen bg-gradient-to-b from-slate-950 to-slate-900 flex flex-col overflow-hidden">
+    <div className="h-screen bg-paper-system flex flex-col overflow-hidden">
       <SubscriberNavbar />
 
       {/* Content - Scrollable */}
@@ -260,8 +260,8 @@ export default function SubscriberDashboard() {
         {/* Subscriptions Sidebar */}
         {subscriptions.length > 0 && (
           <aside className="hidden lg:block w-64 shrink-0">
-            <Card className="bg-slate-800/50 border-slate-700 p-4">
-              <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <Card className="bg-white border-gray-200 p-4">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Users className="w-5 h-5" />
                 My Subscriptions
               </h2>
@@ -293,17 +293,17 @@ export default function SubscriberDashboard() {
                     <Link
                       key={sub._id}
                       href={`/subscriber/creator/${creatorId}`}
-                      className="block p-3 rounded-lg bg-slate-900/50 hover:bg-slate-900 transition-colors"
+                      className="block p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-200"
                     >
-                      <p className="text-white font-medium text-sm">{sub.creator?.displayName || "Unknown"}</p>
-                      <p className="text-xs text-slate-400 mt-1">{sub.tier}</p>
+                      <p className="text-gray-900 font-medium text-sm">{sub.creator?.displayName || "Unknown"}</p>
+                      <p className="text-xs text-gray-600 mt-1">{sub.tier}</p>
                     </Link>
                   )
                 }).filter(Boolean)}
               </div>
               <Button
                 variant="outline"
-                className="w-full mt-4 border-slate-600 text-slate-300"
+                className="w-full mt-4 border-gray-300 text-gray-700"
                 onClick={() => router.push("/subscriber/discover")}
               >
                 <Search className="w-4 h-4 mr-2" />
@@ -318,8 +318,8 @@ export default function SubscriberDashboard() {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-3xl font-bold text-white mb-2">Premium Content Library</h1>
-                <p className="text-slate-400">
+                <h1 className="text-3xl font-semibold text-gray-900 mb-2 tracking-tight">Premium Content Library</h1>
+                <p className="text-gray-600">
                   Access exclusive content from your subscribed creators.
                 </p>
               </div>
@@ -328,7 +328,7 @@ export default function SubscriberDashboard() {
                   variant={showNewOnly ? "default" : "outline"}
                   size="sm"
                   onClick={() => setShowNewOnly(!showNewOnly)}
-                  className={showNewOnly ? "bg-blue-500" : "border-slate-600"}
+                  className={showNewOnly ? "bg-primary" : "border-gray-300"}
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
                   New ({newContentItems.length})
@@ -349,14 +349,14 @@ export default function SubscriberDashboard() {
             {/* Filters */}
             <div className="mb-6 flex flex-wrap gap-4 items-center">
               <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-slate-400" />
-                <span className="text-sm text-slate-400">Filters:</span>
+                <Filter className="w-4 h-4 text-gray-600" />
+                <span className="text-sm text-gray-600">Filters:</span>
               </div>
               <Select value={filterCreator} onValueChange={setFilterCreator}>
-                <SelectTrigger className="w-[180px] bg-slate-900 border-slate-600 text-white">
+                <SelectTrigger className="w-[180px] bg-white border-gray-300 text-gray-900">
                   <SelectValue placeholder="All Creators" />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
+                <SelectContent className="bg-white border-gray-200">
                   <SelectItem value="all">All Creators</SelectItem>
                   {uniqueCreators.map((creator) => {
                     const creatorId = creator?._id 
@@ -371,10 +371,10 @@ export default function SubscriberDashboard() {
                 </SelectContent>
               </Select>
               <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="w-[150px] bg-slate-900 border-slate-600 text-white">
+                <SelectTrigger className="w-[150px] bg-white border-gray-300 text-gray-900">
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
+                <SelectContent className="bg-white border-gray-200">
                   <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="video">Videos</SelectItem>
                   <SelectItem value="course">Courses</SelectItem>
@@ -390,7 +390,7 @@ export default function SubscriberDashboard() {
                     setFilterCreator("all")
                     setFilterType("all")
                   }}
-                  className="text-slate-400 hover:text-white"
+                  className="text-gray-600 hover:text-gray-900"
                 >
                   <X className="w-4 h-4 mr-1" />
                   Clear
@@ -401,7 +401,7 @@ export default function SubscriberDashboard() {
 
           {loading ? (
             <div className="text-center py-12">
-              <p className="text-slate-400">Loading content...</p>
+              <p className="text-gray-600">Loading content...</p>
             </div>
           ) : displayedContent.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -415,11 +415,11 @@ export default function SubscriberDashboard() {
                 return (
                 <Card
                   key={item._id}
-                  className="bg-slate-800/50 border-slate-700 hover:border-blue-500 transition overflow-hidden flex flex-col group cursor-pointer"
+                  className="bg-white border-gray-200 hover:border-primary transition overflow-hidden flex flex-col group cursor-pointer shadow-sm"
                   onClick={() => !(item as any).isLocked && handleViewContent(item)}
                 >
                   {/* Thumbnail Image - YouTube Style */}
-                  <div className="relative w-full aspect-video bg-slate-900 overflow-hidden">
+                  <div className="relative w-full aspect-video bg-gray-100 overflow-hidden">
                     <img
                       src={thumbnailUrl}
                       alt={item.title}
@@ -467,28 +467,28 @@ export default function SubscriberDashboard() {
                     <div className="flex-1">
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <h3 className="text-sm font-semibold text-white mb-2 line-clamp-2 min-h-[2.5rem] group-hover:text-blue-400 transition-colors">
+                          <h3 className="text-sm font-semibold text-gray-900 mb-2 line-clamp-2 min-h-[2.5rem] group-hover:text-primary transition-colors">
                             {item.title}
                           </h3>
                         </TooltipTrigger>
-                        <TooltipContent className="bg-slate-800 text-white border-slate-700 max-w-xs z-50">
+                        <TooltipContent className="bg-white text-gray-900 border-gray-200 max-w-xs z-50">
                           <p className="whitespace-normal break-words">{item.title}</p>
                         </TooltipContent>
                       </Tooltip>
                       
-                      <p className="text-xs text-slate-400 mb-1">
+                      <p className="text-xs text-gray-600 mb-1">
                         {item.creator?.displayName || "Unknown Creator"}
                       </p>
                       
                       {item.description && (
-                        <p className="text-xs text-slate-500 mb-2 line-clamp-2">{item.description}</p>
+                        <p className="text-xs text-gray-600 mb-2 line-clamp-2">{item.description}</p>
                       )}
 
                       <div className="flex items-center justify-between mt-2">
                         <div className="flex items-center gap-2 flex-wrap">
                           {item.isPremium && getTierBadge(item.requiredTier)}
                         </div>
-                        <div className="flex items-center gap-1 text-slate-500 text-xs">
+                        <div className="flex items-center gap-1 text-gray-500 text-xs">
                           <Calendar className="w-3 h-3" />
                           {new Date(item.createdAt).toLocaleDateString()}
                         </div>
@@ -530,12 +530,12 @@ export default function SubscriberDashboard() {
               })}
           </div>
           ) : (
-            <Card className="bg-slate-800/50 border-slate-700 p-8 text-center">
+            <Card className="bg-white border-gray-200 p-8 text-center">
               {subscriptions.length === 0 ? (
                 <>
-                  <Search className="w-12 h-12 text-slate-500 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-white mb-2">No Subscriptions Yet</h3>
-                  <p className="text-slate-400 mb-4">
+                  <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Subscriptions Yet</h3>
+                  <p className="text-gray-600 mb-4">
                     Discover and subscribe to creators to see their exclusive content here.
                   </p>
                   <Button
@@ -548,11 +548,11 @@ export default function SubscriberDashboard() {
                 </>
               ) : (
                 <>
-                  <Lock className="w-12 h-12 text-slate-500 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-white mb-2">
+                  <Lock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
                     {showNewOnly ? "No New Content" : "No Content Available"}
                   </h3>
-                  <p className="text-slate-400 mb-4">
+                  <p className="text-gray-600 mb-4">
                     {showNewOnly
                       ? "No new content from the last 7 days. Check back soon!"
                       : "No content is available for your tier yet. Check back soon for exclusive content!"}
@@ -561,7 +561,7 @@ export default function SubscriberDashboard() {
                     <Button
                       variant="outline"
                       onClick={() => setShowNewOnly(false)}
-                      className="border-slate-600"
+                      className="border-gray-300"
                     >
                       Show All Content
                     </Button>
@@ -581,19 +581,19 @@ export default function SubscriberDashboard() {
           onClick={() => setSelectedContent(null)}
         >
           <Card
-            className="bg-slate-800 border-slate-700 p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-white border-gray-200 p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between mb-3">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   {getContentIcon(selectedContent.type)}
-                  <h2 className="text-2xl font-bold text-white">{selectedContent.title}</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">{selectedContent.title}</h2>
                 </div>
                 <div className="flex items-center gap-2 mb-2">
-                  <p className="text-slate-400 text-sm">by {selectedContent.creator?.displayName || "Unknown Creator"}</p>
+                  <p className="text-gray-600 text-sm">by {selectedContent.creator?.displayName || "Unknown Creator"}</p>
                   {selectedContent.creator?.niche && (
-                    <span className="text-xs text-slate-500">• {selectedContent.creator.niche}</span>
+                    <span className="text-xs text-gray-500">• {selectedContent.creator.niche}</span>
                   )}
                 </div>
               </div>
@@ -601,7 +601,7 @@ export default function SubscriberDashboard() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setSelectedContent(null)}
-                className="text-slate-400 hover:text-white"
+                className="text-gray-600 hover:text-gray-900"
                 title="Close"
               >
                 ×
@@ -609,7 +609,7 @@ export default function SubscriberDashboard() {
             </div>
 
             <div className="flex items-center gap-2 mb-3">
-              <span className="px-2 py-0.5 bg-slate-700 text-slate-300 text-xs rounded capitalize">
+              <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded capitalize">
                 {selectedContent.type}
               </span>
               {selectedContent.isPremium && (
@@ -618,7 +618,7 @@ export default function SubscriberDashboard() {
                   {getTierBadge(selectedContent.requiredTier)}
                 </>
               )}
-              <div className="flex items-center gap-1 text-xs text-slate-500 ml-auto">
+              <div className="flex items-center gap-1 text-xs text-gray-500 ml-auto">
                 <Calendar className="w-3 h-3" />
                 {new Date(selectedContent.createdAt).toLocaleDateString()}
               </div>
@@ -626,7 +626,7 @@ export default function SubscriberDashboard() {
 
             {selectedContent.description && (
               <div className="mb-3">
-                <p className="text-slate-300 text-sm leading-relaxed">{selectedContent.description}</p>
+                <p className="text-gray-700 text-sm leading-relaxed">{selectedContent.description}</p>
               </div>
             )}
 
@@ -636,8 +636,8 @@ export default function SubscriberDashboard() {
                   <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
                   <p className="text-xs text-blue-400 font-medium">External Content</p>
                 </div>
-                <p className="text-xs text-slate-400 break-all mb-1">{selectedContent.contentUrl}</p>
-                <p className="text-xs text-slate-500">Clicking the button below will open this link in a new tab.</p>
+                <p className="text-xs text-gray-600 break-all mb-1">{selectedContent.contentUrl}</p>
+                <p className="text-xs text-gray-500">Clicking the button below will open this link in a new tab.</p>
               </div>
             ) : (
               <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
@@ -645,7 +645,7 @@ export default function SubscriberDashboard() {
                   <Lock className="w-3.5 h-3.5 text-yellow-400" />
                   <p className="text-xs text-yellow-400">Content link not configured</p>
                 </div>
-                <p className="text-xs text-slate-400 mt-1">This content does not have an external link yet.</p>
+                <p className="text-xs text-gray-600 mt-1">This content does not have an external link yet.</p>
               </div>
             )}
 
@@ -688,7 +688,7 @@ export default function SubscriberDashboard() {
               </Button>
               <Button
                 variant="outline"
-                className="border-slate-600 text-slate-300 hover:text-white"
+                className="border-gray-300 text-gray-700 hover:text-gray-900"
                 onClick={() => setSelectedContent(null)}
               >
                 Back

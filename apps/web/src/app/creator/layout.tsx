@@ -189,12 +189,12 @@ export default function CreatorLayout({
   }
 
   return (
-    <div className="h-screen flex overflow-hidden">
+    <div className="h-screen flex overflow-hidden bg-paper-system">
       {/* Sidebar */}
       <aside
         className={`
           fixed lg:static h-screen left-0 z-50
-          bg-background/80 backdrop-blur-md border-r border-border/30
+          bg-white/80 backdrop-blur-md border-r border-gray-200
           transition-all duration-300 ease-in-out
           ${mobileMenuOpen ? "w-64" : sidebarCollapsed && !mobileMenuOpen ? "w-16 lg:w-16" : "w-64"}
           ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
@@ -202,10 +202,10 @@ export default function CreatorLayout({
       >
         <div className="h-full flex flex-col">
           {/* Header */}
-          <div className="p-5 border-b border-border/50 flex items-center justify-between">
+          <div className="p-5 border-b border-gray-200 flex items-center justify-between">
             {(!sidebarCollapsed || mobileMenuOpen) && (
               <Link href="/creator/dashboard">
-                <Logo showText={true} size="md" />
+                <Logo size="md" />
               </Link>
             )}
             {sidebarCollapsed && !mobileMenuOpen && (
@@ -263,7 +263,7 @@ export default function CreatorLayout({
           </nav>
 
           {/* User Profile */}
-          <div className="p-4 border-t border-border/50">
+          <div className="p-4 border-t border-gray-200">
             {(!sidebarCollapsed || mobileMenuOpen) ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -280,7 +280,7 @@ export default function CreatorLayout({
                     </div>
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 bg-background/95 backdrop-blur-md border-border/30 shadow-lg">
+                <DropdownMenuContent align="end" className="w-56 bg-white/95 backdrop-blur-md border-gray-200 shadow-lg">
                   <DropdownMenuLabel className="text-foreground">
                     <div>
                       <p className="font-medium">{user.name}</p>
@@ -316,7 +316,7 @@ export default function CreatorLayout({
                     </Avatar>
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 bg-background/95 backdrop-blur-md border-border/30 shadow-lg">
+                <DropdownMenuContent align="end" className="w-56 bg-white/95 backdrop-blur-md border-gray-200 shadow-lg">
                   <DropdownMenuLabel className="text-foreground">
                     <div>
                       <p className="font-medium">{user.name}</p>
@@ -348,15 +348,15 @@ export default function CreatorLayout({
       {/* Mobile Overlay */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-white/80 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-0 h-screen flex flex-col overflow-hidden">
+      <main className="flex-1 lg:ml-0 h-screen flex flex-col overflow-hidden bg-paper-system">
         {/* Desktop Header */}
-        <div className="hidden lg:flex items-center justify-between px-8 py-5 border-b border-border/30 bg-background/60 backdrop-blur-sm">
+        <div className="hidden lg:flex items-center justify-between px-8 py-5 border-b border-gray-200 bg-white/60 backdrop-blur-sm">
           <div className="flex-1 max-w-2xl">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
@@ -364,9 +364,9 @@ export default function CreatorLayout({
                 onClick={() => setCommandPaletteOpen(true)}
                 placeholder="Search pages, actions..."
                 readOnly
-                className="pl-9 pr-20 bg-background border-border text-foreground text-sm h-10 cursor-pointer hover:border-primary/30 transition-colors"
+                className="pl-9 pr-20 bg-white border-gray-200 text-foreground text-sm h-10 cursor-pointer hover:border-primary/30 transition-colors"
               />
-              <kbd className="absolute right-3 top-1/2 transform -translate-y-1/2 hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+              <kbd className="absolute right-3 top-1/2 transform -translate-y-1/2 hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border border-gray-200 bg-gray-50 px-1.5 font-mono text-[10px] font-medium text-gray-600">
                 <span className="text-xs">⌘</span>K
               </kbd>
             </div>
@@ -374,7 +374,7 @@ export default function CreatorLayout({
         </div>
 
         {/* Mobile Header */}
-        <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-md border-b border-border/30 p-4 flex items-center gap-3">
+        <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200 p-4 flex items-center gap-3">
           <button
             onClick={() => setMobileMenuOpen(true)}
             className="text-muted-foreground hover:text-foreground shrink-0"
@@ -382,7 +382,7 @@ export default function CreatorLayout({
             <Menu className="w-6 h-6" />
           </button>
           <Link href="/creator/dashboard" className="shrink-0">
-            <Logo showText={true} size="sm" textGradient={true} />
+            <Logo size="sm" />
           </Link>
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
@@ -390,7 +390,7 @@ export default function CreatorLayout({
               onClick={() => setCommandPaletteOpen(true)}
               placeholder="Search..."
               readOnly
-              className="pl-9 bg-background border-border text-foreground text-sm h-9 cursor-pointer hover:border-primary/30 transition-colors"
+              className="pl-9 bg-white border-gray-200 text-foreground text-sm h-9 cursor-pointer hover:border-primary/30 transition-colors"
             />
           </div>
           <DropdownMenu>
@@ -429,7 +429,7 @@ export default function CreatorLayout({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className={`pt-16 lg:pt-0 transition-all duration-300 flex-1 overflow-y-auto bg-slate-950`}>
+        <div className={`pt-16 lg:pt-0 transition-all duration-300 flex-1 overflow-y-auto bg-paper-system`}>
           <div className="p-4 sm:p-6 lg:p-8 h-full">{children}</div>
         </div>
       </main>

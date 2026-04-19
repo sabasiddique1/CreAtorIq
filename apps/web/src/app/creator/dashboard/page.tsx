@@ -136,20 +136,20 @@ export default function CreatorDashboard() {
   }
 
   return (
-    <div className="space-y-8 px-6 py-8 min-h-full">
+    <div className="space-y-8 px-6 py-8 min-h-full bg-paper-system">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-semibold text-foreground mb-2 tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back! Here's your community overview.</p>
+        <h1 className="text-3xl font-semibold text-gray-900 mb-2 tracking-tight">Dashboard</h1>
+        <p className="text-gray-600">Welcome back! Here's your community overview.</p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid md:grid-cols-3 gap-6">
-        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6 hover:border-primary/30 hover:shadow-md transition-all">
+        <Card className="bg-white border-gray-200 p-6 hover:border-primary/30 hover:shadow-md transition-all">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-muted-foreground text-sm mb-2">Total Subscribers</p>
-              <p className="text-3xl font-semibold text-foreground">
+              <p className="text-gray-600 text-sm mb-2">Total Subscribers</p>
+              <p className="text-3xl font-semibold text-gray-900">
                 {data?.totalSubscribers || 0}
               </p>
             </div>
@@ -157,11 +157,11 @@ export default function CreatorDashboard() {
           </div>
         </Card>
 
-        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6 hover:border-primary/30 hover:shadow-md transition-all">
+        <Card className="bg-white border-gray-200 p-6 hover:border-primary/30 hover:shadow-md transition-all">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-muted-foreground text-sm mb-2">Audience Sentiment</p>
-              <p className="text-3xl font-semibold text-foreground">
+              <p className="text-gray-600 text-sm mb-2">Audience Sentiment</p>
+              <p className="text-3xl font-semibold text-gray-900">
                 {data?.latestSentimentTrend
                   ? `${(data.latestSentimentTrend.overallSentimentScore * 100).toFixed(0)}%`
                   : "--"}
@@ -171,11 +171,11 @@ export default function CreatorDashboard() {
           </div>
         </Card>
 
-        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6 hover:border-primary/30 hover:shadow-md transition-all">
+        <Card className="bg-white border-gray-200 p-6 hover:border-primary/30 hover:shadow-md transition-all">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-muted-foreground text-sm mb-2">Content Items</p>
-              <p className="text-3xl font-semibold text-foreground">
+              <p className="text-gray-600 text-sm mb-2">Content Items</p>
+              <p className="text-3xl font-semibold text-gray-900">
                 {data?.recentContent?.length || 0}
               </p>
             </div>
@@ -187,8 +187,8 @@ export default function CreatorDashboard() {
       {/* Charts Grid */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Sentiment Trend Chart */}
-        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-foreground mb-6">Sentiment Trend</h2>
+        <Card className="bg-white border-gray-200 p-6 shadow-sm">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Sentiment Trend</h2>
           {data?.latestSentimentTrend ? (
             <ChartContainer
               config={{
@@ -226,10 +226,10 @@ export default function CreatorDashboard() {
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       return (
-                        <div className="rounded-lg border border-border/30 bg-background/90 backdrop-blur-sm p-3 shadow-lg">
+                        <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
                           <div className="grid gap-2">
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-muted-foreground text-sm">Score</span>
+                              <span className="text-gray-600 text-sm">Score</span>
                               <span className="font-semibold text-primary">
                                 {((payload[0].value as number) * 100).toFixed(1)}%
                               </span>
@@ -254,15 +254,15 @@ export default function CreatorDashboard() {
               </AreaChart>
             </ChartContainer>
           ) : (
-            <div className="h-[300px] bg-muted/20 rounded-md flex items-center justify-center border border-border/50">
-              <p className="text-muted-foreground">Import comments to see sentiment trends</p>
+            <div className="h-[300px] bg-gray-50 rounded-md flex items-center justify-center border border-gray-200">
+              <p className="text-gray-600">Import comments to see sentiment trends</p>
             </div>
           )}
         </Card>
 
         {/* Subscribers by Tier Chart */}
-        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-foreground mb-6">Subscribers by Tier</h2>
+        <Card className="bg-white border-gray-200 p-6 shadow-sm">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Subscribers by Tier</h2>
           {tierData.length > 0 && tierData.some(t => t.value > 0) ? (
             <ChartContainer
               config={{
@@ -303,18 +303,18 @@ export default function CreatorDashboard() {
                     if (active && payload && payload.length) {
                       const data = payload[0]
                       return (
-                        <div className="rounded-lg border border-border/30 bg-background/90 backdrop-blur-sm p-3 shadow-lg">
+                        <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
                           <div className="flex items-center gap-2 mb-1">
                             <div
                               className="w-3 h-3 rounded-full"
                               style={{ backgroundColor: data.payload.fill }}
                             />
-                            <span className="text-foreground font-medium">{data.name}</span>
+                            <span className="text-gray-900 font-medium">{data.name}</span>
                           </div>
-                          <div className="text-foreground text-sm">
+                          <div className="text-gray-900 text-sm">
                             {data.value} subscriber{data.value !== 1 ? 's' : ''}
                           </div>
-                          <div className="text-muted-foreground text-xs mt-1">
+                          <div className="text-gray-600 text-xs mt-1">
                             {((data.payload.percent || 0) * 100).toFixed(1)}% of total
                           </div>
                         </div>
@@ -334,8 +334,8 @@ export default function CreatorDashboard() {
               </PieChart>
             </ChartContainer>
           ) : (
-            <div className="h-[300px] bg-muted/20 rounded-md flex items-center justify-center border border-border/50">
-              <p className="text-muted-foreground">No subscribers yet</p>
+            <div className="h-[300px] bg-gray-50 rounded-md flex items-center justify-center border border-gray-200">
+              <p className="text-gray-600">No subscribers yet</p>
             </div>
           )}
         </Card>
@@ -343,34 +343,34 @@ export default function CreatorDashboard() {
 
       {/* Sentiment Breakdown */}
       {data?.latestSentimentTrend && (
-        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-foreground mb-6">Sentiment Breakdown</h2>
+        <Card className="bg-white border-gray-200 p-6 shadow-sm">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Sentiment Breakdown</h2>
           <div className="space-y-5">
-            <div className="flex items-center justify-between pb-4 border-b border-border/50">
-              <span className="text-muted-foreground">Overall Score</span>
+            <div className="flex items-center justify-between pb-4 border-b border-gray-200">
+              <span className="text-gray-600">Overall Score</span>
               <span className="text-2xl font-semibold text-primary">
                 {(data.latestSentimentTrend.overallSentimentScore * 100).toFixed(1)}%
               </span>
             </div>
             <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-5 bg-muted/30 rounded-lg border border-border/50">
-                <p className="text-muted-foreground text-sm mb-2">Positive</p>
+              <div className="text-center p-5 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-gray-600 text-sm mb-2">Positive</p>
                 <p className="text-2xl font-semibold text-primary">{data.latestSentimentTrend.positiveCount}</p>
               </div>
-              <div className="text-center p-5 bg-muted/30 rounded-lg border border-border/50">
-                <p className="text-muted-foreground text-sm mb-2">Negative</p>
+              <div className="text-center p-5 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-gray-600 text-sm mb-2">Negative</p>
                 <p className="text-2xl font-semibold text-destructive">{data.latestSentimentTrend.negativeCount}</p>
               </div>
-              <div className="text-center p-5 bg-muted/30 rounded-lg border border-border/50">
-                <p className="text-muted-foreground text-sm mb-2">Neutral</p>
-                <p className="text-2xl font-semibold text-muted-foreground">
+              <div className="text-center p-5 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-gray-600 text-sm mb-2">Neutral</p>
+                <p className="text-2xl font-semibold text-gray-600">
                   {data.latestSentimentTrend.neutralCount || 0}
                 </p>
               </div>
             </div>
             {data.latestSentimentTrend.topKeywords.length > 0 && (
               <div>
-                <p className="text-muted-foreground text-sm mb-3">Top Keywords</p>
+                <p className="text-gray-600 text-sm mb-3">Top Keywords</p>
                 <div className="flex flex-wrap gap-2">
                   {data.latestSentimentTrend.topKeywords.slice(0, 5).map((keyword, i) => (
                     <span
@@ -389,50 +389,50 @@ export default function CreatorDashboard() {
 
       {/* Quick Actions */}
       <div className="grid md:grid-cols-2 gap-6">
-        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-foreground mb-5">Recent Content</h3>
+        <Card className="bg-white border-gray-200 p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-900 mb-5">Recent Content</h3>
           {data?.recentContent && data.recentContent.length > 0 ? (
             <div className="space-y-4">
               {data.recentContent.slice(0, 3).map((item) => (
-                <div key={item._id} className="border-b border-border/50 pb-4 last:border-0 last:pb-0">
-                  <p className="text-foreground font-medium mb-1">{item.title}</p>
-                  <p className="text-muted-foreground text-sm">
+                <div key={item._id} className="border-b border-gray-200 pb-4 last:border-0 last:pb-0">
+                  <p className="text-gray-900 font-medium mb-1">{item.title}</p>
+                  <p className="text-gray-600 text-sm">
                     {item.type} • {item.isPremium ? "Premium" : "Free"}
                   </p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground">No content yet. Create your first item to get started.</p>
+            <p className="text-gray-600">No content yet. Create your first item to get started.</p>
           )}
         </Card>
 
-        <Card className="bg-background/80 backdrop-blur-sm border-border/30 p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-foreground mb-5">Suggested Ideas</h3>
+        <Card className="bg-white border-gray-200 p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-900 mb-5">Suggested Ideas</h3>
           {data?.suggestedIdeas && data.suggestedIdeas.length > 0 ? (
             <div className="space-y-4">
               {data.suggestedIdeas.slice(0, 3).map((idea) => (
-                <div key={idea._id} className="border-b border-border/50 pb-4 last:border-0 last:pb-0">
-                  <p className="text-foreground font-medium mb-1.5">{idea.title}</p>
-                  <p className="text-muted-foreground text-sm line-clamp-2 mb-2">{idea.description}</p>
+                <div key={idea._id} className="border-b border-gray-200 pb-4 last:border-0 last:pb-0">
+                  <p className="text-gray-900 font-medium mb-1.5">{idea.title}</p>
+                  <p className="text-gray-600 text-sm line-clamp-2 mb-2">{idea.description}</p>
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-1 bg-primary/10 border border-primary/20 text-primary text-xs rounded-md font-medium">
                       {idea.ideaType.replace("_", " ")}
                     </span>
-                    <span className="px-2.5 py-1 bg-muted text-muted-foreground text-xs rounded-md font-medium">
+                    <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs rounded-md font-medium">
                       {idea.status}
                     </span>
                   </div>
                 </div>
               ))}
               {data.suggestedIdeas.length > 3 && (
-                <p className="text-muted-foreground text-sm mt-2">
+                <p className="text-gray-600 text-sm mt-2">
                   +{data.suggestedIdeas.length - 3} more ideas
                 </p>
               )}
             </div>
           ) : (
-            <p className="text-muted-foreground">No ideas yet. Generate ideas from the Ideas page after analyzing comments.</p>
+            <p className="text-gray-600">No ideas yet. Generate ideas from the Ideas page after analyzing comments.</p>
           )}
         </Card>
       </div>
